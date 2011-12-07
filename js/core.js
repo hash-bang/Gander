@@ -60,8 +60,8 @@ $(function() {
 					$.gander.display($(this).attr('rel'));
 				});
 				$.gander.current_offset = 0;
-				//$.gander.thumbzoom('refresh');
-				if (makethumb) // Still more work to do
+				$.gander.thumbzoom('refresh');
+				if (makethumb > 0) // Still more work to do
 					$.gander.refresh();
 			});
 		},
@@ -121,7 +121,7 @@ $(function() {
 			$.gander.display($(list[offset]).attr('rel'));
 		},
 		thumbzoom: function(direction) {
-			var zoom = $.gander.current_zoom;
+			var zoom = $.gander.current_thumbzoom;
 			var adjust_zoom = 10;
 			switch(direction) {
 				case 'in':
@@ -136,9 +136,12 @@ $(function() {
 					zoom = direction;
 					zoom = $.gander.adjust(zoom, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
-			if (direction != 'refresh' && zoom == $.gander.current_zoom) return;
-			$.gander.current_zoom = zoom;
-			$('#list li img').attr({width: zoom + 'px', height: zoom + 'px'});
+			if (direction != 'refresh' && zoom == $.gander.current_thumbzoom) return;
+			$.gander.current_thumbzoom = zoom;
+			$('#list li img').each(function() {
+				var item = $(this);
+				item.attr((item.height() > item.width()) ? 'height' : 'width', zoom + 'px');
+			});
 		},
 		display: function(path) {
 			if (!path) { // No path specified - figure it out
@@ -159,5 +162,4 @@ $(function() {
 	}});
 	$.gander.init();
 	$.gander.cd('/');
-	$.gander.zoom(100);
 });
