@@ -105,24 +105,33 @@ switch ($_REQUEST['cmd']) {
 		$_REQUEST['path'] = ltrim($_REQUEST['path'], '/');
 
 		chdir(GANDER_PATH . $_REQUEST['path']);
-		$out = array();
+		$folders = array();
+		$files = array();
 		$mkthumb = isset($_REQUEST['thumbs']) && $_REQUEST['thumbs'];
 		foreach (glob('*') as $file) {
 			$path = substr("{$_REQUEST['path']}/$file", 1);
 			if (!$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)) { // Thumb didn't return anything - try to suggest something else
-				if (is_dir($path)) {
-					$thumb = 'images/icons/_folder.png';
-				} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) {
+				if (is_dir($path)) { // Folder
+					$folders[$path] = array(
+						'title' => basename($file),
+						'thumb' => 'images/icons/_folder.png',
+					);
+				} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) { // Thumb found
 					$thumb = GANDER_ICONS_WEB . basename($tpath);
-				} else
+					$files[$path] = array(
+						'title' => basename($file),
+						'thumb' => $thumb,
+					);
+				} else { // No thumb available
 					$thumb = 'images/icons/_unknown.png';
+					$files[$path] = array(
+						'title' => basename($file),
+						'thumb' => $thumb,
+					);
+				}
 			}
-			$out[$path] = array(
-				'title' => basename($file),
-				'thumb' => $thumb,
-			);
 		}
-		echo json_encode($out);
+		echo json_encode(array_merge($folders, $files));
 		break;
 	case 'tree':
 		$out = array();
