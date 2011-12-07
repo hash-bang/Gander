@@ -53,11 +53,7 @@ $(function() {
 				$.each(json, function(file, data) {
 					if (data.makethumb)
 						makethumb++;
-					var newchild = list.append('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>');
-				});
-				$('#list li').click(function() {
-					$.gander.current_offset = $(this).index();
-					$.gander.display($(this).attr('rel'));
+					var newchild = list.append('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>').click($.gander._itemclick);
 				});
 				$.gander.current_offset = 0;
 				$.gander.thumbzoom('refresh');
@@ -73,22 +69,29 @@ $(function() {
 			console.log('REQUEST REFRESH');
 			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1}, function(json) {
 				var list = $('#list');
-				console.log('GOT REFRESH - ' + json.length + ' items');
+				var makethumb = 0;
 				$.each(json, function(file, data) {
 					console.log('REFRESH ' + file);
 					var existing = $('#list li[rel="' + file + '"]');
 					if (existing.length > 0) { // Item already exists
 						existing.find('img').attr('src', data.thumb);
 					} else { // New item
-						var newchild = list.append('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
+						var newchild = list.append('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>').click($.gander._itemclick);
 						// FIXME: this will not be in the correctly sorted place
 					}
 				});
-				$('#list li').click(function() {
-					$.gander.current_offset = $(this).index();
-					$.gander.display($(this).attr('rel'));
-				});
+				if (makethumb > 0) { // Still more work to do
+					console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
+					$.gander.refresh();
+				}
 			});
+		},
+		/**
+		* Internal function triggered when clicking on an icon
+		*/
+		_itemclick: function() {
+			$.gander.current_offset = $(this).index();
+			$.gander.display($(this).attr('rel'));
 		},
 		adjust: function(value, adjust, min, max) {
 			if (value + adjust > max) {
@@ -144,10 +147,8 @@ $(function() {
 			});
 		},
 		display: function(path) {
-			if (!path) { // No path specified - figure it out
+			if (!path) // No path specified - figure it out
 				path = $('#list li').eq($.gander.current_offset).attr('rel');
-				alert(path);
-			}
 			$('#list li').removeClass('image-viewing');
 			if (path in $.gander.cache) { // In cache
 				$('#display').attr('src', $.gander.cache[path]);
