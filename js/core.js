@@ -45,10 +45,11 @@ $(function() {
 			});
 		},
 		cd: function(path) {
-			$.getJSON('/gander.php', {cmd: 'list', path: path}, function(json) {
+			$.getJSON('/gander.php', {cmd: 'list', path: path, getthumbs: 0}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.gander.current_path = path;
+				window.location.hash = path;
 				list.empty();
 				$.each(json, function(file, data) {
 					if (data.makethumb)
@@ -69,7 +70,7 @@ $(function() {
 		*/
 		refresh: function() {
 			console.log('REQUEST REFRESH');
-			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1}, function(json) {
+			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, getthumbs: 1, mkthumbs: 1}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.each(json, function(file, data) {
@@ -98,7 +99,7 @@ $(function() {
 			$.gander.current_offset = $(this).index();
 			var path = $(this).attr('rel');
 			if (path.substr(-1) == '/') { // Is a directory
-				$.gander.cd(path);
+				$.gander.cd(path.substr(0,path.length-1));
 			} else { // Is a file
 				$.gander.display(path);
 			}
@@ -172,5 +173,5 @@ $(function() {
 		}
 	}});
 	$.gander.init();
-	$.gander.cd('/');
+	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/');
 });

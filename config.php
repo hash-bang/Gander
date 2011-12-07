@@ -16,7 +16,7 @@ define('GANDER_ROOT_NAME', 'Gander'); // The name of the root node
 /**
 * Web request options
 */
-define('GANDER_WEB_TIME', 3); // Ideal amount of time the web request shoud take. This is used to tell the thumbnaier when to give up and return something.
+define('GANDER_WEB_TIME', 300); // Ideal amount of time the web request shoud take. This is used to tell the thumbnaier when to give up and return something.
 
 /**
 * Default thumbnailer resolutions
