@@ -108,27 +108,36 @@ switch ($_REQUEST['cmd']) {
 		$folders = array();
 		$files = array();
 		$mkthumb = isset($_REQUEST['thumbs']) && $_REQUEST['thumbs'];
+		$panic = time() + GANDER_WEB_TIME;
 		foreach (glob('*') as $file) {
 			$path = substr("{$_REQUEST['path']}/$file", 1);
-			if (!$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)) { // Thumb didn't return anything - try to suggest something else
-				if (is_dir($path)) { // Folder
-					$folders[$path] = array(
-						'title' => basename($file),
-						'thumb' => 'images/icons/_folder.png',
-					);
-				} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) { // Thumb found
-					$thumb = GANDER_ICONS_WEB . basename($tpath);
-					$files[$path] = array(
-						'title' => basename($file),
-						'thumb' => $thumb,
-					);
-				} else { // No thumb available
-					$thumb = 'images/icons/_unknown.png';
-					$files[$path] = array(
-						'title' => basename($file),
-						'thumb' => $thumb,
-					);
-				}
+			if (
+				time() < $panic &&
+				preg_match(GANDER_THUMB_ABLE, $file) &&
+				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)
+			) { // Thumb didn't return anything - try to suggest something else
+				$files[$path] = array(
+					'title' => basename($file),
+					'thumb' => $thumb,
+				);
+			} elseif (is_dir($path)) { // Folder
+				$folders[$path] = array(
+					'title' => basename($file),
+					'thumb' => 'images/icons/_folder.png',
+				);
+			} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) { // File type thumb found
+				$thumb = GANDER_ICONS_WEB . basename($tpath);
+				$files[$path] = array(
+					'title' => basename($file),
+					'thumb' => $thumb,
+					'makethumb' => 1,
+				);
+			} else { // Unknown file type
+				$files[$path] = array(
+					'title' => basename($file),
+					'thumb' => 'images/icons/_unknown.png',
+					'makethumb' => 1,
+				);
 			}
 		}
 		echo json_encode(array_merge($folders, $files));

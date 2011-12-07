@@ -14,8 +14,14 @@ define('GANDER_THUMBPATH', __DIR__ . '/cache/thumbs/');
 define('GANDER_ROOT_NAME', 'Gander'); // The name of the root node
 
 /**
+* Web request options
+*/
+define('GANDER_WEB_TIME', 3); // Ideal amount of time the web request shoud take. This is used to tell the thumbnaier when to give up and return something.
+
+/**
 * Default thumbnailer resolutions
 * Set these to the HIGHEST res you can imagine using
 */
+define('GANDER_THUMB_ABLE', '/png|jpe?g|gif$/i');
 define('GANDER_THUMB_WIDTH', 150);
 define('GANDER_THUMB_HEIGHT', 150);

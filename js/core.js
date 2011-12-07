@@ -6,7 +6,8 @@ $(function() {
 			zoom_thumb_max: 150,
 		},
 		current_offset: 0,
-		current_zoom: 150,
+		current_thumbzoom: 150,
+		current_path: '/',
 		cache: {},
 
 		init: function() {
@@ -14,9 +15,9 @@ $(function() {
 			shortcut.add('s', function() { $.gander.move('next'); });
 			shortcut.add('z', function() { $.gander.move('first'); });
 			shortcut.add('x', function() { $.gander.move('last'); });
-			shortcut.add('q', function() { $.gander.zoom('in'); });
-			shortcut.add('w', function() { $.gander.zoom('out'); });
-			shortcut.add('e', function() { $.gander.zoom('fit'); });
+			shortcut.add('q', function() { $.gander.thumbzoom('in'); });
+			shortcut.add('w', function() { $.gander.thumbzoom('out'); });
+			shortcut.add('e', function() { $.gander.thumbzoom('fit'); });
 			shortcut.add('f', function() { $.gander.display(); });
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
@@ -46,17 +47,47 @@ $(function() {
 		cd: function(path) {
 			$.getJSON('/gander.php', {cmd: 'list', path: path}, function(json) {
 				var list = $('#list');
-				var thumbbed = 0;
+				var makethumb = 0;
+				$.gander.current_path = path;
 				list.empty();
 				$.each(json, function(file, data) {
-					var newchild = list.append('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
+					if (data.makethumb)
+						makethumb++;
+					var newchild = list.append('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>');
 				});
 				$('#list li').click(function() {
 					$.gander.current_offset = $(this).index();
 					$.gander.display($(this).attr('rel'));
 				});
 				$.gander.current_offset = 0;
-				$.gander.zoom('refresh');
+				//$.gander.thumbzoom('refresh');
+				if (makethumb) // Still more work to do
+					$.gander.refresh();
+			});
+		},
+		/**
+		* Similar to 'cd' except this funciton tries to redraw an existing file store
+		* Usually used when refreshing thumbnails
+		*/
+		refresh: function() {
+			console.log('REQUEST REFRESH');
+			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1}, function(json) {
+				var list = $('#list');
+				console.log('GOT REFRESH - ' + json.length + ' items');
+				$.each(json, function(file, data) {
+					console.log('REFRESH ' + file);
+					var existing = $('#list li[rel="' + file + '"]');
+					if (existing.length > 0) { // Item already exists
+						existing.find('img').attr('src', data.thumb);
+					} else { // New item
+						var newchild = list.append('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
+						// FIXME: this will not be in the correctly sorted place
+					}
+				});
+				$('#list li').click(function() {
+					$.gander.current_offset = $(this).index();
+					$.gander.display($(this).attr('rel'));
+				});
 			});
 		},
 		adjust: function(value, adjust, min, max) {
@@ -89,7 +120,7 @@ $(function() {
 			$.gander.current_offset = offset;
 			$.gander.display($(list[offset]).attr('rel'));
 		},
-		zoom: function(direction) {
+		thumbzoom: function(direction) {
 			var zoom = $.gander.current_zoom;
 			var adjust_zoom = 10;
 			switch(direction) {
