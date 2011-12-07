@@ -23,6 +23,7 @@ body {
 	width: 150px;
 	height: 150px;
 	vertical-align: middle;
+	text-align: center;
 }
 
 #list li img {
