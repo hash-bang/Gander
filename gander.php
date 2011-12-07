@@ -111,9 +111,10 @@ switch ($_REQUEST['cmd']) {
 		$panic = time() + GANDER_WEB_TIME;
 		foreach (glob('*') as $file) {
 			$path = substr("{$_REQUEST['path']}/$file", 1);
+			$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 			if (
 				time() < $panic &&
-				preg_match(GANDER_THUMB_ABLE, $file) &&
+				$canthumb &&
 				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)
 			) { // Thumb didn't return anything - try to suggest something else
 				$files[$path] = array(
@@ -130,14 +131,16 @@ switch ($_REQUEST['cmd']) {
 				$files[$path] = array(
 					'title' => basename($file),
 					'thumb' => $thumb,
-					'makethumb' => 1,
 				);
+				if ($canthumb)
+					$files[$path]['makethumb'] = 1;
 			} else { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),
 					'thumb' => 'images/icons/_unknown.png',
-					'makethumb' => 1,
 				);
+				if ($canthumb)
+					$files[$path]['makethumb'] = 1;
 			}
 		}
 		echo json_encode(array_merge($folders, $files));
