@@ -53,7 +53,9 @@ $(function() {
 				$.each(json, function(file, data) {
 					if (data.makethumb)
 						makethumb++;
-					var newchild = list.append('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>').click($.gander._itemclick);
+					var newchild = $('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>');
+					newchild.click($.gander._itemclick);
+					list.append(newchild);
 				});
 				$.gander.current_offset = 0;
 				$.gander.thumbzoom('refresh');
@@ -76,7 +78,9 @@ $(function() {
 					if (existing.length > 0) { // Item already exists
 						existing.find('img').attr('src', data.thumb);
 					} else { // New item
-						var newchild = list.append('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>').click($.gander._itemclick);
+						var newchild = $('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
+						newchild.click($.gander._itemclick);
+						list.append(newchild);
 						// FIXME: this will not be in the correctly sorted place
 					}
 				});
@@ -88,10 +92,16 @@ $(function() {
 		},
 		/**
 		* Internal function triggered when clicking on an icon
+		* This funciton is used by 'cd' and 'refresh' to bind the click event of indidivual items
 		*/
 		_itemclick: function() {
 			$.gander.current_offset = $(this).index();
-			$.gander.display($(this).attr('rel'));
+			var path = $(this).attr('rel');
+			if (path.substr(-1) == '/') { // Is a directory
+				$.gander.cd(path);
+			} else { // Is a file
+				$.gander.display(path);
+			}
 		},
 		adjust: function(value, adjust, min, max) {
 			if (value + adjust > max) {
