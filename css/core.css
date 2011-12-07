@@ -1,0 +1,32 @@
+body {
+	font: normal 13px/1.5 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Verdana, sans-serif;
+}
+
+#list {
+	list-style: none;
+}
+
+#list li {
+	display: block;
+	width: 150px;
+	height: 150px;
+	float: left;
+	border: 1px solid transparent;
+	overflow: hidden;
+	margin: 3px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#list li img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#list li strong {
+	display: block;
+	font-weight: normal;
+	text-align: center;
+	font-size: 8pt;
+}

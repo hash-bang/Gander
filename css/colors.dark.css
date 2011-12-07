@@ -1,0 +1,33 @@
+body {
+	background: #33373B;
+}
+
+#window-dir, #window-list, #window-dir #dirlist .dynatree-container {
+	background: #2D3033;
+}
+
+#window-dir .dynatree-container {
+	border-right: 5px solid #33373B;
+}
+
+#list li:hover {
+	background: #364049;
+	border: 1px solid #38393d;
+}
+
+#list li strong, #window-dir #dirlist .dynatree-title {
+	color: white;
+	text-shadow: rgba(255, 255, 255, 0.85) 0 0 3px;
+}
+
+#window-dir #dirlist .dynatree-active a, #window-dir #dirlist .dynatree-container a:hover, #window-dir #dirlist .dynatree-container a:focus {
+	background: black !important;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#list .image-viewing {
+	background: #768089;
+	border: 1px solid #38393d;
+}
+
