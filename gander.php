@@ -108,21 +108,22 @@ switch ($_REQUEST['cmd']) {
 		$folders = array();
 		$files = array();
 		$mkthumb = isset($_REQUEST['thumbs']) && $_REQUEST['thumbs'];
-		$panic = time() + GANDER_WEB_TIME;
+		$panic = microtime(true) + GANDER_WEB_TIME;
 		foreach (glob('*') as $file) {
 			$path = substr("{$_REQUEST['path']}/$file", 1);
 			$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 			if (
-				time() < $panic &&
+				microtime(1) < $panic &&
 				$canthumb &&
 				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)
-			) { // Thumb didn't return anything - try to suggest something else
+			) { // Thumbnail found
 				$files[$path] = array(
+					'time' => microtime(1) . '/' . $panic,
 					'title' => basename($file),
 					'thumb' => $thumb,
 				);
-			} elseif (is_dir($path)) { // Folder
-				$folders[$path] = array(
+			} elseif (is_dir($path)) { // Folder (Also add a slash so we can tell its a folder)
+				$folders["$path/"] = array(
 					'title' => basename($file),
 					'thumb' => 'images/icons/_folder.png',
 				);
