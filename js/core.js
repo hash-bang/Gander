@@ -194,6 +194,8 @@ $(function() {
 					if (path in $.gander.cache) { // In cache
 						$('#display').attr('src', $.gander.cache[path]);
 					} else { // Fill cache request
+						if ($('#window-display').css('display') == 'none') // Hidden already - display throb, otherwise keep previous image
+							$('#display').attr('src', '/images/throb.gif');
 						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
 							$('#display').attr('src', data.data);
 						});
