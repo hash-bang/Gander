@@ -1,24 +1,47 @@
 $(function() {
 	$.extend({ gander: {
 		options: {
+			zoom_thumb_normal: 150,
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
 			zoom_thumb_max: 150,
+			zoom_adjust: 10,
+			zoom_min: 10,
+			zoom_max: 1000,
 		},
 		current_offset: 0,
-		current_thumbzoom: 150,
+		current_thumbzoom: 150, // Inherited from zoom_thumb_normal during init()
 		current_path: '/',
+		current_zoom: 100,
+		current_width: 0,
+		current_height: 0,
 		cache: {},
 
 		init: function() {
+			// Navigation
 			shortcut.add('a', function() { $.gander.move('previous'); });
 			shortcut.add('s', function() { $.gander.move('next'); });
 			shortcut.add('z', function() { $.gander.move('first'); });
 			shortcut.add('x', function() { $.gander.move('last'); });
-			shortcut.add('q', function() { $.gander.thumbzoom('in'); });
-			shortcut.add('w', function() { $.gander.thumbzoom('out'); });
-			shortcut.add('e', function() { $.gander.thumbzoom('fit'); });
+
+			// Zooms
+			/*shortcut.add('Ctrl+q', function() { $.gander.thumbzoom('in'); });
+			shortcut.add('Ctrl+w', function() { $.gander.thumbzoom('out'); });
+			shortcut.add('Ctrl+e', function() { $.gander.thumbzoom('fit'); });
+			shortcut.add('Ctrl+r', function() { $.gander.thumbzoom('reset'); }); */
+			shortcut.add('q', function() { $.gander.zoom('in'); });
+			shortcut.add('w', function() { $.gander.zoom('out'); });
+			shortcut.add('e', function() { $.gander.zoom('fit'); });
+			shortcut.add('r', function() { $.gander.zoom('reset'); });
+
+			// Viewer
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
+
+
+			// Default values
+			$.gander.current_thumbzoom = $.gander.options['zoom_thumb_normal'];
+
+			// Window setup
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
 			$('#window-display #display').click(function() { $.gander.viewer('hide'); });
@@ -89,16 +112,15 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			console.log('REQUEST REFRESH');
 			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, getthumbs: 1, mkthumbs: 1}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.each(json, function(file, data) {
-					console.log('REFRESH ' + file);
 					var existing = $('#list li[rel="' + file + '"]');
 					if (existing.length > 0) { // Item already exists
 						existing.find('img').attr('src', data.thumb);
 					} else { // New item
+						console.log('FIXME: ADDED NEW FILE ' + file);
 						var newchild = $('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
 						newchild.click($.gander._itemclick);
 						list.append(newchild);
@@ -157,7 +179,6 @@ $(function() {
 		},
 		thumbzoom: function(direction) {
 			var zoom = $.gander.current_thumbzoom;
-			var adjust_zoom = 10;
 			switch(direction) {
 				case 'in':
 					zoom = $.gander.adjust(zoom, $.gander.options['zoom_thumb_adjust'], $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
@@ -167,9 +188,12 @@ $(function() {
 					break;
 				case 'refresh':
 					break;
+				case 'reset':
+				case 'normal':
+					zoom = $.gander.options['zoom_thumb_normal'];	
 				default: // Accept incomming value as the amount
 					zoom = direction;
-					zoom = $.gander.adjust(zoom, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
+					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
 			if (direction != 'refresh' && zoom == $.gander.current_thumbzoom) return;
 			$.gander.current_thumbzoom = zoom;
@@ -177,6 +201,29 @@ $(function() {
 				var item = $(this);
 				item.attr((item.height() > item.width()) ? 'height' : 'width', zoom + 'px');
 			});
+		},
+		zoom: function(direction) {
+			var zoom = $.gander.current_zoom;
+			switch(direction) {
+				case 'in':
+					zoom = $.gander.adjust(zoom, 0 - $.gander.options['zoom_adjust'], $.gander.options['zoom_min'], $.gander.options['zoom_max']);
+					break;
+				case 'out':
+					zoom = $.gander.adjust(zoom, $.gander.options['zoom_adjust'], $.gander.options['zoom_min'], $.gander.options['zoom_max']);
+					break;
+				case 'fit':
+					console.log('FIXME: Zoom to fit feature not yet built');
+					break;
+				case 'reset':
+				case 'normal':
+					direction = 100;
+				default: // Accept incomming value as the amount
+					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
+			}
+			if (zoom == $.gander.current_zoom) return;
+			$.gander.current_zoom = zoom;
+			console.log("Z: " + $.gander.current_zoom + ", W: " + ($.gander.current_width * (zoom/100)) + ", H: " + ($.gander.current_height * (zoom/100)));
+			$('#window-display #display').width($.gander.current_width * (zoom/100));
 		},
 		viewer: function(cmd, path) {
 			switch (cmd) {
@@ -192,12 +239,12 @@ $(function() {
 						path = $('#list li').eq($.gander.current_offset).attr('rel');
 					$('#list li').removeClass('image-viewing');
 					if (path in $.gander.cache) { // In cache
-						$('#display').attr('src', $.gander.cache[path]);
+						$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 					} else { // Fill cache request
 						if ($('#window-display').css('display') == 'none') // Hidden already - display throb, otherwise keep previous image
 							$('#display').attr('src', '/images/throb.gif');
 						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
-							$('#display').attr('src', data.data);
+							$('#display').load($.gander._displayloaded).attr('src', data.data);
 						});
 					}
 					$('#window-display').show();
@@ -208,6 +255,11 @@ $(function() {
 				default:
 					alert('Unknown viewer command: ' + cmd);
 				}
+		},
+		_displayloaded: function() { // Internal function attached to the onLoad event of the #display picture viewer
+			$.gander.current_width = this.naturalWidth;
+			$.gander.current_height = this.naturalHeight;
+			$.gander.current_zoom = 100;
 		}
 	}});
 	$.gander.init();
