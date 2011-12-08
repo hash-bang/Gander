@@ -18,9 +18,10 @@ $(function() {
 			shortcut.add('q', function() { $.gander.thumbzoom('in'); });
 			shortcut.add('w', function() { $.gander.thumbzoom('out'); });
 			shortcut.add('e', function() { $.gander.thumbzoom('fit'); });
-			shortcut.add('f', function() { $.gander.display('toggle'); });
+			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
+			$('#window-display #display').click(function() { $.gander.viewer('hide'); });
 
 			$('#dirlist').dynatree({
 				imagePath: '/js/jquery.dynatree.skin/',
@@ -43,6 +44,25 @@ $(function() {
 					loadError: "Load error!"
 				}
 			});
+		},
+		/**
+		* Simple, idiot proof command runner.
+		* This stub is intended to execute simple verbs (open, close, zoom/in, zoom/out etc)
+		*/
+		exec: function(cmd, cmd2) {
+			switch(cmd) {
+				case 'zoom': // see $.gander.zoom
+					alert('FIXME: Feature missing');
+					break;
+				case 'thumbzoom': // see $.gander.thumbzoom
+					$.gander.thumbzoom(cmd2);
+					break;
+				case 'viewer': // see $.gander.viewer
+					$.gander.viewer(cmd2);
+					break;
+				default:
+					alert('Unknown command: ' + cmd);
+			}
 		},
 		cd: function(path) {
 			$.getJSON('/gander.php', {cmd: 'list', path: path, getthumbs: 0}, function(json) {
@@ -101,7 +121,7 @@ $(function() {
 			if (path.substr(-1) == '/') { // Is a directory
 				$.gander.cd(path.substr(0,path.length-1));
 			} else { // Is a file
-				$.gander.open(path);
+				$.gander.viewer('open', path);
 			}
 		},
 		adjust: function(value, adjust, min, max) {
@@ -132,7 +152,8 @@ $(function() {
 			if (offset == $.gander.offset)
 				return;
 			$.gander.current_offset = offset;
-			$.gander.open($(list[offset]).attr('rel'));
+			if ($.gander.viewer('isopen'))
+				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
 		thumbzoom: function(direction) {
 			var zoom = $.gander.current_thumbzoom;
@@ -157,23 +178,34 @@ $(function() {
 				item.attr((item.height() > item.width()) ? 'height' : 'width', zoom + 'px');
 			});
 		},
-		open: function(path) {
-			if (!path)
-				if ($('#window-display').css('display') != 'none') { // Are we trying to destroy the view?
+		viewer: function(cmd, path) {
+			switch (cmd) {
+				case 'hide':
 					$('#window-display').hide();
-					return;
-				} else // Not already visible - figure out the item that should show
-					path = $('#list li').eq($.gander.current_offset).attr('rel');
-			$('#list li').removeClass('image-viewing');
-			if (path in $.gander.cache) { // In cache
-				$('#display').attr('src', $.gander.cache[path]);
-			} else { // Fill cache request
-				$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
-					$('#display').attr('src', data.data);
-				});
-			}
-			$('#window-display').show();
-			$('#list li[rel="' + path + '"]').addClass('image-viewing');
+					break;
+				case 'toggle':
+					$.gander.viewer(($('#window-display').css('display') == 'none') ? 'show' : 'hide');
+					break;
+				case 'show':
+				case 'open': // Open a specific file
+					if (!path) // No path specified - figure out the item that should show
+						path = $('#list li').eq($.gander.current_offset).attr('rel');
+					$('#list li').removeClass('image-viewing');
+					if (path in $.gander.cache) { // In cache
+						$('#display').attr('src', $.gander.cache[path]);
+					} else { // Fill cache request
+						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
+							$('#display').attr('src', data.data);
+						});
+					}
+					$('#window-display').show();
+					$('#list li[rel="' + path + '"]').addClass('image-viewing');
+					break;
+				case 'isopen': // Internal function to query if the viewer is open
+					return ($('#window-display').css('display') != 'none');
+				default:
+					alert('Unknown viewer command: ' + cmd);
+				}
 		}
 	}});
 	$.gander.init();
