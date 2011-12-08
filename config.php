@@ -5,7 +5,7 @@
 */
 define('GANDER_ICONS', __DIR__ . '/images/icons/');
 define('GANDER_ICONS_WEB', '/images/icons/'); # The web equivlenet of the above
-define('GANDER_PATH', '/home/mc/Papers/Pictures/Wallpapers/');
+define('GANDER_PATH', '/home/mc/Papers/Pictures/');
 define('GANDER_THUMBPATH', __DIR__ . '/cache/thumbs/');
 
 /**

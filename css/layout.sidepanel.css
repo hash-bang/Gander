@@ -20,3 +20,15 @@ body {
 	height: 100%;
 	overflow: auto;
 }
+
+#window-display {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+}
+
+#window-display #display-frame {
+	border: 5px solid blue;
+}

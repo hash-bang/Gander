@@ -18,7 +18,7 @@ $(function() {
 			shortcut.add('q', function() { $.gander.thumbzoom('in'); });
 			shortcut.add('w', function() { $.gander.thumbzoom('out'); });
 			shortcut.add('e', function() { $.gander.thumbzoom('fit'); });
-			shortcut.add('f', function() { $.gander.display(); });
+			shortcut.add('f', function() { $.gander.display('toggle'); });
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
 
@@ -82,7 +82,7 @@ $(function() {
 						var newchild = $('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
 						newchild.click($.gander._itemclick);
 						list.append(newchild);
-						// FIXME: this will not be in the correctly sorted place
+						// FIXME: new icons will not be in their correctly sorted place
 					}
 				});
 				if (makethumb > 0) { // Still more work to do
@@ -101,7 +101,7 @@ $(function() {
 			if (path.substr(-1) == '/') { // Is a directory
 				$.gander.cd(path.substr(0,path.length-1));
 			} else { // Is a file
-				$.gander.display(path);
+				$.gander.open(path);
 			}
 		},
 		adjust: function(value, adjust, min, max) {
@@ -132,7 +132,7 @@ $(function() {
 			if (offset == $.gander.offset)
 				return;
 			$.gander.current_offset = offset;
-			$.gander.display($(list[offset]).attr('rel'));
+			$.gander.open($(list[offset]).attr('rel'));
 		},
 		thumbzoom: function(direction) {
 			var zoom = $.gander.current_thumbzoom;
@@ -157,9 +157,13 @@ $(function() {
 				item.attr((item.height() > item.width()) ? 'height' : 'width', zoom + 'px');
 			});
 		},
-		display: function(path) {
-			if (!path) // No path specified - figure it out
-				path = $('#list li').eq($.gander.current_offset).attr('rel');
+		open: function(path) {
+			if (!path)
+				if ($('#window-display').css('display') != 'none') { // Are we trying to destroy the view?
+					$('#window-display').hide();
+					return;
+				} else // Not already visible - figure out the item that should show
+					path = $('#list li').eq($.gander.current_offset).attr('rel');
 			$('#list li').removeClass('image-viewing');
 			if (path in $.gander.cache) { // In cache
 				$('#display').attr('src', $.gander.cache[path]);
