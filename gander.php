@@ -95,9 +95,11 @@ function mkthumb($in, $out) {
 
 require('config.php');
 chdir(GANDER_PATH);
+$header = array();
 switch ($_REQUEST['cmd']) {
 	case 'get':
 		echo json_encode(array(
+			'header' => $header,
 			'data' => b64($_REQUEST['path']),
 		));
 		break;
@@ -113,6 +115,9 @@ switch ($_REQUEST['cmd']) {
 		$mkthumb = isset($_REQUEST['mkthumbs']) && $_REQUEST['mkthumbs'];
 		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$panic = microtime(1) + GANDER_WEB_TIME;
+
+		if (!is_writable(GANDER_THUMBPATH))
+			$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable';
 		foreach (glob('*') as $file) {
 			$path = ltrim("{$_REQUEST['path']}/$file", '/');
 			$couldthumb = preg_match(GANDER_THUMB_ABLE, $file);
@@ -149,7 +154,10 @@ switch ($_REQUEST['cmd']) {
 					$files[$path]['makethumb'] = 1;
 			}
 		}
-		echo json_encode(array_merge($folders, $files));
+		echo json_encode(array(
+			'header' => $header,
+			'list' => array_merge($folders, $files),
+		));
 		break;
 	case 'tree':
 		$out = array();
@@ -183,6 +191,7 @@ switch ($_REQUEST['cmd']) {
 				'isFolder' => 1,
 				'expand' => true,
 			);
+		$out['header'] = $header;
 		echo json_encode($out);
 		break;
 }

@@ -96,7 +96,7 @@ $(function() {
 				$.gander.current_path = path;
 				window.location.hash = path;
 				list.empty();
-				$.each(json, function(file, data) {
+				$.each(json.list, function(file, data) {
 					if (data.makethumb)
 						makethumb++;
 					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
@@ -117,7 +117,7 @@ $(function() {
 			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
-				$.each(json, function(file, data) {
+				$.each(json.list, function(file, data) {
 					var existing = $('#list li[rel="' + file + '"]');
 					if (existing.length > 0) { // Item already exists
 						existing.find('img').attr('src', data.thumb);
