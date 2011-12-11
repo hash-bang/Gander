@@ -99,7 +99,7 @@ $(function() {
 				$.each(json, function(file, data) {
 					if (data.makethumb)
 						makethumb++;
-					var newchild = $('<li rel="' + file + '"><div><img src="' + data.thumb + '"/></div><strong>' + data.title + '</strong></li>');
+					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
 					newchild.click($.gander._itemclick);
 					list.append(newchild);
 				});
@@ -201,7 +201,7 @@ $(function() {
 			$.gander.current_thumbzoom = zoom;
 			$('#list li img').each(function() {
 				var item = $(this);
-				item.attr((item.height() > item.width()) ? 'height' : 'width', zoom + 'px');
+				item.attr((this.naturalHeight > this.naturalWidth) ? 'height' : 'width', zoom + 'px');
 			});
 		},
 		zoom: function(direction) {

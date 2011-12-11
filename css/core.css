@@ -18,7 +18,15 @@ body {
 	-moz-border-radius: 5px;
 }
 
-#list li div {
+#list li > div {
+	display: block;
+	width: 150px;
+	height: 150px;
+	vertical-align: middle;
+	text-align: center;
+}
+
+#list li .imgframe {
 	display: table-cell;
 	width: 150px;
 	height: 150px;
@@ -29,7 +37,7 @@ body {
 #list li img {
 	margin-left: auto;
 	margin-right: auto;
-	vertical-align: middle;
+	vertical-align: bottom;
 }
 
 #list li strong {

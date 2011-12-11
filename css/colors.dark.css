@@ -2,11 +2,16 @@ body {
 	background: #33373B;
 }
 
-#window-dir, #window-list, #window-dir #dirlist .dynatree-container {
+#window-dir, #window-dir #dirlist .dynatree-container {
+	background: #1D1D1D;
+}
+
+#window-list {
 	background: #2D3033;
 }
 
 #window-dir .dynatree-container {
+	border-bottom: none;
 	border-right: 5px solid #33373B;
 }
 

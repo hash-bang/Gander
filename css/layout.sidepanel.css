@@ -9,16 +9,28 @@ body {
 	top: 0px;
 	bottom: 0px;
 	width: 200px;
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+#window-dir #dirlist {
+	display: block;
 }
 
 #window-dir #dirlist, #window-dir #dirlist .dynatree-container {
-	height: 100%;
+}
+
+#window-dir ul {
+	overflow-x: hidden;
+	width: 100%;
 }
 
 #window-list {
-	margin-left: 200px;
+	margin-left: 205px;
 	height: 100%;
 	overflow: auto;
+	position: fixed;
 }
 
 #window-display {
