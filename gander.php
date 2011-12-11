@@ -107,17 +107,20 @@ switch ($_REQUEST['cmd']) {
 		chdir(GANDER_PATH . $_REQUEST['path']);
 		$folders = array();
 		$files = array();
+		$sent = 0;
+		$getthumb = isset($_REQUEST['thumbs']) && $_REQUEST['thumbs'];
 		$mkthumb = isset($_REQUEST['mkthumbs']) && $_REQUEST['mkthumbs'];
-		$getthumb = isset($_REQUEST['getthumbs']) && $_REQUEST['getthumbs'];
+		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$panic = microtime(true) + GANDER_WEB_TIME;
 		foreach (glob('*') as $file) {
 			$path = ltrim("{$_REQUEST['path']}/$file", '/');
-			$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
+			$couldthumb = preg_match(GANDER_THUMB_ABLE, $file);
 			if (
-				$getthumb &&
-				microtime(1) < $panic &&
-				$canthumb &&
-				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb)
+				$getthumb && // Requested thumbs
+				microtime(1) < $panic && // Still got time to spend
+				$couldthumb && // We could potencially thumb the image
+				($maxthumbs > 0 && $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
+				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb) // It was successful
 			) { // Thumbnail found
 				$files[$path] = array(
 					'time' => microtime(1) . '/' . $panic,
@@ -135,14 +138,14 @@ switch ($_REQUEST['cmd']) {
 					'title' => basename($file),
 					'thumb' => $thumb,
 				);
-				if ($canthumb)
+				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
 			} else { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),
 					'thumb' => 'images/icons/_unknown.png',
 				);
-				if ($canthumb)
+				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
 			}
 		}

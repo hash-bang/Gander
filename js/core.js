@@ -8,6 +8,8 @@ $(function() {
 			zoom_adjust: 10,
 			zoom_min: 10,
 			zoom_max: 1000,
+			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
+			thumbs_max_get: 10, // Subsequent number of thumbs per request
 		},
 		current_offset: 0,
 		current_thumbzoom: 150, // Inherited from zoom_thumb_normal during init()
@@ -88,7 +90,7 @@ $(function() {
 			}
 		},
 		cd: function(path) {
-			$.getJSON('/gander.php', {cmd: 'list', path: path, getthumbs: 0}, function(json) {
+			$.getJSON('/gander.php', {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.gander.current_path = path;
@@ -112,7 +114,7 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, getthumbs: 1, mkthumbs: 1}, function(json) {
+			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.each(json, function(file, data) {
