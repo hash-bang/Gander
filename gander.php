@@ -7,12 +7,13 @@ function b64($filename) {
 }
 
 function b64_thumb($filename, $path, $make = 0) {
-	if (is_file($tpath = GANDER_THUMBPATH . $filename)) { // Look for existing
-		return b64($tpath);
+	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
+	if (is_file($thumbpath)) { // Look for existing
+		return b64($thumbpath);
 	} elseif ($make) { // No thumbnail found - make it
 		mktree(GANDER_THUMBPATH, "$path/$filename");
-		mkthumb($filename, GANDER_THUMBPATH . "$path/$filename");
-		return b64($filename);
+		mkthumb($filename, $thumbpath);
+		return b64($thumbpath);
 	} else { // No thumbnail + no make
 		return FALSE;
 	}
@@ -111,19 +112,18 @@ switch ($_REQUEST['cmd']) {
 		$getthumb = isset($_REQUEST['thumbs']) && $_REQUEST['thumbs'];
 		$mkthumb = isset($_REQUEST['mkthumbs']) && $_REQUEST['mkthumbs'];
 		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
-		$panic = microtime(true) + GANDER_WEB_TIME;
+		$panic = microtime(1) + GANDER_WEB_TIME;
 		foreach (glob('*') as $file) {
 			$path = ltrim("{$_REQUEST['path']}/$file", '/');
 			$couldthumb = preg_match(GANDER_THUMB_ABLE, $file);
 			if (
 				$getthumb && // Requested thumbs
-				microtime(1) < $panic && // Still got time to spend
 				$couldthumb && // We could potencially thumb the image
-				($maxthumbs > 0 && $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
+				microtime(1) < $panic && // Still got time to spend
+				($maxthumbs == 0 || $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
 				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb) // It was successful
 			) { // Thumbnail found
 				$files[$path] = array(
-					'time' => microtime(1) . '/' . $panic,
 					'title' => basename($file),
 					'thumb' => $thumb,
 				);
