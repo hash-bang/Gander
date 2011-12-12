@@ -21,10 +21,12 @@ $(function() {
 
 		init: function() {
 			// Navigation
-			shortcut.add('a', function() { $.gander.move('previous'); });
-			shortcut.add('s', function() { $.gander.move('next'); });
-			shortcut.add('z', function() { $.gander.move('first'); });
-			shortcut.add('x', function() { $.gander.move('last'); });
+			shortcut.add('a', function() { $.gander.select('previous'); });
+			shortcut.add('s', function() { $.gander.select('next'); });
+			shortcut.add('z', function() { $.gander.select('first'); });
+			shortcut.add('x', function() { $.gander.select('last'); });
+			shortcut.add('home', function() { $.gander.select('first'); });
+			shortcut.add('end', function() { $.gander.select('last'); });
 
 			// Zooms
 			/*shortcut.add('Ctrl+q', function() { $.gander.thumbzoom('in'); });
@@ -89,6 +91,11 @@ $(function() {
 					alert('Unknown command: ' + cmd);
 			}
 		},
+		/**
+		* Change the file list to a given path
+		* This also refreshes the file list contents as loads thumbnails as needed
+		* @param string path The new path to change the file list to
+		*/
 		cd: function(path) {
 			$.getJSON('/gander.php', {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
@@ -148,6 +155,14 @@ $(function() {
 				$.gander.viewer('open', path);
 			}
 		},
+		/**
+		* Internal function to adjust a numerical value whilst constraining it within a minimum and maximum
+		* @param int|float value The value as it currently stands
+		* @param int|float adjust The adjustment value to apply
+		* @param int|float min The minimum value that the returned value can be
+		* @param int|float max The maximum value that the returned value can be
+		* @return int|float The initial value with the adjustment applied within the min/max constraints
+		*/
 		adjust: function(value, adjust, min, max) {
 			if (value + adjust > max) {
 				return max;
@@ -157,7 +172,12 @@ $(function() {
 				return value + adjust;
 			}
 		},
-		move: function(direction) {
+		/**
+		* File selection interface
+		* This is primerilly aimed at the main file list navigation
+		* @param string direction Optional command to give the file handler. See the functions switch statement for further details
+		*/
+		select: function(direction) {
 			var offset = $.gander.current_offset;
 			var list = $('#list').children();
 			switch(direction) {
@@ -179,6 +199,10 @@ $(function() {
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
+		/**
+		* Thumbnail functionality interface
+		* @param string direction Optional command to give the thumbnail interface handler. See the functions switch statement for further details
+		*/
 		thumbzoom: function(direction) {
 			var zoom = $.gander.current_thumbzoom;
 			switch(direction) {
@@ -204,6 +228,10 @@ $(function() {
 				item.attr((this.naturalHeight > this.naturalWidth) ? 'height' : 'width', zoom + 'px');
 			});
 		},
+		/**
+		* Image zoom functionality interface
+		* @param string direction Optional command to give the zoom interface handler. See the functions switch statement for further details
+		*/
 		zoom: function(direction) {
 			var zoom = $.gander.current_zoom;
 			switch(direction) {
@@ -227,6 +255,11 @@ $(function() {
 			console.log("Z: " + $.gander.current_zoom + ", W: " + ($.gander.current_width * (zoom/100)) + ", H: " + ($.gander.current_height * (zoom/100)));
 			$('#window-display #display').width($.gander.current_width * (zoom/100));
 		},
+		/**
+		* Image viewing area interface
+		* @param string cmd Optional command to give the image viewer interface handler. See the functions switch statement for further details
+		* @param string path Optional file path used in the 'open' command to open a specific image
+		*/
 		viewer: function(cmd, path) {
 			switch (cmd) {
 				case 'hide':
@@ -258,7 +291,10 @@ $(function() {
 					alert('Unknown viewer command: ' + cmd);
 				}
 		},
-		_displayloaded: function() { // Internal function attached to the onLoad event of the #display picture viewer
+		/**
+		* Internal function attached to the onLoad event of the #display picture viewer
+		*/
+		_displayloaded: function() {
 			$.gander.current_width = this.naturalWidth;
 			$.gander.current_height = this.naturalHeight;
 			$.gander.current_zoom = 100;
