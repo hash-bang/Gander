@@ -1,5 +1,9 @@
 $(function() {
 	$.extend({ gander: {
+		/**
+		* Gander configuration options
+		* @var array
+		*/
 		options: {
 			zoom_thumb_normal: 150,
 			zoom_thumb_adjust: 20,
@@ -11,14 +15,33 @@ $(function() {
 			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 		},
-		current_offset: 0,
-		current_thumbzoom: 150, // Inherited from zoom_thumb_normal during init()
-		current_path: '/',
-		current_zoom: 100,
-		current_width: 0,
-		current_height: 0,
+		/**
+		* Details on the currently viewed image
+		* @var array
+		*/
+		current: {
+			offset: 0,
+			thumbzoom: 150, // Inherited from zoom_thumb_normal during init()
+			zoom: 100,
+			width: 0,
+			height: 0,
+		},
+		/**
+		* The active navigation path
+		* @var string
+		* @see cd()
+		*/
+		path: '/',
+		/**
+		* Array of cached images. Each image path is specified as the key
+		* @var array
+		*/
 		cache: {},
 
+		/**
+		* Initialization function
+		* Should be called once on startup
+		*/
 		init: function() {
 			// Navigation
 			shortcut.add('a', function() { $.gander.select('previous'); });
@@ -27,6 +50,10 @@ $(function() {
 			shortcut.add('x', function() { $.gander.select('last'); });
 			shortcut.add('home', function() { $.gander.select('first'); });
 			shortcut.add('end', function() { $.gander.select('last'); });
+			shortcut.add('pageup', function() { $.gander.select('first'); });
+			shortcut.add('pagedown', function() { $.gander.select('last'); });
+			shortcut.add('left', function() { $.gander.select('previous'); });
+			shortcut.add('right', function() { $.gander.select('next'); });
 
 			// Zooms
 			/*shortcut.add('Ctrl+q', function() { $.gander.thumbzoom('in'); });
@@ -37,13 +64,18 @@ $(function() {
 			shortcut.add('w', function() { $.gander.zoom('out'); });
 			shortcut.add('e', function() { $.gander.zoom('fit'); });
 			shortcut.add('r', function() { $.gander.zoom('reset'); });
+			shortcut.add('+', function() { $.gander.zoom('in'); });
+			shortcut.add('-', function() { $.gander.zoom('out'); });
+			shortcut.add('shift+up', function() { $.gander.zoom('in'); });
+			shortcut.add('shift+down', function() { $.gander.zoom('out'); });
 
 			// Viewer
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
+			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
 
 			// Default values
-			$.gander.current_thumbzoom = $.gander.options['zoom_thumb_normal'];
+			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
 
 			// Window setup
 			//$('#window-display, #window-list').dialog();
@@ -100,7 +132,7 @@ $(function() {
 			$.getJSON('/gander.php', {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
-				$.gander.current_path = path;
+				$.gander.path = path;
 				window.location.hash = path;
 				list.empty();
 				$.each(json.list, function(file, data) {
@@ -110,7 +142,7 @@ $(function() {
 					newchild.click($.gander._itemclick);
 					list.append(newchild);
 				});
-				$.gander.current_offset = 0;
+				$.gander.current['offset'] = 0;
 				$.gander.thumbzoom('refresh');
 				if (makethumb > 0) // Still more work to do
 					$.gander.refresh();
@@ -121,7 +153,7 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.current_path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
+			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.each(json.list, function(file, data) {
@@ -130,7 +162,7 @@ $(function() {
 						existing.find('img').attr('src', data.thumb);
 					} else { // New item
 						console.log('FIXME: ADDED NEW FILE ' + file);
-						var newchild = $('<li rel="' + file + '"><img src="' + data.thumb + '"/><strong>' + data.title + '</strong></li>');
+						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
 						newchild.click($.gander._itemclick);
 						list.append(newchild);
 						// FIXME: new icons will not be in their correctly sorted place
@@ -147,7 +179,7 @@ $(function() {
 		* This funciton is used by 'cd' and 'refresh' to bind the click event of indidivual items
 		*/
 		_itemclick: function() {
-			$.gander.current_offset = $(this).index();
+			$.gander.current['offset'] = $(this).index();
 			var path = $(this).attr('rel');
 			if (path.substr(-1) == '/') { // Is a directory
 				$.gander.cd(path.substr(0,path.length-1));
@@ -178,7 +210,7 @@ $(function() {
 		* @param string direction Optional command to give the file handler. See the functions switch statement for further details
 		*/
 		select: function(direction) {
-			var offset = $.gander.current_offset;
+			var offset = $.gander.current['offset'];
 			var list = $('#list').children();
 			switch(direction) {
 				case 'next':
@@ -195,7 +227,7 @@ $(function() {
 			}
 			if (offset == $.gander.offset)
 				return;
-			$.gander.current_offset = offset;
+			$.gander.current['offset'] = offset;
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
@@ -204,7 +236,7 @@ $(function() {
 		* @param string direction Optional command to give the thumbnail interface handler. See the functions switch statement for further details
 		*/
 		thumbzoom: function(direction) {
-			var zoom = $.gander.current_thumbzoom;
+			var zoom = $.gander.current['thumbzoom'];
 			switch(direction) {
 				case 'in':
 					zoom = $.gander.adjust(zoom, $.gander.options['zoom_thumb_adjust'], $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
@@ -221,8 +253,8 @@ $(function() {
 					zoom = direction;
 					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
-			if (direction != 'refresh' && zoom == $.gander.current_thumbzoom) return;
-			$.gander.current_thumbzoom = zoom;
+			if (direction != 'refresh' && zoom == $.gander.current['thumbzoom']) return;
+			$.gander.current['thumbzoom'] = zoom;
 			$('#list li img').each(function() {
 				var item = $(this);
 				item.attr((this.naturalHeight > this.naturalWidth) ? 'height' : 'width', zoom + 'px');
@@ -233,7 +265,7 @@ $(function() {
 		* @param string direction Optional command to give the zoom interface handler. See the functions switch statement for further details
 		*/
 		zoom: function(direction) {
-			var zoom = $.gander.current_zoom;
+			var zoom = $.gander.current['zoom'];
 			switch(direction) {
 				case 'in':
 					zoom = $.gander.adjust(zoom, 0 - $.gander.options['zoom_adjust'], $.gander.options['zoom_min'], $.gander.options['zoom_max']);
@@ -250,10 +282,10 @@ $(function() {
 				default: // Accept incomming value as the amount
 					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
-			if (zoom == $.gander.current_zoom) return;
-			$.gander.current_zoom = zoom;
-			console.log("Z: " + $.gander.current_zoom + ", W: " + ($.gander.current_width * (zoom/100)) + ", H: " + ($.gander.current_height * (zoom/100)));
-			$('#window-display #display').width($.gander.current_width * (zoom/100));
+			if (zoom == $.gander.current['zoom']) return;
+			$.gander.current['zoom'] = zoom;
+			console.log("Z: " + $.gander.current['zoom'] + ", W: " + ($.gander.current['width'] * (zoom/100)) + ", H: " + ($.gander.current['height'] * (zoom/100)));
+			$('#window-display #display').width($.gander.current['width'] * (zoom/100));
 		},
 		/**
 		* Image viewing area interface
@@ -271,7 +303,7 @@ $(function() {
 				case 'show':
 				case 'open': // Open a specific file
 					if (!path) // No path specified - figure out the item that should show
-						path = $('#list li').eq($.gander.current_offset).attr('rel');
+						path = $('#list li').eq($.gander.current['offset']).attr('rel');
 					$('#list li').removeClass('image-viewing');
 					if (path in $.gander.cache) { // In cache
 						$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
@@ -295,9 +327,9 @@ $(function() {
 		* Internal function attached to the onLoad event of the #display picture viewer
 		*/
 		_displayloaded: function() {
-			$.gander.current_width = this.naturalWidth;
-			$.gander.current_height = this.naturalHeight;
-			$.gander.current_zoom = 100;
+			$.gander.current['width'] = this.naturalWidth;
+			$.gander.current['height'] = this.naturalHeight;
+			$.gander.current['zoom'] = 100;
 		}
 	}});
 	$.gander.init();
