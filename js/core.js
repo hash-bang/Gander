@@ -14,6 +14,8 @@ $(function() {
 			zoom_max: 1000,
 			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
+			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
+			jGrowl: { position: 'bottom-right' }
 		},
 		/**
 		* Details on the currently viewed image
@@ -44,7 +46,7 @@ $(function() {
 		*/
 		init: function() {
 			// Navigation
-			shortcut.add('a', function() { $.gander.select('previous'); });
+			shortcut.add('a', function() { alert('A'); $.gander.select('previous'); });
 			shortcut.add('s', function() { $.gander.select('next'); });
 			shortcut.add('z', function() { $.gander.select('first'); });
 			shortcut.add('x', function() { $.gander.select('last'); });
@@ -80,7 +82,7 @@ $(function() {
 			// Window setup
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
-			$('#window-display #display').click(function() { $.gander.viewer('hide'); });
+			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
 			$('#dirlist').dynatree({
 				imagePath: '/js/jquery.dynatree.skin/',
@@ -122,6 +124,15 @@ $(function() {
 				default:
 					alert('Unknown command: ' + cmd);
 			}
+		},
+		/**
+		* Simple function to display a message to the user
+		* @param string type The type of the message. Values: notice, error
+		* @param string text The actual text of the message
+		*/
+		growl: function(type, text) {
+			// FIXME: type is currently ignored
+			$.jGrowl(text, $.gander.options['jGrowl']);
 		},
 		/**
 		* Change the file list to a given path
@@ -295,6 +306,8 @@ $(function() {
 		viewer: function(cmd, path) {
 			switch (cmd) {
 				case 'hide':
+					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
+						window.fullScreenApi.cancelFullScreen();
 					$('#window-display').hide();
 					break;
 				case 'toggle':
@@ -316,6 +329,13 @@ $(function() {
 					}
 					$('#window-display').show();
 					$('#list li[rel="' + path + '"]').addClass('image-viewing');
+					if ($.gander.options['fullscreen'] == 1 && !window.fullScreenApi.isFullScreen()) {
+						if (window.fullScreenApi.supportsFullScreen) {
+							window.fullScreenApi.requestFullScreen(document.body);
+						} else {
+							$.gander.growl('error', 'Your browser does not support fullscreen mode');
+						}
+					}
 					break;
 				case 'isopen': // Internal function to query if the viewer is open
 					return ($('#window-display').css('display') != 'none');
