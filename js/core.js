@@ -75,6 +75,11 @@ $(function() {
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
+			$(document).bind('mousewheel', function(event, delta) {
+				$.gander.select(delta > 0 ? 'previous' : 'next');
+				return false;
+			});
+
 
 			// Default values
 			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
