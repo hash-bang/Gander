@@ -9,11 +9,13 @@ body {
 
 #list {
 	list-style: none;
+	padding: 0;
+	text-indent: 0px;
 }
 
 #list li {
 	display: block;
-	width: 150px;
+	width: 156px;
 	height: 170px;
 	float: left;
 	border: 1px solid transparent;
@@ -29,6 +31,7 @@ body {
 	height: 150px;
 	vertical-align: middle;
 	text-align: center;
+	padding: 0 3px 0 3px;
 }
 
 #list li .imgframe {
