@@ -191,7 +191,7 @@ switch ($_REQUEST['cmd']) {
 				'isFolder' => 1,
 				'expand' => true,
 			);
-		$out['header'] = $header;
+		//$out['header'] = $header; // MC- Upsets the dynatree JSON parser
 		echo json_encode($out);
 		break;
 }
