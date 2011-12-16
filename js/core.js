@@ -17,6 +17,7 @@ $(function() {
 			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
+			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
 			jGrowl: { position: 'bottom-right' }
 		},
 		/**
@@ -350,8 +351,8 @@ $(function() {
 					if (path in $.gander.cache) { // In cache
 						$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 					} else { // Fill cache request
-						if ($('#window-display').css('display') == 'none') // Hidden already - display throb, otherwise keep previous image
-							$('#display').width('32px').attr('src', '/images/throb.gif');
+						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
+							$.gander.throbber('on');
 						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
 							$('#display').load($.gander._displayloaded).attr('src', data.data);
 						});
@@ -373,12 +374,27 @@ $(function() {
 				}
 		},
 		/**
+		* Trobber interface
+		* @param string cmd Optional command to give the throbber interface handler. See the functions switch statement for further details
+		*/
+		throbber: function(cmd) {
+			switch(cmd) {
+				case 'on':
+					$('#window-throbber').show();
+					break;
+				case 'off':
+					$('#window-throbber').hide();
+					break;
+			}
+		},
+		/**
 		* Internal function attached to the onLoad event of the #display picture viewer
 		*/
 		_displayloaded: function() {
 			$.gander.current['width'] = this.naturalWidth;
 			$.gander.current['height'] = this.naturalHeight;
 			$.gander.zoom($.gander.options['zoom_on_open']);
+			$.gander.throbber('off');
 		}
 	}});
 	$.gander.init();
