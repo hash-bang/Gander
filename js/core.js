@@ -12,6 +12,8 @@ $(function() {
 			zoom_adjust: 10,
 			zoom_min: 10,
 			zoom_max: 1000,
+			zoom_on_open: 'fit', // How to zoom when the image changes. See $.gander.zoom for options. e.g. 'reset', 'fit'
+			zoom_stretch_smaller: 1, // 1 - Stretch smaller images bigger to fit, 0 - Zoom smaller images to 100%
 			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
@@ -70,6 +72,8 @@ $(function() {
 			shortcut.add('-', function() { $.gander.zoom('out'); });
 			shortcut.add('shift+up', function() { $.gander.zoom('in'); });
 			shortcut.add('shift+down', function() { $.gander.zoom('out'); });
+			shortcut.add('ctrl+up', function() { $.gander.zoom('in'); });
+			shortcut.add('ctrl+down', function() { $.gander.zoom('out'); });
 
 			// Viewer
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
@@ -150,6 +154,8 @@ $(function() {
 				var makethumb = 0;
 				$.gander.path = path;
 				window.location.hash = path;
+				// FIXME: Need to select down the tree to this point
+				$('#dirlist').dynatree('getTree').getNodeByKey(path);
 				list.empty();
 				$.each(json.list, function(file, data) {
 					if (data.makethumb)
@@ -289,15 +295,33 @@ $(function() {
 				case 'out':
 					zoom = $.gander.adjust(zoom, $.gander.options['zoom_adjust'], $.gander.options['zoom_min'], $.gander.options['zoom_max']);
 					break;
-				case 'fit':
-					console.log('FIXME: Zoom to fit feature not yet built');
+				case 'fit-width':
+				case 'fitwidth':
+					zoom = ($('#window-display').width() / $.gander.current['width']) * 100;
 					break;
+				case 'fit-height':
+				case 'fitheight':
+					zoom = ($('#window-display').height() / $.gander.current['height']) * 100;
+					break;
+				case 'fit-both':
+				case 'fitboth':
+				case 'fit':
+					if ($.gander.current['width'] > $.gander.current['height']) { // Wider width
+						zoom = ($('#window-display').width() / $.gander.current['width']) * 100;
+					} else {
+						zoom = ($('#window-display').height() / $.gander.current['height']) * 100;
+					}
+					break;
+				case '100':
 				case 'reset':
 				case 'normal':
 					direction = 100;
 				default: // Accept incomming value as the amount
 					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
+			if (!$.gander.options['zoom_stretch_smaller'] && zoom > 100)
+				zoom = 100;
+
 			if (zoom == $.gander.current['zoom']) return;
 			$.gander.current['zoom'] = zoom;
 			console.log("Z: " + $.gander.current['zoom'] + ", W: " + ($.gander.current['width'] * (zoom/100)) + ", H: " + ($.gander.current['height'] * (zoom/100)));
@@ -327,7 +351,7 @@ $(function() {
 						$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 					} else { // Fill cache request
 						if ($('#window-display').css('display') == 'none') // Hidden already - display throb, otherwise keep previous image
-							$('#display').attr('src', '/images/throb.gif');
+							$('#display').width('32px').attr('src', '/images/throb.gif');
 						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
 							$('#display').load($.gander._displayloaded).attr('src', data.data);
 						});
@@ -354,7 +378,7 @@ $(function() {
 		_displayloaded: function() {
 			$.gander.current['width'] = this.naturalWidth;
 			$.gander.current['height'] = this.naturalHeight;
-			$.gander.current['zoom'] = 100;
+			$.gander.zoom($.gander.options['zoom_on_open']);
 		}
 	}});
 	$.gander.init();
