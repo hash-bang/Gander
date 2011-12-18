@@ -95,14 +95,52 @@ function mkthumb($in, $out) {
 	return $out;
 }
 
+function setting($setting, $value) {
+	if (!defined($setting))
+		define($setting, $value);
+}
+
+if (!isset($_SERVER['SERVER_NAME'])) { // Possibly being called from the command line
+	$_REQUEST = unserialize(file_get_contents('PHP://STDIN'));
+	$notunnel = 1; // Prevent loops later when we need to figure out whether to tunnel ourselves
+	if (isset($_REQUEST['SERVER_NAME']))
+		$_SERVER['SERVER_NAME'] = $_REQUEST['SERVER_NAME'];
+}
+
 // Process config
-if (file_exists($s = "config/host_{$_SERVER['SERVER_NAME']}.php"))
+if (isset($_SERVER['SERVER_NAME']) && file_exists($s = "config/host_{$_SERVER['SERVER_NAME']}.php"))
 	require($s);
 require('config/settings.php');
+
+if (GANDER_TUNNEL && !isset($notunnel)) {
+	$cmd = GANDER_TUNNEL_CMD ? GANDER_TUNNEL_CMD : 'TERM=dumb sudo -u taz /usr/bin/php ' . __FILE__ . ' 2>&1'; // Work out which command to use
+	$_REQUEST['SERVER_NAME'] = $_SERVER['SERVER_NAME']; // We need to carry this over because the config system depends on knowing the current server name
+	$proc = proc_open($cmd, array( // The dance of the pipes
+		0 => array('pipe', 'r'),
+		1 => array('pipe', 'w'),
+		2 => array('pipe', 'w'),
+	), $pipes);
+	fwrite($pipes[0], serialize($_REQUEST)); // Ugh. But necessary
+	fclose($pipes[0]);
+	echo stream_get_contents($pipes[1]); // Spew the output of this script running inside sudo
+	fclose($pipes[1]);
+	fclose($pipes[2]);
+	$return = proc_close($proc);
+	if ($return > 0) {
+		echo json_encode(array('header' => array('errors' => array("Failed to tunnel correctly. Gander sub-process returned code #$return")))); // FIXME: This could do with being a bit more helpful
+	}
+	exit;
+}
 
 chdir(GANDER_PATH);
 $header = array();
 switch ($_REQUEST['cmd']) {
+	case 'hello':
+		echo json_encode(array(
+			'header' => $header,
+			'data' => 'Hello World',
+		));
+		break;
 	case 'get':
 		echo json_encode(array(
 			'header' => $header,
@@ -143,15 +181,14 @@ switch ($_REQUEST['cmd']) {
 					'title' => basename($file),
 					'thumb' => GANDER_ROOT . 'images/icons/_folder.png',
 				);
-			} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) { // File type thumb found
-				$thumb = GANDER_ICONS_WEB . basename($tpath);
+			} elseif (($ext = pathinfo($path, PATHINFO_EXTENSION)) && file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')) { // File type thumb found
 				$files[$path] = array(
 					'title' => basename($file),
-					'thumb' => GANDER_ROOT . $thumb,
+					'thumb' => GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath),
 				);
 				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
-			} else { // Unknown file type
+			} elseif (!GANDER_UNKNOWN_IGNORE) { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),
 					'thumb' => GANDER_ROOT . 'images/icons/_unknown.png',
