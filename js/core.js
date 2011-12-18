@@ -31,6 +31,7 @@ $(function() {
 			zoom: 100,
 			width: 0,
 			height: 0,
+			path: '',
 		},
 		/**
 		* The active navigation path
@@ -348,18 +349,21 @@ $(function() {
 				case 'open': // Open a specific file
 					if (!path) // No path specified - figure out the item that should show
 						path = $('#list li').eq($.gander.current['offset']).attr('rel');
-					$('#list li').removeClass('image-viewing');
-					if (path in $.gander.cache) { // In cache
-						$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
-					} else { // Fill cache request
-						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
-							$.gander.throbber('on');
-						$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(data) {
-							$('#display').load($.gander._displayloaded).attr('src', data.data);
-						});
+					if (path != $.gander.current['path']) { // Opening a differnt file from previously
+						$('#list li').removeClass('image-viewing');
+						if (path in $.gander.cache) { // In cache
+							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
+						} else { // Fill cache request
+							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
+								$.gander.throbber('on');
+							$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(data) {
+								$('#display').load($.gander._displayloaded).attr('src', data.data);
+							});
+						}
+						$('#list li[rel="' + path + '"]').addClass('image-viewing');
+						$.gander.current['path'] = path;
 					}
 					$('#window-display').show();
-					$('#list li[rel="' + path + '"]').addClass('image-viewing');
 					if ($.gander.options['fullscreen'] == 1 && !window.fullScreenApi.isFullScreen()) {
 						if (window.fullScreenApi.supportsFullScreen) {
 							window.fullScreenApi.requestFullScreen(document.body);
