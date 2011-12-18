@@ -5,6 +5,7 @@ $(function() {
 		* @var array
 		*/
 		options: {
+			gander_server: 'gander.php',
 			zoom_thumb_normal: 150,
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
@@ -99,11 +100,11 @@ $(function() {
 				selectMode: 1,
 				fx: { height: 'toggle', duration: 200 },
 				initAjax: {
-					url: '/gander.php?cmd=tree',
+					url: $.gander.options['gander_server'] + '?cmd=tree',
 				},
 				onLazyRead: function(node) {
 					node.appendAjax({
-						url: '/gander.php?cmd=tree',
+						url: $.gander.options['gander_server'] + '?cmd=tree',
 						data: { path: node.data.key }
 					});
 				},
@@ -150,7 +151,7 @@ $(function() {
 		* @param string path The new path to change the file list to
 		*/
 		cd: function(path) {
-			$.getJSON('/gander.php', {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
+			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.gander.path = path;
@@ -176,7 +177,7 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			$.getJSON('/gander.php', {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
+			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				var list = $('#list');
 				var makethumb = 0;
 				$.each(json.list, function(file, data) {
@@ -353,7 +354,7 @@ $(function() {
 					} else { // Fill cache request
 						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 							$.gander.throbber('on');
-						$.getJSON('/gander.php', {cmd: 'get', path: path}, function(data) {
+						$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(data) {
 							$('#display').load($.gander._displayloaded).attr('src', data.data);
 						});
 					}

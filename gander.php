@@ -1,6 +1,8 @@
 <?
 function b64($filename) {
 	$fh = fopen($filename, "r");
+	if (!$fh)
+		return;
 	$imgbinary = fread($fh, filesize($filename));
 	fclose($fh);
 	return 'data:image/png;base64,' . base64_encode($imgbinary);
@@ -93,7 +95,11 @@ function mkthumb($in, $out) {
 	return $out;
 }
 
-require('config.php');
+// Process config
+if (file_exists($s = "config/host_{$_SERVER['SERVER_NAME']}.php"))
+	require($s);
+require('config/settings.php');
+
 chdir(GANDER_PATH);
 $header = array();
 switch ($_REQUEST['cmd']) {
@@ -135,20 +141,20 @@ switch ($_REQUEST['cmd']) {
 			} elseif (is_dir(GANDER_PATH . $path)) { // Folder (Also add a slash so we can tell its a folder)
 				$folders["$path/"] = array(
 					'title' => basename($file),
-					'thumb' => 'images/icons/_folder.png',
+					'thumb' => GANDER_ROOT . 'images/icons/_folder.png',
 				);
 			} elseif (file_exists($tpath = GANDER_ICONS . pathinfo($path, PATHINFO_EXTENSION) . '.png')) { // File type thumb found
 				$thumb = GANDER_ICONS_WEB . basename($tpath);
 				$files[$path] = array(
 					'title' => basename($file),
-					'thumb' => $thumb,
+					'thumb' => GANDER_ROOT . $thumb,
 				);
 				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
 			} else { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),
-					'thumb' => 'images/icons/_unknown.png',
+					'thumb' => GANDER_ROOT . 'images/icons/_unknown.png',
 				);
 				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
