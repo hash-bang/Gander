@@ -19,7 +19,8 @@ $(function() {
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
 			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
-			jGrowl: { position: 'bottom-right' }
+			jGrowl: { position: 'bottom-right' },
+			menu: {theme:'human'}
 		},
 		/**
 		* Details on the currently viewed image
@@ -82,11 +83,28 @@ $(function() {
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
+
+			// Menus
+			// See http://www.javascripttoolbox.com/lib/contextmenu/ for syntax
+			$.gander.options['menu.item'] = [
+				{'Open':{icon: 'images/menus/open.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
+				{'Fullscreen':{icon: 'images/menus/fullscreen.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
+				$.contextMenu.separator,
+				{'XXX':function() { $.gander.viewer('open'); } },
+			];
+			$.gander.options['menu.list'] = [
+				{'Refresh':{icon: 'images/menus/refresh.png', onclick: function() { $.gander.refresh(); }}},
+			];
+			$.gander.options['menu.tree'] = [
+				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
+			];
+
 			$(document).bind('mousewheel', function(event, delta) {
 				$.gander.select(delta > 0 ? 'previous' : 'next');
 				return false;
 			});
-
+			$('#window-list').contextMenu($.gander.options['menu.list'],$.gander.options['menu'])
+			$('#window-dir').contextMenu($.gander.options['menu.tree'],$.gander.options['menu'])
 
 			// Default values
 			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
@@ -95,6 +113,9 @@ $(function() {
 			//$('#window-display, #window-list').dialog();
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
+
+			//$('#window-list #list li').live('contextmenu', function(e) {
+			//});
 
 			$('#dirlist').dynatree({
 				imagePath: '/js/jquery.dynatree.skin/',
@@ -164,7 +185,7 @@ $(function() {
 					if (data.makethumb)
 						makethumb++;
 					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
-					newchild.click($.gander._itemclick);
+					newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 					list.append(newchild);
 				});
 				$.gander.current['offset'] = 0;
