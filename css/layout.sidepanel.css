@@ -45,3 +45,16 @@ body {
 #window-display #display-frame {
 	border: 5px solid blue;
 }
+
+#window-throbber {
+	position: fixed;
+	display: none;
+	width: 35px;
+	height: 35px;
+	z-index: 1000;
+	background: black;
+	top: 40%;
+	left: 50%;
+	border-radius: 20px;
+	padding: 10px;
+}
