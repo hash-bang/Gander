@@ -36,6 +36,11 @@ body {
 	border: 1px solid #38393d;
 }
 
+#list .image-viewing:hover {
+	background: #768089;
+	border: 1px solid white;
+}
+
 #window-display {
 	background: black;
 }
