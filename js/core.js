@@ -106,8 +106,10 @@ $(function() {
 
 
 			$(document).bind('mousewheel', function(event, delta) {
-				$.gander.select(delta > 0 ? 'previous' : 'next');
-				return false;
+				if (window.fullScreenApi.isFullScreen()) { // Only capture if we are fullscreen
+					$.gander.select(delta > 0 ? 'previous' : 'next');
+					return false;
+				}
 			});
 			$('#window-list').contextMenu($.gander.options['menu.list'],$.gander.options['menu'])
 			$('#window-dir').contextMenu($.gander.options['menu.tree'],$.gander.options['menu'])
