@@ -19,8 +19,8 @@ $(function() {
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
 			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
-			jGrowl: { position: 'bottom-right' },
-			menu: {theme:'human'}
+			jGrowl: {position: 'bottom-right'}, // Options passed to jquery.jGrowl
+			menu: {theme:'human'} // Options passed to jquery.contextmenu
 		},
 		/**
 		* Details on the currently viewed image
@@ -83,7 +83,6 @@ $(function() {
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
-
 			// Menus
 			// See http://www.javascripttoolbox.com/lib/contextmenu/ for syntax
 			$.gander.options['menu.item'] = [
@@ -98,6 +97,13 @@ $(function() {
 			$.gander.options['menu.tree'] = [
 				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
 			];
+			$.gander.options['menu.image'] = [
+				{'Close':{icon: 'images/menus/list.png', onclick: function() { $.gander.viewer('hide'); }}},
+			];
+
+
+			// NO CONFIG BEYOND THIS LINE
+
 
 			$(document).bind('mousewheel', function(event, delta) {
 				$.gander.select(delta > 0 ? 'previous' : 'next');
@@ -105,6 +111,7 @@ $(function() {
 			});
 			$('#window-list').contextMenu($.gander.options['menu.list'],$.gander.options['menu'])
 			$('#window-dir').contextMenu($.gander.options['menu.tree'],$.gander.options['menu'])
+			$('#window-display').contextMenu($.gander.options['menu.image'],$.gander.options['menu'])
 
 			// Default values
 			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
@@ -114,9 +121,7 @@ $(function() {
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
-			//$('#window-list #list li').live('contextmenu', function(e) {
-			//});
-
+			// Filetree setup
 			$('#dirlist').dynatree({
 				imagePath: '/js/jquery.dynatree.skin/',
 				selectMode: 1,
@@ -138,6 +143,19 @@ $(function() {
 					loadError: "Load error!"
 				}
 			});
+
+			// MC - Fix to pickup keypress events when in fullscreen and relay them to the correct callback
+			/*$(window).delegate('*', 'keypress', function(e) {
+				console.log('DETECT ' + e.keyCode);
+				if (window.fullScreenApi.isFullScreen()) { // We only care if we are in fullscreen mode
+					var key = String.fromCharCode(e.keyCode);
+					if (key in shortcut.all_shortcuts) {
+						shortcut.all_shortcuts[key].callback();
+						e.preventDefault();
+						return false;
+					}
+				}
+			});*/
 		},
 		/**
 		* Simple, idiot proof command runner.
