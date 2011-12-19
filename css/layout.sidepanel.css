@@ -27,7 +27,7 @@ body {
 }
 
 #window-list {
-	margin-left: 205px;
+	left: 206px;
 	height: 100%;
 	width: 100%;
 	overflow: auto;
