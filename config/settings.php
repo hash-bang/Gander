@@ -13,7 +13,7 @@
 /**
 * Web config
 */
-@define('GANDER_ROOT', '/taz/'); // How the webbrowser should get to files. If you are installing Gander in the root dir this needs to be '/' if its in a folder called 'gander' it needs to be '/gander/'. This setting must always end in '/'
+@define('GANDER_ROOT', '/'); // How the webbrowser should get to files. If you are installing Gander in the root dir this needs to be '/' if its in a folder called 'gander' it needs to be '/gander/'. This setting must always end in '/'
 
 /**
 * PATHS 
