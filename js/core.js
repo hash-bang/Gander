@@ -19,7 +19,7 @@ $(function() {
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
 			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
 			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
-			jGrowl: {position: 'bottom-right'}, // Options passed to jquery.jGrowl
+			jGrowl: {position: 'bottom-right', life: 5000}, // Options passed to jquery.jGrowl
 			menu: {theme:'human'} // Options passed to jquery.contextmenu
 		},
 		/**
@@ -188,12 +188,28 @@ $(function() {
 			$.jGrowl(text, $.gander.options['jGrowl']);
 		},
 		/**
+		* Internal function to deal with AJAX responses.
+		* This function unpacks the response and relays any errors to the user
+		* @param string operation What operation was being performed at the time
+		* @param json json The JSON server response object
+		*/
+		_unpack: function(operation, json) {
+			console.log('Unpack after ' + operation);
+			if (json.header && json.header.errors && json.header.errors.length > 0) {
+				$.each(json.header.errors, function(o, e) {
+					$.gander.growl('error', e);
+					console.log('Error on ' + operation + ' - ' + e);
+				});
+			}
+		},
+		/**
 		* Change the file list to a given path
 		* This also refreshes the file list contents as loads thumbnails as needed
 		* @param string path The new path to change the file list to
 		*/
 		cd: function(path) {
 			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
+				$.gander._unpack('cd', json);
 				var list = $('#list');
 				var makethumb = 0;
 				$.gander.path = path;
@@ -204,14 +220,15 @@ $(function() {
 				$.each(json.list, function(file, data) {
 					if (data.makethumb)
 						makethumb++;
-					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
+					var fakeicon = (data.realthumb) ? 1:0;
+					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
 					newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 					list.append(newchild);
 				});
 				$.gander.current['offset'] = 0;
 				$.gander.thumbzoom('refresh');
 				if (makethumb > 0) // Still more work to do
-					$.gander.refresh();
+					setTimeout($.gander.refresh, 0);
 			});
 		},
 		/**
@@ -219,24 +236,44 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
-				var list = $('#list');
-				var makethumb = 0;
-				$.each(json.list, function(file, data) {
-					var existing = $('#list li[rel="' + file + '"]');
-					if (existing.length > 0) { // Item already exists
-						existing.find('img').attr('src', data.thumb);
-					} else { // New item
-						console.log('FIXME: ADDED NEW FILE ' + file);
-						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '"/></div></div><strong>' + data.title + '</strong></li>');
-						newchild.click($.gander._itemclick);
-						list.append(newchild);
-						// FIXME: new icons will not be in their correctly sorted place
+			console.log('REFRESH!');
+			var skip = []; // Calculate skip list from items we have in stock
+			$('#list li img[rel="1"]').each(function(o,i) {
+				skip.push($(i).parents('li').attr('rel'));
+			});
+
+			$.ajax({
+				url: $.gander.options['gander_server'], 
+				dataType: 'json',
+				type: 'POST',
+				data: {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip, type: 'refresh'},
+				success: function(json) {
+					$.gander._unpack('refresh', json);
+					var list = $('#list');
+					var makethumb = 0;
+					$.each(json.list, function(file, data) {
+						if (data.makethumb)
+							makethumb++;
+						var existing = $('#list li[rel="' + file + '"]');
+						if (existing.length > 0) { // Item already exists
+							existing.find('img').attr('src', data.thumb);
+						} else { // New item
+							console.log('FIXME: ADDED NEW FILE ' + file);
+							var fakeicon = (data.realthumb) ? 1:0;
+							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
+							newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
+							list.append(newchild);
+							// FIXME: new icons will not be in their correctly sorted place
+						}
+					});
+					$.gander.thumbzoom('refresh');
+					if (makethumb > 0) { // Still more work to do
+						console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
+						$.gander.refresh();
 					}
-				});
-				if (makethumb > 0) { // Still more work to do
-					console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
-					$.gander.refresh();
+				},
+				error: function(e,xhr,exception) {
+					$.gander.growl('Critical', 'Error while refreshing - ' + xhr.responseText + ' - ' + exception);
 				}
 			});
 		},
@@ -397,8 +434,9 @@ $(function() {
 						} else { // Fill cache request
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
-							$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(data) {
-								$('#display').load($.gander._displayloaded).attr('src', data.data);
+							$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(json) {
+								$.gander._unpack('open', json);
+								$('#display').load($.gander._displayloaded).attr('src', json.data);
 							});
 						}
 						$('#list li[rel="' + path + '"]').addClass('image-viewing');

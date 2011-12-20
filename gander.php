@@ -8,17 +8,20 @@ function b64($filename) {
 	return 'data:image/png;base64,' . base64_encode($imgbinary);
 }
 
-function b64_thumb($filename, $path, $make = 0) {
+function getthumb($filename, $path) {
 	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
 	if (is_file($thumbpath)) { // Look for existing
-		return b64($thumbpath);
-	} elseif ($make) { // No thumbnail found - make it
-		mktree(GANDER_THUMBPATH, "$path/$filename");
-		mkthumb($filename, $thumbpath);
 		return b64($thumbpath);
 	} else { // No thumbnail + no make
 		return FALSE;
 	}
+}
+
+function mkthumb($filename, $path) {
+	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
+	mktree(GANDER_THUMBPATH, "$path/$filename");
+	mkimg($filename, $thumbpath);
+	return b64($thumbpath);
 }
 
 function mktree($base, $path) {
@@ -36,7 +39,7 @@ function mktree($base, $path) {
 	chdir($cwd);
 }
 
-function mkthumb($in, $out) {
+function mkimg($in, $out) {
 	if (($imgsize = @getimagesize($in)) === false) // Make sure its a valid image
 		return false;
 	list($width_orig, $height_orig) = $imgsize;
@@ -100,6 +103,7 @@ function setting($setting, $value) {
 		define($setting, $value);
 }
 
+$header = array();
 if (!isset($_SERVER['SERVER_NAME'])) { // Possibly being called from the command line
 	$_REQUEST = unserialize(file_get_contents('PHP://STDIN'));
 	$notunnel = 1; // Prevent loops later when we need to figure out whether to tunnel ourselves
@@ -159,22 +163,40 @@ switch ($_REQUEST['cmd']) {
 		$mkthumb = isset($_REQUEST['mkthumbs']) && $_REQUEST['mkthumbs'];
 		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$panic = microtime(1) + GANDER_WEB_TIME;
+		$skip = isset($_POST['skip']) ? (array) $_POST['skip'] : array('_VOID');
 
 		if (!is_writable(GANDER_THUMBPATH))
 			$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable';
+		$header['errors'][] = 'SKIPS: ' . implode(', ', $skip);
 		foreach (glob('*') as $file) {
 			$path = ltrim("{$_REQUEST['path']}/$file", '/');
+			if (in_array($path, $skip))
+				continue;
 			$couldthumb = preg_match(GANDER_THUMB_ABLE, $file);
 			if (
 				$getthumb && // Requested thumbs
 				$couldthumb && // We could potencially thumb the image
 				microtime(1) < $panic && // Still got time to spend
-				($maxthumbs == 0 || $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
-				$thumb = b64_thumb($file, $_REQUEST['path'], $mkthumb) // It was successful
+				$thumb = getthumb($file, $_REQUEST['path']) // It was successful
 			) { // Thumbnail found
 				$files[$path] = array(
 					'title' => basename($file),
+					'realthumb' => 1,
 					'thumb' => $thumb,
+				);
+			} elseif (
+				$getthumb && // Requested thumbs
+				$couldthumb && // We could potencially thumb the image
+				$mkthumb && // Allowed to make thumbs
+				microtime(1) < $panic && // Still got time to spend
+				($maxthumbs == 0 || $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
+				$thumb = mkthumb($file, $_REQUEST['path']) // It was successful
+			) { // Thumbnail made
+				$files[$path] = array(
+					'title' => basename($file),
+					'realthumb' => 1,
+					'thumb' => $thumb,
+					'fresh' => 1,
 				);
 			} elseif (is_dir(GANDER_PATH . $path)) { // Folder (Also add a slash so we can tell its a folder)
 				$folders["$path/"] = array(
@@ -188,6 +210,7 @@ switch ($_REQUEST['cmd']) {
 				);
 				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
+				$files[$path]['thumbinfo'] = "MK: $mkthumb, GET: $getthumb, COULD: $couldthumb, MAX: $maxthumbs, CUR: $sent";
 			} elseif (!GANDER_UNKNOWN_IGNORE) { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),
