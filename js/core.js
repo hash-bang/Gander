@@ -153,7 +153,7 @@ $(function() {
 			});
 
 			// MC - Fix to pickup keypress events when in fullscreen and relay them to the correct callback
-			/*$(window).delegate('*', 'keypress', function(e) {
+			$(window).delegate('*', 'keypress', function(e) {
 				console.log('DETECT ' + e.keyCode);
 				if (window.fullScreenApi.isFullScreen()) { // We only care if we are in fullscreen mode
 					var key = String.fromCharCode(e.keyCode);
@@ -163,7 +163,7 @@ $(function() {
 						return false;
 					}
 				}
-			});*/
+			});
 		},
 		/**
 		* Simple, idiot proof command runner.
@@ -222,7 +222,8 @@ $(function() {
 					var node = $('#dirlist').dynatree('getTree').getNodeByKey(walk);
 					if (node) {
 						node.focus();
-						node.toggleExpand();
+						if (!node.isExpanded())
+							node.toggleExpand();
 						setTimeout("$('#dirlist').dynatree('getTree').getNodeByKey('" + walk + "').focus()", 0);
 					} else {
 						$.gander._cdtreebits.unshift(walk); // Put back on watch stack
