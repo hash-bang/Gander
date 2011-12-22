@@ -17,7 +17,7 @@ $(function() {
 			zoom_stretch_smaller: 1, // 1 - Stretch smaller images bigger to fit, 0 - Zoom smaller images to 100%
 			thumbs_max_get_first: 0, // Maximum number of thumbs to request on first sweep, set to 0 for all
 			thumbs_max_get: 10, // Subsequent number of thumbs per request
-			fullscreen: 1, // 0 - Just display, 1 - Also try for fullscreen layout
+			fullscreen: 0, // 0 - Just display, 1 - Try for real fullscreen layout
 			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
 			jGrowl: {position: 'bottom-right', life: 5000}, // Options passed to jquery.jGrowl
 			menu: {theme:'human'} // Options passed to jquery.contextmenu
@@ -82,6 +82,8 @@ $(function() {
 			// Viewer
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
+
+			shortcut.add('n', function() { $.gander.window('new'); });
 
 			// Menus
 			// See http://www.javascripttoolbox.com/lib/contextmenu/ for syntax
@@ -477,11 +479,17 @@ $(function() {
 						$.gander.current['path'] = path;
 					}
 					$('#window-display').show();
-					if ($.gander.options['fullscreen'] == 1 && !window.fullScreenApi.isFullScreen()) {
-						if (window.fullScreenApi.supportsFullScreen) {
-							window.fullScreenApi.requestFullScreen(document.body);
-						} else {
-							$.gander.growl('error', 'Your browser does not support fullscreen mode');
+
+					// Handle fullscreen options
+
+					if ($.gander.options['fullscreen'] == 1) { // Try for real fullscreen
+						if (!window.fullScreenApi.isFullScreen()) {
+							if (window.fullScreenApi.supportsFullScreen) {
+								window.fullScreenApi.requestFullScreen(document.body);
+							} else {
+								$.gander.growl('error', 'Your browser does not support fullscreen mode. Forced option "fullscreen = 0" from now on.');
+								$.gander.options['fullscreen'] = 0;
+							}
 						}
 					}
 					break;
@@ -513,6 +521,18 @@ $(function() {
 			$.gander.current['height'] = this.naturalHeight;
 			$.gander.zoom($.gander.options['zoom_on_open']);
 			$.gander.throbber('off');
+		},
+		/**
+		* Window interface
+		*/
+		window: function(cmd) {
+			switch(cmd) {
+				case 'new':
+					newwindow=window.open('/','name','height=450,width=450,screenX=350,screenY=100,scrollbars=yes,menubar=no,location=no,status=no,toolbar=no');
+					if (window.focus)
+						newwindow.focus();
+					break;
+			}
 		}
 	}});
 	$.gander.init();
