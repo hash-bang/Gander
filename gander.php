@@ -163,11 +163,10 @@ switch ($_REQUEST['cmd']) {
 		$mkthumb = isset($_REQUEST['mkthumbs']) && $_REQUEST['mkthumbs'];
 		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$panic = microtime(1) + GANDER_WEB_TIME;
-		$skip = isset($_POST['skip']) ? (array) $_POST['skip'] : array('_VOID');
+		$skip = isset($_POST['skip']) ? (array) $_POST['skip'] : array();
 
 		if (!is_writable(GANDER_THUMBPATH))
 			$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable';
-		$header['errors'][] = 'SKIPS: ' . implode(', ', $skip);
 		foreach (glob('*') as $file) {
 			$path = ltrim("{$_REQUEST['path']}/$file", '/');
 			if (in_array($path, $skip))
@@ -242,7 +241,8 @@ switch ($_REQUEST['cmd']) {
 					}
 
 				$out[] = array(
-					'key' => "{$_REQUEST['path']}/$file",
+					'key' => ($_REQUEST['path'] ? "/{$_REQUEST['path']}/$file" : "/$file"),
+					//'key' => $file,
 					'title' => $file,
 					'isFolder' => 1,
 					'isLazy' => ($haschildren ? 1 : 0),

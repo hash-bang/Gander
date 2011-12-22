@@ -125,8 +125,11 @@ $(function() {
 
 			// Filetree setup
 			$('#dirlist').dynatree({
+				minExpandLevel: 1,
 				imagePath: '/js/jquery.dynatree.skin/',
+				clickFolderMode: 3,
 				selectMode: 1,
+				idPrefix: "dynatree-id-",
 				fx: { height: 'toggle', duration: 200 },
 				initAjax: {
 					url: $.gander.options['gander_server'] + '?cmd=tree',
@@ -134,7 +137,11 @@ $(function() {
 				onLazyRead: function(node) {
 					node.appendAjax({
 						url: $.gander.options['gander_server'] + '?cmd=tree',
-						data: { path: node.data.key }
+						data: { path: node.data.key },
+						success: function() {
+							console.log('DONE LOAD');
+							$.gander._cdtree();
+						}
 					});
 				},
 				onClick: function(node) {
@@ -202,20 +209,62 @@ $(function() {
 				});
 			}
 		},
+		_cdtreebits: [],
+		_cdtree: function(path) {
+			if (path) { // New tree spec - break up into bits
+				var fullpath = '';
+				$.gander._cdtreebits = $.map(path.substr(1).split('/'), function(i) {
+					fullpath += '/' + i;
+					console.log('SLICE: ' + fullpath);
+					return fullpath;
+				});
+			}
+			if ($.gander._cdtreebits.length > 0) {
+				while(walk = $.gander._cdtreebits.shift()) { // Walk as far down the tree as we can
+					console.log('NAV TO ' + walk);
+					var node = $('#dirlist').dynatree('getTree').getNodeByKey(walk);
+					if (node) {
+						console.log('FOCUS ' + walk);
+						node.focus();
+						node.toggleExpand();
+						setTimeout("$('#dirlist').dynatree('getTree').getNodeByKey('" + walk + "').focus()", 0);
+					} else {
+						console.log('Cant find node ' + walk);
+						$.gander._cdtreebits.unshift(walk); // Put back on watch stack
+						break;
+					}
+				};
+			}
+		},
 		/**
 		* Change the file list to a given path
 		* This also refreshes the file list contents as loads thumbnails as needed
 		* @param string path The new path to change the file list to
+		* @param callback callback The callback to call after the directory change
 		*/
-		cd: function(path) {
+		cd: function(path, success) {
 			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				$.gander._unpack('cd', json);
 				var list = $('#list');
 				var makethumb = 0;
+				if (path.substr(0,1) != '/')
+					path = '/' + path;
 				$.gander.path = path;
 				window.location.hash = path;
+
 				// FIXME: Need to select down the tree to this point
-				$('#dirlist').dynatree('getTree').getNodeByKey(path);
+				/*$('#dirlist').dynatree('getTree').loadKeyPath(path, function(node, status) {
+					if (status == 'loaded') {
+						node.expand();
+					} else
+						node.activate();
+				});*/
+				/*var node = '';
+				$.each(path.split('/'), function(offset, bit) {
+					node += '/' + bit;
+					console.log('NAVIGATE TO ' + node);
+					$('#dirlist').dynatree('getTree').activateKey(node);
+				});*/
 				list.empty();
 				$.each(json.list, function(file, data) {
 					if (data.makethumb)
@@ -229,6 +278,8 @@ $(function() {
 				$.gander.thumbzoom('refresh');
 				if (makethumb > 0) // Still more work to do
 					setTimeout($.gander.refresh, 0);
+				if (success)
+					success();
 			});
 		},
 		/**
@@ -482,5 +533,7 @@ $(function() {
 		}
 	}});
 	$.gander.init();
-	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/');
+	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', function() {
+		$.gander._cdtree($.gander.path);
+	});
 });
