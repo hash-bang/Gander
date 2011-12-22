@@ -139,7 +139,6 @@ $(function() {
 						url: $.gander.options['gander_server'] + '?cmd=tree',
 						data: { path: node.data.key },
 						success: function() {
-							console.log('DONE LOAD');
 							$.gander._cdtree();
 						}
 					});
@@ -215,21 +214,17 @@ $(function() {
 				var fullpath = '';
 				$.gander._cdtreebits = $.map(path.substr(1).split('/'), function(i) {
 					fullpath += '/' + i;
-					console.log('SLICE: ' + fullpath);
 					return fullpath;
 				});
 			}
 			if ($.gander._cdtreebits.length > 0) {
 				while(walk = $.gander._cdtreebits.shift()) { // Walk as far down the tree as we can
-					console.log('NAV TO ' + walk);
 					var node = $('#dirlist').dynatree('getTree').getNodeByKey(walk);
 					if (node) {
-						console.log('FOCUS ' + walk);
 						node.focus();
 						node.toggleExpand();
 						setTimeout("$('#dirlist').dynatree('getTree').getNodeByKey('" + walk + "').focus()", 0);
 					} else {
-						console.log('Cant find node ' + walk);
 						$.gander._cdtreebits.unshift(walk); // Put back on watch stack
 						break;
 					}
@@ -252,19 +247,6 @@ $(function() {
 				$.gander.path = path;
 				window.location.hash = path;
 
-				// FIXME: Need to select down the tree to this point
-				/*$('#dirlist').dynatree('getTree').loadKeyPath(path, function(node, status) {
-					if (status == 'loaded') {
-						node.expand();
-					} else
-						node.activate();
-				});*/
-				/*var node = '';
-				$.each(path.split('/'), function(offset, bit) {
-					node += '/' + bit;
-					console.log('NAVIGATE TO ' + node);
-					$('#dirlist').dynatree('getTree').activateKey(node);
-				});*/
 				list.empty();
 				$.each(json.list, function(file, data) {
 					if (data.makethumb)
