@@ -3,7 +3,7 @@ Gander
 
 _Gander is still under major development - use at your own risk_
 
-A picture gallery system that just works.
+A picture gallery system that works without requiring anything other than some media to show.
 
 No databases, no screwing about with config. Put files in a directory and open the browser.
 
@@ -17,3 +17,27 @@ Features:
 * Forward and reverse caching of images - designed to keep the waiting at a minimum
 * Thumbnailer system built in - No third-party tools required.
 * Configurable CSS styles and page layouts
+
+
+Known issues
+------------
+
+* Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
+* Non-writable cache dir error detection needs testing
+* Newly created thumbnails are not the correct zoom when being read for the first time
+* Sometimes directories dont always load all the thumbnails
+
+
+TODO list
+---------
+
+* Functionality to remember prefered zoom and position of image and retore it when needed
+* Functionality to navigate up/down/out a directory
+* Screen spliting (VIM style)
+* Load images recursively from a tree
+* Multiple image list tabs
+* Pull in images into browse from other folders (similar to 'queue' in music players)
+* Star image - implies view by starred or filter by starred
+* Track image views - Save the last time an image was accessed
+* Thumbnail for folders - 'Set as folder thumbnail' option
+* In-image thumbnail quick navigation bar to show siblings
