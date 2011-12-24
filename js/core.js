@@ -20,7 +20,11 @@ $(function() {
 			fullscreen: 0, // 0 - Just display, 1 - Try for real fullscreen layout
 			throb_from_fullscreen: 1, // Display the throbber when coming from the browser to fullscreen
 			jGrowl: {position: 'bottom-right', life: 5000}, // Options passed to jquery.jGrowl
-			menu: {theme:'human'} // Options passed to jquery.contextmenu
+			menu: {theme:'human'}, // Options passed to jquery.contextmenu
+
+			// The following options are supplied by the server. Overwriting these will have little effect
+			media_transmit: 1, // Determined from server
+			media_transmit_path: '/taz/media/%p' // Determined from server
 		},
 		/**
 		* Details on the currently viewed image
@@ -108,7 +112,7 @@ $(function() {
 
 
 			$(document).bind('mousewheel', function(event, delta) {
-				if (window.fullScreenApi.isFullScreen()) { // Only capture if we are fullscreen
+				if ($.gander.viewer('isopen')) { // Only capture if we are viewing
 					$.gander.select(delta > 0 ? 'previous' : 'next');
 					return false;
 				}
@@ -488,10 +492,14 @@ $(function() {
 						} else { // Fill cache request
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
-							$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(json) {
-								$.gander._unpack('open', json);
-								$('#display').load($.gander._displayloaded).attr('src', json.data);
-							});
+							if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
+								$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(json) {
+									$.gander._unpack('open', json);
+									$('#display').load($.gander._displayloaded).attr('src', json.data);
+								});
+							} else { // Stream
+								$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
+							}
 						}
 						$('#list li[rel="' + path + '"]').addClass('image-viewing');
 						$.gander.current['path'] = path;

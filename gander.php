@@ -11,7 +11,10 @@ function b64($filename) {
 function getthumb($filename, $path) {
 	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
 	if (is_file($thumbpath)) { // Look for existing
-		return b64($thumbpath);
+		switch (GANDER_THUMB_TRANSMIT) {
+			case 0: return b64($thumbpath);
+			case 1: return strtr(GANDER_THUMB_TRANSMIT_PATH, array('%p' => "$path/$filename"));
+		}
 	} else { // No thumbnail + no make
 		return FALSE;
 	}
@@ -21,7 +24,7 @@ function mkthumb($filename, $path) {
 	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
 	mktree(GANDER_THUMBPATH, "$path/$filename");
 	mkimg($filename, $thumbpath);
-	return b64($thumbpath);
+	return 1; // FIXME: Do something useful for failed images
 }
 
 function mktree($base, $path) {
@@ -117,8 +120,9 @@ if (isset($_SERVER['SERVER_NAME']) && file_exists($s = "config/host_{$_SERVER['S
 require('config/settings.php');
 
 if (GANDER_TUNNEL && !isset($notunnel)) {
-	$cmd = GANDER_TUNNEL_CMD ? GANDER_TUNNEL_CMD : 'TERM=dumb sudo -u taz /usr/bin/php ' . __FILE__ . ' 2>&1'; // Work out which command to use
+	$cmd = GANDER_TUNNEL_CMD ? GANDER_TUNNEL_CMD : 'TERM=dumb sudo -u ' . GANDER_TUNNEL_USER . ' /usr/bin/php ' . __FILE__; // Work out which command to use
 	$_REQUEST['SERVER_NAME'] = $_SERVER['SERVER_NAME']; // We need to carry this over because the config system depends on knowing the current server name
+	$_REQUEST['IN_TUNNEL'] = 1;
 	$proc = proc_open($cmd, array( // The dance of the pipes
 		0 => array('pipe', 'r'),
 		1 => array('pipe', 'w'),
@@ -126,30 +130,79 @@ if (GANDER_TUNNEL && !isset($notunnel)) {
 	), $pipes);
 	fwrite($pipes[0], serialize($_REQUEST)); // Ugh. But necessary
 	fclose($pipes[0]);
-	echo stream_get_contents($pipes[1]); // Spew the output of this script running inside sudo
+	$content = stream_get_contents($pipes[1]); // Spew the output of this script running inside sudo
+	$err = stream_get_contents($pipes[2]);
+	if (preg_match_all('/^header (.*)$/m', $err, $headers, PREG_SET_ORDER)) // Read header info from STDERR
+		foreach($headers as $header)
+			header($header[1]);
 	fclose($pipes[1]);
 	fclose($pipes[2]);
+	echo $content;
 	$return = proc_close($proc);
 	if ($return > 0) {
-		echo json_encode(array('header' => array('errors' => array("Failed to tunnel correctly. Gander sub-process returned code #$return")))); // FIXME: This could do with being a bit more helpful
+		echo json_encode(array('header' => array('errors' => array("Failed to tunnel correctly. Gander sub-process returned code #$return"))));
 	}
 	exit;
 }
 
 chdir(GANDER_PATH);
 $header = array();
-switch ($_REQUEST['cmd']) {
+$cmd = $_REQUEST['cmd'];
+switch ($cmd) {
 	case 'hello':
 		echo json_encode(array(
 			'header' => $header,
 			'data' => 'Hello World',
 		));
 		break;
-	case 'get':
-		echo json_encode(array(
-			'header' => $header,
-			'data' => b64($_REQUEST['path']),
-		));
+	case 'get': // Retrieve an image
+		switch (GANDER_THUMB_TRANSMIT) {
+			case 0: // Return as JSON
+				echo json_encode(array(
+					'header' => $header,
+					'data' => b64($_REQUEST['path']),
+				));
+				exit();
+			case 1: // Return as stream
+				$cmd = 'stream';
+				break;
+		}
+		// Fall though to...
+	case 'streamthumb': // Same as 'stream' but transmits the thumbnail instead of the real object
+	case 'stream':
+		if ($cmd == 'streamthumb') { // Get the real object
+			$path = dirname(GANDER_THUMBPATH . ltrim($_REQUEST['path'], '/'));
+		} else { // Get the thumb
+			$path = GANDER_PATH . dirname(ltrim($_REQUEST['path'], '/'));
+		}
+		$file = basename($_REQUEST['path']);
+		$ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+		if (!isset($GLOBALS['mimes'][$ext]))
+			$header['errors'][] = "Invalid mime type to request - $ext";
+		if (!is_dir($path))
+			$header['errors'][] = "Invalid object to stream - {$_REQUEST['path']}";
+		if (isset($header['errors'])) { // Errors occured
+			echo json_encode(array(
+				'header' => $header,
+				'data' => b64($_REQUEST['path']),
+			));
+			die();
+		}
+		chdir($path);
+		if (isset($_REQUEST['IN_TUNNEL']) && $_REQUEST['IN_TUNNEL']) { // Transmit headers onto STDERR
+			$STDERR = fopen('PHP://STDERR', 'a');
+			fwrite($STDERR, "header Content-Type: " . $GLOBALS['mimes'][$ext] . "\n");
+			fwrite($STDERR, "header Content-Transfer-Encoding: binary\n");
+			fwrite($STDERR, "header Content-Length: " . filesize($file) . "\n");
+			fwrite($STDERR, "header Last-Modified: " . date('r',filemtime($file)) . "\n");
+		} else { // Set headers as normal
+			header('Content-Type: ' . $GLOBALS['mimes'][$ext]);
+			header('Content-Transfer-Encoding: binary');
+			header('Content-Length: ' . filesize($file));
+			header('Last-Modified: ' . date('r',filemtime($file)));
+		}
+		readfile($file);
+		exit();
 		break;
 	case 'list':
 		if (!isset($_REQUEST['path'])) $_REQUEST['path'] = '';
@@ -189,7 +242,8 @@ switch ($_REQUEST['cmd']) {
 				$mkthumb && // Allowed to make thumbs
 				microtime(1) < $panic && // Still got time to spend
 				($maxthumbs == 0 || $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
-				$thumb = mkthumb($file, $_REQUEST['path']) // It was successful
+				mkthumb($file, $_REQUEST['path']) && // It was successful
+				$thumb = getthumb($file, $_REQUEST['path']) // We can retrive it again
 			) { // Thumbnail made
 				$files[$path] = array(
 					'title' => basename($file),
@@ -209,7 +263,6 @@ switch ($_REQUEST['cmd']) {
 				);
 				if ($couldthumb)
 					$files[$path]['makethumb'] = 1;
-				$files[$path]['thumbinfo'] = "MK: $mkthumb, GET: $getthumb, COULD: $couldthumb, MAX: $maxthumbs, CUR: $sent";
 			} elseif (!GANDER_UNKNOWN_IGNORE) { // Unknown file type
 				$files[$path] = array(
 					'title' => basename($file),

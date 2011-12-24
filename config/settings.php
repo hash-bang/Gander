@@ -33,6 +33,18 @@
 @define('GANDER_ROOT_NAME', 'Gander'); // The name of the root node
 
 /**
+* Streaming and transmission options
+*/
+@define('GANDER_THUMB_TRANSMIT', 0); // 0 - Encode as JSON response, 1 - Stream
+@define('GANDER_THUMB_TRANSMIT_PATH', 'images/%p'); // If GANDER_THUMB_TRANSMIT == 1 this is the prefix prepended to the image path. %p is replaced with the file path. Point this at either the real directory used in GANDER_PATH if its exposed to the web or use Ganders inbuilt streaming as in the next example
+//@define('GANDER_THUMB_TRANSMIT_PATH', 'gander.php?cmd=streamthumb&path=%p'); // Example path where Gander will stream the file. Useful if GANDER_PATH is outside the accessible document root
+
+@define('GANDER_MEDIA_TRANSMIT', 0); // 0 - Encode as JSON response, 1 - Stream
+@define('GANDER_MEDIA_TRANSMIT_PATH', 'images/%p'); // If GANDER_MEDIA_TRANSMIT == 1 this is the prefix prepended to the image path. See GANDER_THUMB_TRANSMIT_PATH for details.
+//@define('GANDER_MEDIA_TRANSMIT_PATH', 'gander.php?cmd=stream&path=%p'); // Example path where Gander will stream the file. Useful if GANDER_PATH is outside the accessible document root
+
+
+/**
 * Web request options
 */
 @define('GANDER_WEB_TIME', 300); // Ideal amount of time the web request shoud take. This is used to tell the thumbnaier when to give up and return something.
@@ -59,4 +71,21 @@
 * Good luck.
 */
 @define('GANDER_TUNNEL', 0); // Allow Gander to tunnel itself though Sudo. Read the section on this in the config/settings.php file for more details
-@define('GANDER_TUNNEL_CMD', 0); // The command to use. This overrides the default which is 'TERM=dumb sudo -u taz /usr/bin/php __FILE__ 2>&1' where __FILE__ is the gander.php core PHP file
+@define('GANDER_TUNNEL_USER', 'images'); // The user to assume the identify of
+@define('GANDER_TUNNEL_CMD', 0); // The command to use. This overrides the default which is 'TERM=dumb sudo -u <GANDER_TUNNEL_USER> /usr/bin/php __FILE__ 2>&1' where __FILE__ is the gander.php core PHP file
+
+/**
+* Mime type setup
+* This is a list of all known file extensions along with their mime type
+* If the file extension is not listed in here Gander will not list that file
+*/
+$GLOBALS['mimes'] = array(
+'gif' => 'image/gif',
+'jfif' => 'image/jpeg',
+'jpe' => 'image/jpeg',
+'jpeg' => 'image/jpeg',
+'jpg' => 'image/jpeg',
+'png' => 'image/png',
+'tif' => 'image/tiff',
+'tiff' => 'image/tiff',
+);
