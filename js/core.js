@@ -477,6 +477,7 @@ $(function() {
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
 					$('#window-display').hide();
+					$('#window-list').scrollTo($('#list li').eq($.gander.current['offset']));
 					break;
 				case 'toggle':
 					$.gander.viewer(($('#window-display').css('display') == 'none') ? 'show' : 'hide');
