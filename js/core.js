@@ -202,7 +202,6 @@ $(function() {
 		* @param json json The JSON server response object
 		*/
 		_unpack: function(operation, json) {
-			console.log('Unpack after ' + operation);
 			if (json.header && json.header.errors && json.header.errors.length > 0) {
 				$.each(json.header.errors, function(o, e) {
 					$.gander.growl('error', e);
@@ -210,6 +209,12 @@ $(function() {
 				});
 			}
 		},
+		/**
+		* Internal functionality to navigate down the hierarchical tree
+		* This gets complex because the tree is loaded dynamicly as needed so we have to open a node, then wait until the sub-nodes load to continue
+		* @param string path Optional eventual path to navigate to. If unspecified a check is performed to see if any child sub-nodes are ready for expansion
+		* @access private
+		*/
 		_cdtreebits: [],
 		_cdtree: function(path) {
 			if (path) { // New tree spec - break up into bits
@@ -244,7 +249,7 @@ $(function() {
 			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				$.gander._unpack('cd', json);
 				var list = $('#list');
-				var makethumb = 0;
+				var makethumb = 0; // How many thumbs there are left to load
 				if (path.substr(0,1) != '/')
 					path = '/' + path;
 				$.gander.path = path;
@@ -260,9 +265,13 @@ $(function() {
 					list.append(newchild);
 				});
 				$.gander.current['offset'] = 0;
-				$.gander.thumbzoom('refresh');
-				if (makethumb > 0) // Still more work to do
+				$.gander.thumbzoom('apply');
+				if (makethumb > 0) { // Still more work to do
 					setTimeout($.gander.refresh, 0);
+					$.jGrowl(makethumb + ' remaining', $.extend($.gander.options['jGrowl'], {header: 'Creating thumbnails', sticky: 1, open: function(e,m,o) {
+						e.find('.jGrowl-message').attr('id', 'thumbnailer_info');
+					}}));
+				}
 				if (success)
 					success();
 			});
@@ -282,7 +291,7 @@ $(function() {
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip, type: 'refresh'},
+				data: {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
 					var list = $('#list');
@@ -292,7 +301,9 @@ $(function() {
 							makethumb++;
 						var existing = $('#list li[rel="' + file + '"]');
 						if (existing.length > 0) { // Item already exists
-							existing.find('img').attr('src', data.thumb);
+							existing.find('img').attr('src', data.thumb).load(function() {
+								$.gander.thumbzoom('apply', this);
+							});
 						} else { // New item
 							console.log('FIXME: ADDED NEW FILE ' + file);
 							var fakeicon = (data.realthumb) ? 1:0;
@@ -302,7 +313,7 @@ $(function() {
 							// FIXME: new icons will not be in their correctly sorted place
 						}
 					});
-					$.gander.thumbzoom('refresh');
+					$('#thumbnailer_info').html(makethumb + ' remaining');
 					if (makethumb > 0) { // Still more work to do
 						console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
 						$.gander.refresh();
@@ -373,8 +384,9 @@ $(function() {
 		/**
 		* Thumbnail functionality interface
 		* @param string direction Optional command to give the thumbnail interface handler. See the functions switch statement for further details
+		* @param object A specific object to apply the zoom settings to. If omitted all thumbs will be zoomed
 		*/
-		thumbzoom: function(direction) {
+		thumbzoom: function(direction, img) {
 			var zoom = $.gander.current['thumbzoom'];
 			switch(direction) {
 				case 'in':
@@ -383,7 +395,7 @@ $(function() {
 				case 'out':
 					zoom = $.gander.adjust(zoom, 0 - $.gander.options['zoom_thumb_adjust'], $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 					break;
-				case 'refresh':
+				case 'apply':
 					break;
 				case 'reset':
 				case 'normal':
@@ -392,11 +404,17 @@ $(function() {
 					zoom = direction;
 					zoom = $.gander.adjust(direction, 0, $.gander.options['zoom_thumb_min'], $.gander.options['zoom_thumb_max']);
 			}
-			if (direction != 'refresh' && zoom == $.gander.current['thumbzoom']) return;
+			if (direction != 'apply' && zoom == $.gander.current['thumbzoom']) return;
 			$.gander.current['thumbzoom'] = zoom;
-			$('#list li img').each(function() {
+			$(img ? img : '#list li img').each(function() {
 				var item = $(this);
-				item.attr((this.naturalHeight > this.naturalWidth) ? 'height' : 'width', zoom + 'px');
+				if (this.naturalHeight && this.naturalWidth) {
+					if (this.naturalHeight > this.naturalWidth) {
+						item.attr({height: zoom + 'px', width: (zoom / this.naturalHeight) * this.naturalWidth + 'px'});
+					} else {
+						item.attr({width: zoom + 'px', height: (zoom / this.naturalWidth) * this.naturalHeight + 'px'});
+					}
+				}
 			});
 		},
 		/**
