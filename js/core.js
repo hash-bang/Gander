@@ -87,7 +87,7 @@ $(function() {
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
-			shortcut.add('n', function() { $.gander.window('new'); });
+			shortcut.add('n', function() { $.gander.window('clone'); });
 
 			// Menus
 			// See http://www.javascripttoolbox.com/lib/contextmenu/ for syntax
@@ -555,7 +555,12 @@ $(function() {
 		window: function(cmd) {
 			switch(cmd) {
 				case 'new':
-					newwindow=window.open('/','name','height=450,width=450,screenX=350,screenY=100,scrollbars=yes,menubar=no,location=no,status=no,toolbar=no');
+					newwindow=window.open('/','gander','height=450,width=450,screenX=350,screenY=100,scrollbars=yes,menubar=no,location=no,status=no,toolbar=no');
+					if (window.focus)
+						newwindow.focus();
+					break;
+				case 'clone':
+					newwindow=window.open(window.location,'gander', 'height=' + $(window).height() + ',width=' + $(window).width() + ',screenX=' + ((document.all)?window.screenLeft:window.screenX) + ',screenY=' + ((document.all)?window.screenTop:window.screenY) + ',scrollbars=yes,menubar=no,location=no,status=no,toolbar=no');
 					if (window.focus)
 						newwindow.focus();
 					break;
