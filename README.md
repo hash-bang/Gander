@@ -15,7 +15,7 @@ Features:
 * Fully-featured - bindable controls for just about every feature of a gallery system.
 * Scalable - Designed for very-large folders full of images.
 * Forward and reverse caching of images - designed to keep the waiting at a minimum
-* Thumbnailer system built in - No third-party tools required.
+* Thumbnailer system built in - No third-party tools or building thumbnails required.
 * Configurable CSS styles and page layouts
 
 
@@ -24,6 +24,8 @@ Known issues
 
 * Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
 * Non-writable cache dir error detection needs testing
+* Zoom fit for images that are wider than they are tall doesn't work correctly (too zoomed in)
+* Sometimes directory images are sized incorrectly
 
 
 TODO list
