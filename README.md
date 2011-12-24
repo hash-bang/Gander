@@ -24,16 +24,14 @@ Known issues
 
 * Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
 * Non-writable cache dir error detection needs testing
-* Newly created thumbnails are not the correct zoom when being read for the first time
-* Sometimes directories dont always load all the thumbnails
 
 
 TODO list
 ---------
 
-* Functionality to remember prefered zoom and position of image and retore it when needed
+* Functionality to remember preferred zoom and position of image and restore it when needed
 * Functionality to navigate up/down/out a directory
-* Screen spliting (VIM style)
+* Screen splitting (VIM style)
 * Load images recursively from a tree
 * Multiple image list tabs
 * Pull in images into browse from other folders (similar to 'queue' in music players)
