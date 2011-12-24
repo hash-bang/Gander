@@ -56,7 +56,7 @@ $(function() {
 		*/
 		init: function() {
 			// Navigation
-			shortcut.add('a', function() { alert('A'); $.gander.select('previous'); });
+			shortcut.add('a', function() { $.gander.select('previous'); });
 			shortcut.add('s', function() { $.gander.select('next'); });
 			shortcut.add('z', function() { $.gander.select('first'); });
 			shortcut.add('x', function() { $.gander.select('last'); });
