@@ -25,7 +25,6 @@ Known issues
 * Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
 * Non-writable cache dir error detection needs testing
 * Zoom fit for images that are wider than they are tall doesn't work correctly (too zoomed in)
-* Sometimes directory images are sized incorrectly
 
 
 TODO list

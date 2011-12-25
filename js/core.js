@@ -68,10 +68,6 @@ $(function() {
 			shortcut.add('right', function() { $.gander.select('next'); });
 
 			// Zooms
-			/*shortcut.add('Ctrl+q', function() { $.gander.thumbzoom('in'); });
-			shortcut.add('Ctrl+w', function() { $.gander.thumbzoom('out'); });
-			shortcut.add('Ctrl+e', function() { $.gander.thumbzoom('fit'); });
-			shortcut.add('Ctrl+r', function() { $.gander.thumbzoom('reset'); }); */
 			shortcut.add('q', function() { $.gander.zoom('in'); });
 			shortcut.add('w', function() { $.gander.zoom('out'); });
 			shortcut.add('e', function() { $.gander.zoom('fit'); });
@@ -264,12 +260,13 @@ $(function() {
 					if (data.makethumb)
 						makethumb++;
 					var fakeicon = (data.realthumb) ? 1:0;
-					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
+					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 					newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
+					var img = $('<img/>', {src: data.thumb, rel: fakeicon}).load(function() { $.gander.thumbzoom('apply', this); });
+					newchild.find('.imgframe').append(img);
 					list.append(newchild);
 				});
 				$.gander.current['offset'] = 0;
-				$.gander.thumbzoom('apply');
 				if (makethumb > 0) { // Still more work to do
 					setTimeout($.gander.refresh, 0);
 					$.jGrowl(makethumb + ' remaining', $.extend($.gander.options['jGrowl'], {header: 'Creating thumbnails', sticky: 1, open: function(e,m,o) {
@@ -317,10 +314,12 @@ $(function() {
 							// FIXME: new icons will not be in their correctly sorted place
 						}
 					});
-					$('#thumbnailer_info').html(makethumb + ' remaining');
 					if (makethumb > 0) { // Still more work to do
 						console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
 						$.gander.refresh();
+						$('#thumbnailer_info').html(makethumb + ' remaining');
+					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
+						$('#thumbnailer_info').parents('.jGrowl-notification').remove();
 					}
 				},
 				error: function(e,xhr,exception) {
