@@ -40,6 +40,7 @@ TODO list
 * List view and column view of items
 * Functionality to remember preferred zoom and position of image and restore it when needed
 * Functionality to navigate up/down/out a directory
+* Transition when displaying a newly created thumbnail (fadein perhaps?)
 * Screen splitting (VIM style)
 * Load images recursively from a tree
 * Multiple image list tabs
@@ -48,7 +49,6 @@ TODO list
 * Track image views - Save the last time an image was accessed
 * Thumbnail for folders - 'Set as folder thumbnail' option
 * In-image thumbnail quick navigation bar to show siblings
-* Display 'end of list' or something when trying to navigate past the last item in a file list
 * Random and Random-lock functionality
 * Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions

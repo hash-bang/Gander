@@ -192,12 +192,47 @@ $(function() {
 		},
 		/**
 		* Simple function to display a message to the user
-		* @param string type The type of the message. Values: notice, error
+		* @param string type The type of the message. Values: notice, error, thumbnails
 		* @param string text The actual text of the message
+		* @param string id Unique ID to bind the jGrowl notifier to. If the ID already exists the notification will not be created again
+		* @param array options Optional jGrowl options to add to the defaults
+		* @return bool True if the message was created, false if it already exists
 		*/
-		growl: function(type, text) {
+		growl: function(type, text, id, options) {
 			// FIXME: type is currently ignored
-			$.jGrowl(text, $.gander.options['jGrowl']);
+			var opts = $.gander.options['jGrowl'];
+			if (id) {
+				if ($('#' + id).length > 0) {
+					console.log('ABORT: ' + id);
+					return;
+				}
+				opts['open'] = function(e,m,o) {
+					e.find('.jGrowl-message').attr('id', id);
+				};
+			}
+			if (options)
+				opts = $.extend(opts, options);
+			$.jGrowl(text, opts);
+			console.log('NOTICE: ' + text);
+			return 1;
+		},
+		/**
+		* Updates the text of a notification created with $.gander.growl()
+		* @param string id The ID of the message to update
+		* @param string text The new status text to use
+		* @see growl()
+		*/
+		growl_update: function(id, text) {
+			console.log('NOTICE: ' + text);
+			$('#' + id).html(text);
+		},
+		/**
+		* Closes a notification created with $.gander.growl()
+		* @param string id The ID of the message to close
+		* @see growl()
+		*/
+		growl_close: function(id) {
+			$('#' + id).parents('.jGrowl-notification').jGrowl('close');
 		},
 		/**
 		* Internal function to deal with AJAX responses.
@@ -274,9 +309,7 @@ $(function() {
 				$.gander.select('first');
 				if (makethumb > 0) { // Still more work to do
 					setTimeout($.gander.refresh, 0);
-					$.jGrowl(makethumb + ' remaining', $.extend($.gander.options['jGrowl'], {header: 'Creating thumbnails', sticky: 1, open: function(e,m,o) {
-						e.find('.jGrowl-message').attr('id', 'thumbnailer_info');
-					}}));
+					$.gander.growl('thumbnails', makethumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
 				}
 				if (success)
 					success();
@@ -322,9 +355,9 @@ $(function() {
 					if (makethumb > 0) { // Still more work to do
 						console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
 						$.gander.refresh();
-						$('#thumbnailer_info').html(makethumb + ' remaining');
+						$.gander.growl_update('thumbnailer_info', makethumb + ' remaining');
 					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
-						$('#thumbnailer_info').parents('.jGrowl-notification').remove();
+						$.gander.growl_close('thumbnailer_info');
 					}
 				},
 				error: function(e,xhr,exception) {
@@ -372,10 +405,16 @@ $(function() {
 			var list = $('#list').children();
 			switch(direction) {
 				case 'next':
-					offset = $.gander.adjust(offset, 1, 0, list.length -1);
+					if (offset < list.length -1) {
+						offset = $.gander.adjust(offset, 1, 0, list.length -1);
+					} else
+						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 1000});
 					break;
 				case 'previous':
-					offset = $.gander.adjust(offset, -1, 0, list.length -1);
+					if (offset > 0) {
+						offset = $.gander.adjust(offset, -1, 0, list.length -1);
+					} else
+						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 1000});
 					break;
 				case 'first':
 					offset = 0;
