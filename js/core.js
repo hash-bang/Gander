@@ -123,6 +123,7 @@ $(function() {
 
 			// Window setup
 			//$('#window-display, #window-list').dialog();
+			$('#window-list').touchScroll();
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
