@@ -33,8 +33,6 @@ Known issues
 * Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Sorting is buggy - uses dumb sort rather than natural sort
 * Emblems needed: Link, Folder icon / favourite
-* Selected items in the directory tree needs to be more obvious
-
 
 TODO list
 ---------

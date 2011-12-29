@@ -137,6 +137,9 @@ $(function() {
 				initAjax: {
 					url: $.gander.options['gander_server'] + '?cmd=tree',
 				},
+				onPostInit: function() {
+					$.gander._cdtree();
+				},
 				onLazyRead: function(node) {
 					node.appendAjax({
 						url: $.gander.options['gander_server'] + '?cmd=tree',
