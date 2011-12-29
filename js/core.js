@@ -171,6 +171,7 @@ $(function() {
 					}
 				}
 			});*/
+			$('#window-display #startup_error').remove();
 		},
 		/**
 		* Simple, idiot proof command runner.
