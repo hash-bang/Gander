@@ -204,7 +204,6 @@ $(function() {
 			var opts = $.gander.options['jGrowl'];
 			if (id) {
 				if ($('#' + id).length > 0) {
-					console.log('ABORT: ' + id);
 					return;
 				}
 				opts['open'] = function(e,m,o) {
@@ -214,7 +213,6 @@ $(function() {
 			if (options)
 				opts = $.extend(opts, options);
 			$.jGrowl(text, opts);
-			console.log('NOTICE: ' + text);
 			return 1;
 		},
 		/**
@@ -224,7 +222,6 @@ $(function() {
 		* @see growl()
 		*/
 		growl_update: function(id, text) {
-			console.log('NOTICE: ' + text);
 			$('#' + id).html(text);
 		},
 		/**
@@ -233,7 +230,7 @@ $(function() {
 		* @see growl()
 		*/
 		growl_close: function(id) {
-			$('#' + id).parents('.jGrowl-notification').jGrowl('close');
+			$('#' + id).parents('.jGrowl-notification').remove();
 		},
 		/**
 		* Internal function to deal with AJAX responses.
