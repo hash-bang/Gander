@@ -36,7 +36,6 @@ Known issues
 * Sorting is buggy - uses dumb sort rather than natural sort
 * Emblems needed: Link, Folder icon / favourite
 * Change directory loading message to something shorter
-* Swap Q/W key functions
 * Selected items in the directory tree needs to be more obvious
 
 
@@ -55,7 +54,6 @@ TODO list
 * Thumbnail for folders - 'Set as folder thumbnail' option
 * In-image thumbnail quick navigation bar to show siblings
 * Display 'end of list' or something when trying to navigate past the last item in a file list
-* Add 'space' to next item view
 * Random and Random-lock functionality
 * Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions

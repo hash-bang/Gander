@@ -23,8 +23,8 @@ $(function() {
 			menu: {theme:'human'}, // Options passed to jquery.contextmenu
 
 			// The following options are supplied by the server. Overwriting these will have little effect
-			media_transmit: 1, // Determined from server
-			media_transmit_path: '/taz/media/%p' // Determined from server
+			media_transmit: 1,
+			media_transmit_path: '/taz/media/%p'
 		},
 		/**
 		* Details on the currently viewed image
@@ -66,10 +66,11 @@ $(function() {
 			shortcut.add('pagedown', function() { $.gander.select('last'); });
 			shortcut.add('left', function() { $.gander.select('previous'); });
 			shortcut.add('right', function() { $.gander.select('next'); });
+			shortcut.add('space', function() { $.gander.select('next'); });
 
 			// Zooms
-			shortcut.add('q', function() { $.gander.zoom('in'); });
-			shortcut.add('w', function() { $.gander.zoom('out'); });
+			shortcut.add('w', function() { $.gander.zoom('in'); });
+			shortcut.add('q', function() { $.gander.zoom('out'); });
 			shortcut.add('e', function() { $.gander.zoom('fit'); });
 			shortcut.add('r', function() { $.gander.zoom('reset'); });
 			shortcut.add('+', function() { $.gander.zoom('in'); });
