@@ -150,7 +150,7 @@ $(function() {
 					$.gander.cd(node.data.key);
 				},
 				strings: {
-					loading: "Loading directory contents...",
+					loading: "Loading...",
 					loadError: "Load error!"
 				}
 			});
@@ -267,7 +267,8 @@ $(function() {
 					newchild.find('.imgframe').append(img);
 					list.append(newchild);
 				});
-				$.gander.current['offset'] = 0;
+				$.gander.current['offset'] = -1;
+				$.gander.select('first');
 				if (makethumb > 0) { // Still more work to do
 					setTimeout($.gander.refresh, 0);
 					$.jGrowl(makethumb + ' remaining', $.extend($.gander.options['jGrowl'], {header: 'Creating thumbnails', sticky: 1, open: function(e,m,o) {
@@ -379,9 +380,18 @@ $(function() {
 				case 'last':
 					offset = list.length -1;
 			}
-			if (offset == $.gander.offset)
+			if (offset == $.gander.current['offset'])
 				return;
+			// Remove styles from last active image
+			if (offset > -1)
+				$('#list li').eq($.gander.current['offset']).removeClass('active');
+
 			$.gander.current['offset'] = offset;
+
+			// Style the selected item
+			var activeimg = $('#list li').eq(offset);
+			activeimg.addClass('active');
+			$('#window-list').scrollTo(activeimg);
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
@@ -478,7 +488,6 @@ $(function() {
 						window.fullScreenApi.cancelFullScreen();
 					$('#list img').attr('visibility', 'show');
 					$('#window-display').hide();
-					$('#window-list').scrollTo($('#list li').eq($.gander.current['offset']));
 					break;
 				case 'toggle':
 					$.gander.viewer(($('#window-display').css('display') == 'none') ? 'show' : 'hide');
@@ -488,7 +497,6 @@ $(function() {
 					if (!path) // No path specified - figure out the item that should show
 						path = $('#list li').eq($.gander.current['offset']).attr('rel');
 					if (path != $.gander.current['path']) { // Opening a differnt file from previously
-						$('#list li').removeClass('image-viewing');
 						if (path in $.gander.cache) { // In cache
 							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 						} else { // Fill cache request
@@ -503,7 +511,6 @@ $(function() {
 								$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
 							}
 						}
-						$('#list li[rel="' + path + '"]').addClass('image-viewing');
 						$.gander.current['path'] = path;
 					}
 					$('#list img').attr('visibility', 'hidden');

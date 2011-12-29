@@ -31,12 +31,12 @@ body {
 	-moz-border-radius: 5px;
 }
 
-#list .image-viewing {
+#list .active {
 	background: #768089;
 	border: 1px solid #38393d;
 }
 
-#list .image-viewing:hover {
+#list .active:hover {
 	background: #768089;
 	border: 1px solid white;
 }

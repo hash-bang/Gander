@@ -22,8 +22,6 @@ Features:
 Known issues
 ------------
 
-* Scroll file window to top when loading a new directory
-* Navigating around a folder no longer seems to select the active image
 * Zoom fit for images that are wider than they are tall doesn't work correctly (too zoomed in)
 * Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
 * Settings are not currently loaded from the server on first execute
@@ -35,7 +33,6 @@ Known issues
 * Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Sorting is buggy - uses dumb sort rather than natural sort
 * Emblems needed: Link, Folder icon / favourite
-* Change directory loading message to something shorter
 * Selected items in the directory tree needs to be more obvious
 
 
