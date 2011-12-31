@@ -270,6 +270,7 @@ $(function() {
 					var node = $('#dirlist').dynatree('getTree').getNodeByKey(walk);
 					if (node) {
 						node.focus();
+						node.activate();
 						if (!node.isExpanded())
 							node.toggleExpand();
 						setTimeout("$('#dirlist').dynatree('getTree').getNodeByKey('" + walk + "').focus()", 0);
