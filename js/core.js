@@ -105,6 +105,8 @@ $(function() {
 			];
 
 
+			$.gander.growl('notice', 'hello world', 0, {sticky: 1});
+
 			// NO CONFIG BEYOND THIS LINE
 
 
@@ -213,7 +215,10 @@ $(function() {
 			}
 			if (options)
 				opts = $.extend(opts, options);
-			$.jGrowl(text, opts);
+			$.jGrowl('<img src="images/growl/' +  type + '.png"/>' + text, opts);
+			$('.jGrowl').click(function() {
+				$(this).jGrowl('close');
+			});
 			return 1;
 		},
 		/**

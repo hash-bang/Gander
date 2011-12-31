@@ -70,3 +70,17 @@ body {
 	height: 16px;
 	background: url('../images/emblems/foldericon.png') no-repeat;
 }
+
+/* jGrowl fixes */
+.jGrowl {
+	padding: 5px 10px;
+}
+
+.jGrowl img {
+	float: left;
+	margin-right: 10px;
+}
+
+.jGrowl .jGrowl-notification {
+	min-height: 45px !important;
+}
