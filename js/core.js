@@ -105,8 +105,6 @@ $(function() {
 			];
 
 
-			$.gander.growl('notice', 'hello world', 0, {sticky: 1});
-
 			// NO CONFIG BEYOND THIS LINE
 
 

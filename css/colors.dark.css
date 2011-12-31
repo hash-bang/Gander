@@ -15,7 +15,7 @@ body {
 	border-right: 5px solid #33373B;
 }
 
-#window-dir .dynatree-active a {
+.dynatree-container a:focus, .dynatree-focused a:link, .dynatree-active a {
 	border: 1px solid white;
 }
 
