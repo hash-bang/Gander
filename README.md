@@ -23,23 +23,26 @@ Known issues
 ------------
 
 * Zoom fit for images that are wider than they are tall doesn't work correctly (too zoomed in)
+* Selected directory tree items dont seem to hilight correctly
 * Navigating around a directory selects and tries to view folders (e.g. selecting 'first' when in image view in a folder containing sub-folders)
-* Settings are not currently loaded from the server on first execute
-* Non-writable cache dir error detection needs testing
-* Navigating away from a folder where thumbnails are still loading does not destroy the status message
-* Throbber should be more subtle - perhaps move it to one of the screen corners
-* Recursive thumbnails (i.e. looking inside the thumbnail directory) will probably end in a crash
-* Scrolling thumbnails on tablets doesn't seem to display all the available thumbnails
-* Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Sorting is buggy - uses dumb sort rather than natural sort
+* Settings are not currently loaded from the server on first execute
+* Navigating away from a folder where thumbnails are still loading does not destroy the status message
+* When loading an image the resize can be slow - i.e. resize doesn't occur until the image is completely loaded
+* Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
+* Non-writable cache dir error detection needs testing
+* Recursive thumbnails (i.e. looking inside the thumbnail directory) will probably end in a crash
+* Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Emblems needed: Link, Folder icon / favourite
 
 TODO list
 ---------
 
+* Menus that display something useful
+* Comments / description for images
 * List view and column view of items
-* Functionality to remember preferred zoom and position of image and restore it when needed
-* Functionality to navigate up/down/out a directory
+* Loading thumbnail icon for thumbnail view
+* Functionality to navigate up/down/out/back/forward/switch (i.e. toggle between two most recent) directories
 * Transition when displaying a newly created thumbnail (fadein perhaps?)
 * Screen splitting (VIM style)
 * Load images recursively from a tree
@@ -54,3 +57,5 @@ TODO list
 * Image transitions
 * Move, Copy, Paste, Rename, Change permission, Touch file functionality
 * View other file types - e.g. text files, sound, movies
+* Functionality to remember preferred zoom and position of image and restore it when needed
+* Zoom via mouse wheel functionality (maybe hold down a modifier key?)
