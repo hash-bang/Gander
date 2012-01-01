@@ -465,7 +465,7 @@ $(function() {
 			// Style the selected item
 			var activeimg = $('#list li').eq(offset);
 			activeimg.addClass('active');
-			$('#window-list').scrollTo(activeimg);
+			$(window).scrollTo($('#list li').eq($.gander.current['offset']));
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
@@ -590,6 +590,8 @@ $(function() {
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
 					$('#list').show();
+					alert($.gander.current['offset']);
+					$(window).scrollTo($('#list li').eq($.gander.current['offset']));
 					$('#window-display').hide();
 					break;
 				case 'toggle':
