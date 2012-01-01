@@ -531,7 +531,7 @@ $(function() {
 				case 'hide':
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
-					$('#list img').attr('visibility', 'show');
+					$('#list').show();
 					$('#window-display').hide();
 					break;
 				case 'toggle':
@@ -558,7 +558,7 @@ $(function() {
 						}
 						$.gander.current['path'] = path;
 					}
-					$('#list img').attr('visibility', 'hidden');
+					$('#list').hide();
 					$('#window-display').show();
 
 					// Handle fullscreen options
