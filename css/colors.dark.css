@@ -28,6 +28,11 @@ body {
 	color: white;
 	/* text-shadow: rgba(255, 255, 255, 0.85) 0 0 3px; */
 }
+#list li img {
+	-moz-box-shadow: 2px 2px 2px 2px #202020;
+	-webkit-box-shadow: 2px 2px 2px 2px #202020;
+	box-shadow: 2px 2px 2px 2px #202020;
+}
 
 #window-dir #dirlist .dynatree-active a, #window-dir #dirlist .dynatree-container a:hover, #window-dir #dirlist .dynatree-container a:focus {
 	background: black !important;

@@ -46,6 +46,9 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	vertical-align: bottom;
+	display: none; /* Until its loaded anyway */
+	border-radius: 6px;
+	-moz-border-radius: 6px;
 }
 
 #list li strong {

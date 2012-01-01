@@ -317,11 +317,12 @@ $(function() {
 					if (data.makethumb)
 						makethumb++;
 					var fakeicon = (data.realthumb) ? 1:0;
-					var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb.gif) no-repeat middle middle"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+					var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb-img.gif) no-repeat center center"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 					newchild
 						.click($.gander._itemclick)
 						.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
-					var img = $('<img/>', {src: data.thumb, rel: fakeicon}).load(function() { $.gander.thumbzoom('apply', this); });
+					var img = $('<img/>', {src: data.thumb, rel: fakeicon})
+						.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); });
 					newchild.find('.imgframe').append(img);
 					list.append(newchild);
 				});
