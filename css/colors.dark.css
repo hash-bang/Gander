@@ -26,7 +26,7 @@ body {
 
 #list li strong, #window-dir #dirlist .dynatree-title {
 	color: white;
-	text-shadow: rgba(255, 255, 255, 0.85) 0 0 3px;
+	/* text-shadow: rgba(255, 255, 255, 0.85) 0 0 3px; */
 }
 
 #window-dir #dirlist .dynatree-active a, #window-dir #dirlist .dynatree-container a:hover, #window-dir #dirlist .dynatree-container a:focus {
