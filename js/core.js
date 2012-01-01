@@ -91,8 +91,6 @@ $(function() {
 			$.gander.options['menu.item'] = [
 				{'Open':{icon: 'images/menus/open.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
 				{'Fullscreen':{icon: 'images/menus/fullscreen.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
-				$.contextMenu.separator,
-				{'XXX':function() { $.gander.viewer('open'); } },
 			];
 			$.gander.options['menu.list'] = [
 				{'Refresh':{icon: 'images/menus/refresh.png', onclick: function() { $.gander.refresh(); }}},
@@ -102,6 +100,15 @@ $(function() {
 			];
 			$.gander.options['menu.image'] = [
 				{'Close':{icon: 'images/menus/list.png', onclick: function() { $.gander.viewer('hide'); }}},
+				$.contextMenu.separator,
+				{'Next':{icon: 'images/menus/next.png', onclick: function() { $.gander.select('next'); }}},
+				{'Previous':{icon: 'images/menus/previous.png', onclick: function() { $.gander.select('previous'); }}},
+				$.contextMenu.separator,
+				{'Zoom to 100%':{icon: 'images/menus/zoom-actual.png', onclick: function() { $.gander.zoom('normal', 'lock'); }}},
+				{'Zoom fit':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit', 'lock'); }}},
+				// FIXME: These should have unique icons
+				{'Zoom fit width':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit-width', 'lock'); }}},
+				{'Zoom fit height':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit-height', 'lock'); }}},
 			];
 
 
@@ -303,7 +310,9 @@ $(function() {
 						makethumb++;
 					var fakeicon = (data.realthumb) ? 1:0;
 					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
-					newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
+					newchild
+						.click($.gander._itemclick)
+						.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 					var img = $('<img/>', {src: data.thumb, rel: fakeicon}).load(function() { $.gander.thumbzoom('apply', this); });
 					newchild.find('.imgframe').append(img);
 					list.append(newchild);
@@ -373,7 +382,7 @@ $(function() {
 		* This funciton is used by 'cd' and 'refresh' to bind the click event of indidivual items
 		*/
 		_itemclick: function() {
-			$.gander.current['offset'] = $(this).index();
+			$.gander.select($(this).index());
 			var path = $(this).attr('rel');
 			if (path.substr(-1) == '/') { // Is a directory
 				$.gander.cd(path.substr(0,path.length-1));
@@ -401,7 +410,7 @@ $(function() {
 		/**
 		* File selection interface
 		* This is primerilly aimed at the main file list navigation
-		* @param string direction Optional command to give the file handler. See the functions switch statement for further details
+		* @param string|int direction Optional command to give the file handler OR the offset to set the active item to. See the functions switch statement for further details
 		*/
 		select: function(direction) {
 			var offset = $.gander.current['offset'];
@@ -424,6 +433,9 @@ $(function() {
 					break;
 				case 'last':
 					offset = list.length -1;
+					break;
+				default: // Select a specific offset
+					offset = direction;
 			}
 			if (offset == $.gander.current['offset'])
 				return;
@@ -479,9 +491,12 @@ $(function() {
 		/**
 		* Image zoom functionality interface
 		* @param string direction Optional command to give the zoom interface handler. See the functions switch statement for further details
+		* @param string lock Locking status: either 'lock' or anything else. 'lock' applies the zoom method from now onwards
 		*/
-		zoom: function(direction) {
+		zoom: function(direction, lock) {
 			var zoom = $.gander.current['zoom'];
+			if (lock == 'lock') // Apply from now on?
+				$.gander.options['zoom_on_open'] = direction;
 			switch(direction) {
 				case 'in':
 					zoom = $.gander.adjust(zoom, 0 - $.gander.options['zoom_adjust'], $.gander.options['zoom_min'], $.gander.options['zoom_max']);
@@ -500,11 +515,7 @@ $(function() {
 				case 'fit-both':
 				case 'fitboth':
 				case 'fit':
-					if ($.gander.current['width'] > $.gander.current['height']) { // Wider width
-						zoom = ($('#window-display').width() / $.gander.current['width']) * 100;
-					} else {
-						zoom = ($('#window-display').height() / $.gander.current['height']) * 100;
-					}
+					return $.gander.zoom(($.gander.current['width'] > $.gander.current['height']) ? 'fit-width' : 'fit-height');
 					break;
 				case '100':
 				case 'reset':
