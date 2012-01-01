@@ -77,8 +77,12 @@ $(function() {
 			shortcut.add('-', function() { $.gander.zoom('out'); });
 			shortcut.add('shift+up', function() { $.gander.zoom('in'); });
 			shortcut.add('shift+down', function() { $.gander.zoom('out'); });
-			shortcut.add('ctrl+up', function() { $.gander.zoom('in'); });
-			shortcut.add('ctrl+down', function() { $.gander.zoom('out'); });
+
+			// Move within tree
+			shortcut.add('ctrl+left', function() { $.gander.tree('up'); });
+			shortcut.add('ctrl+right', function() { $.gander.tree('in'); });
+			shortcut.add('ctrl+up', function() { $.gander.tree('previous'); });
+			shortcut.add('ctrl+down', function() { $.gander.tree('next'); });
 
 			// Viewer
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
@@ -97,6 +101,10 @@ $(function() {
 			];
 			$.gander.options['menu.tree'] = [
 				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
+				$.contextMenu.separator,
+				{'Go up':{icon: 'images/menus/up.png', onclick: function() { $.gander.tree('up'); }}},
+				{'Next dir':{icon: 'images/menus/next.png', onclick: function() { $.gander.tree('next'); }}},
+				{'Previous dir':{icon: 'images/menus/previous.png', onclick: function() { $.gander.tree('previous'); }}},
 			];
 			$.gander.options['menu.image'] = [
 				{'Close':{icon: 'images/menus/list.png', onclick: function() { $.gander.viewer('hide'); }}},
@@ -140,6 +148,7 @@ $(function() {
 				imagePath: '/js/jquery.dynatree.skin/',
 				clickFolderMode: 3,
 				selectMode: 1,
+				keyboard: false,
 				idPrefix: "dynatree-id-",
 				fx: { height: 'toggle', duration: 200 },
 				initAjax: {
@@ -276,7 +285,6 @@ $(function() {
 				while(walk = $.gander._cdtreebits.shift()) { // Walk as far down the tree as we can
 					var node = $('#dirlist').dynatree('getTree').getNodeByKey(walk);
 					if (node) {
-						node.focus();
 						node.activate();
 						if (!node.isExpanded())
 							node.toggleExpand();
@@ -292,9 +300,9 @@ $(function() {
 		* Change the file list to a given path
 		* This also refreshes the file list contents as loads thumbnails as needed
 		* @param string path The new path to change the file list to
-		* @param callback callback The callback to call after the directory change
+		* @param bool treerefresh Whether to refresh the directory tree. This is used by internal functions to instruct the DynaTree element to redraw the selected element
 		*/
-		cd: function(path, success) {
+		cd: function(path, treerefresh) {
 			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
 				$.gander._unpack('cd', json);
 				var list = $('#list');
@@ -309,7 +317,7 @@ $(function() {
 					if (data.makethumb)
 						makethumb++;
 					var fakeicon = (data.realthumb) ? 1:0;
-					var newchild = $('<li rel="' + file + '"><div><div class="imgframe"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+					var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb.gif) no-repeat middle middle"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 					newchild
 						.click($.gander._itemclick)
 						.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
@@ -323,8 +331,8 @@ $(function() {
 					setTimeout($.gander.refresh, 0);
 					$.gander.growl('thumbnails', makethumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
 				}
-				if (success)
-					success();
+				if (treerefresh)
+					$.gander._cdtree($.gander.path);
 			});
 		},
 		/**
@@ -433,9 +441,11 @@ $(function() {
 					offset = -1;
 					while (offset++ < list.length) { // Avoid folders
 						path = $(list[offset]).attr('rel');
-						if (path.substr(path.length-1) != '/')
+						if (path && path.substr(path.length-1) != '/')
 							break;
 					}
+					if (offset >= list.length-1) // No selectable items in directory
+						offset = -1;
 					break;
 				case 'last':
 					offset = list.length -1;
@@ -457,6 +467,36 @@ $(function() {
 			$('#window-list').scrollTo(activeimg);
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
+		},
+		/**
+		* Tree functionality interface
+		* @param string command Optional command to give the tree interface handler. See the inner switch for more details.
+		*/
+		tree: function(command) {
+			switch (command) {
+				case 'next': // Go to next sibling
+				case 'previous': // Go to previous sinling - All are handled by the same logic
+					var children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent().getChildren();
+					for (c = 0; c < children.length; c++) {
+						if (children[c].data.key == $.gander.path) {
+							if (command == 'next' && c+1 < children.length) {
+								$.gander.cd(children[c+1].data.key, 1);
+							} else if (command == 'previous' && c > 0) {
+								$.gander.cd(children[c-1].data.key, 1);
+							}
+						}
+					}
+					break;
+				case 'in': // Go to first child
+					children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getChildren();
+					if (children.length > 0)
+						$.gander.cd(children[0].data.key, 1);
+					break;
+				case 'up': // Go to parent directory
+					var parent = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent();
+					$.gander.cd(parent.data.key, 1);
+					break;
+			}
 		},
 		/**
 		* Thumbnail functionality interface
@@ -639,7 +679,5 @@ $(function() {
 		}
 	}});
 	$.gander.init();
-	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', function() {
-		$.gander._cdtree($.gander.path);
-	});
+	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', 1);
 });

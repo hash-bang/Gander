@@ -17,6 +17,7 @@ Features:
 * Forward and reverse caching of images - designed to keep the waiting at a minimum
 * Thumbnailer system built in - No third-party tools or building thumbnails required.
 * Configurable CSS styles and page layouts
+* Advanced navigation - Move around folder tree's without leaving your keyboard
 
 
 Known issues
@@ -34,14 +35,16 @@ Known issues
 * Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Emblems needed: Link, Folder icon / favourite
 
+
 TODO list
 ---------
 
 * Menus that display something useful
+* Updating a Growl message overwrites the icon and just sets text - perhaps move the icon to the parent element
 * Comments / description for images
 * List view and column view of items
 * Loading thumbnail icon for thumbnail view
-* Functionality to navigate up/down/out/back/forward/switch (i.e. toggle between two most recent) directories
+* Functionality to switch directories - i.e. toggle between two most recent
 * Transition when displaying a newly created thumbnail (fadein perhaps?)
 * Screen splitting (VIM style)
 * Load images recursively from a tree
