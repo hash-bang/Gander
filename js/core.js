@@ -415,10 +415,11 @@ $(function() {
 		select: function(direction) {
 			var offset = $.gander.current['offset'];
 			var list = $('#list').children();
+			var path;
 			switch(direction) {
 				case 'next':
 					if (offset < list.length -1) {
-						offset = $.gander.adjust(offset, 1, 0, list.length -1);
+						offset += 1;
 					} else
 						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 1000});
 					break;
@@ -429,7 +430,12 @@ $(function() {
 						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 1000});
 					break;
 				case 'first':
-					offset = 0;
+					offset = -1;
+					while (offset++ < list.length) { // Avoid folders
+						path = $(list[offset]).attr('rel');
+						if (path.substr(path.length-1) != '/')
+							break;
+					}
 					break;
 				case 'last':
 					offset = list.length -1;
