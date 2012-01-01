@@ -590,7 +590,6 @@ $(function() {
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
 					$('#list').show();
-					alert($.gander.current['offset']);
 					$(window).scrollTo($('#list li').eq($.gander.current['offset']));
 					$('#window-display').hide();
 					break;
