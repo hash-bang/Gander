@@ -20,10 +20,9 @@
 * All these must end with '/'
 */
 @define('GANDER_ICONS', realpath(__DIR__ . '/../images/icons/') . '/');
-@define('GANDER_ICONS_WEB', '/images/icons/'); # The web equivlenet of the above
-@define('GANDER_PATH', '/home/mc/Papers/Pictures/');
-//@define('GANDER_THUMBPATH', __DIR__ . '/cache/thumbs/');
-@define('GANDER_THUMBPATH', '/tmp/gander/');
+@define('GANDER_ICONS_WEB', '/images/icons/'); # The web equivalent of the above
+@define('GANDER_PATH', realpath(__DIR__ . '/../pictures/'));
+@define('GANDER_THUMBPATH', realpath(__DIR__ . '/../cache/thumbs/'));
 @define('GANDER_THUMBS_MAX_GET', 20); // Absolute maximum number of thumbs to return in any GET request
 @define('GANDER_UNKNOWN_IGNORE', 1); // Hide unknown file types
 

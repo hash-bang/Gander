@@ -281,9 +281,10 @@ switch ($cmd) {
 		$out = array();
 		if (!isset($_REQUEST['path'])) {
 			$_REQUEST['path'] = '';
-		} else
+		} else {
 			$_REQUEST['path'] = ltrim($_REQUEST['path'], '/');
-		chdir(GANDER_PATH . $_REQUEST['path']);
+			chdir(GANDER_PATH . $_REQUEST['path']);
+		}
 		foreach (glob('*') as $file)
 			if (is_dir($file)) {
 				$haschildren = 0;
