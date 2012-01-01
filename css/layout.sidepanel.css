@@ -27,10 +27,9 @@ body {
 }
 
 #window-list {
-	left: 206px;
 	height: 100%;
 	overflow: auto;
-	position: fixed;
+	margin-left: 206px;
 }
 
 #window-display {
