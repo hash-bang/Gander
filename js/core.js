@@ -100,6 +100,9 @@ $(function() {
 			];
 			$.gander.options['menu.list'] = [
 				{'Refresh':{icon: 'images/menus/refresh.png', onclick: function() { $.gander.refresh(); }}},
+				$.contextMenu.separator,
+				{'Go to top':{icon: 'images/menus/top.png', onclick: function() { $.gander.select('first'); }}},
+				{'Go to bottom':{icon: 'images/menus/top.png', onclick: function() { $.gander.select('bottom'); }}},
 			];
 			$.gander.options['menu.tree'] = [
 				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
