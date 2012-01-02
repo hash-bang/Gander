@@ -39,7 +39,7 @@ Known issues
 TODO list
 ---------
 
-* Menus that display something useful
+* Toolbars
 * Updating a Growl message overwrites the icon and just sets text - perhaps move the icon to the parent element
 * Comments / description for images
 * List view and column view of items
@@ -57,7 +57,7 @@ TODO list
 * Random and Random-lock functionality
 * Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions
-* Move, Copy, Paste, Rename, Change permission, Touch file functionality
+* Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
 * View other file types - e.g. text files, sound, movies
 * Functionality to remember preferred zoom and position of image and restore it when needed
 * Zoom via mouse wheel functionality (maybe hold down a modifier key?)
