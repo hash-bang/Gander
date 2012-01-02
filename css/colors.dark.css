@@ -15,8 +15,10 @@ body {
 	border-right: 5px solid #33373B;
 }
 
-.dynatree-container a:focus, .dynatree-focused a:link, .dynatree-active a {
-	border: 1px solid white;
+.dynatree-active .dynatree-title {
+	border-radius: 5px;
+	background: white;
+	color: black !important;
 }
 
 #list li:hover {

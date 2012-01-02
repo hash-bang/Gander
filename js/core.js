@@ -162,6 +162,7 @@ $(function() {
 				keyboard: false,
 				idPrefix: "dynatree-id-",
 				fx: { height: 'toggle', duration: 200 },
+				noLink: true,
 				initAjax: {
 					url: $.gander.options['gander_server'] + '?cmd=tree',
 				},

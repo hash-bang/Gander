@@ -74,6 +74,11 @@ body {
 	background: url('../images/emblems/foldericon.png') no-repeat;
 }
 
+/* DynaTree fixes */
+.dynatree-title {
+	cursor: pointer;
+}
+
 /* jGrowl fixes */
 .jGrowl {
 	padding: 5px 10px;
