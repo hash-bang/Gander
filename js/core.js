@@ -6,7 +6,8 @@ $(function() {
 		*/
 		options: {
 			gander_server: 'gander.php',
-			zoom_thumb_normal: 150,
+			sort: 'name', // Sort method. Values: name, random
+			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
 			zoom_thumb_max: 150,
@@ -90,6 +91,11 @@ $(function() {
 			shortcut.add('f', function() { $.gander.viewer('toggle'); });
 			shortcut.add('escape', function() { $.gander.viewer('hide'); });
 
+			// Sort modes
+			shortcut.add('t', function() { $.gander.sort('random'); });
+			shortcut.add('shift+t', function() { $.gander.sort('name'); });
+
+			// Window controls
 			shortcut.add('n', function() { $.gander.window('clone'); });
 
 			// Menus
@@ -331,6 +337,7 @@ $(function() {
 					newchild.find('.imgframe').append(img);
 					list.append(newchild);
 				});
+				$.gander.sort();
 				$.gander.current['offset'] = -1;
 				$.gander.select('first');
 				if (makethumb > 0) { // Still more work to do
@@ -361,6 +368,7 @@ $(function() {
 					$.gander._unpack('refresh', json);
 					var list = $('#list');
 					var makethumb = 0;
+					var needsort = 0;
 					$.each(json.list, function(file, data) {
 						if (data.makethumb)
 							makethumb++;
@@ -371,18 +379,19 @@ $(function() {
 								$(this).fadeIn();
 							});
 						} else { // New item
-							console.log('FIXME: ADDED NEW FILE ' + file);
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
 							newchild
 								.click($.gander._itemclick)
 								.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 							list.append(newchild);
-							// FIXME: new icons will not be in their correctly sorted place
+							needsort = 1;
 						}
 					});
+					if (needsort)
+						$.gander.sort();
 					if (makethumb > 0) { // Still more work to do
-						console.log('REFRESH. Still ' + makethumb + ' items to do. Re-refresh');
+						console.log('Refresh complete. Still ' + makethumb + ' items to load.');
 						$.gander.refresh();
 						$.gander.growl_update('thumbnailer_info', makethumb + ' remaining');
 					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
@@ -393,6 +402,30 @@ $(function() {
 					$.gander.growl('Critical', 'Error while refreshing - ' + xhr.responseText + ' - ' + exception);
 				}
 			});
+		},
+		/**
+		* Apply the sort method to the item list
+		* @param string method Optional method to set $.gander.options['sort'] to before we begin. If unspecified the current sort method is used instead
+		*/
+		sort: function(method) {
+			if (method)
+				$.gander.options['sort'] = method;
+			var parent = $('#list');
+			var items = parent.children().get();
+			switch ($.gander.options['sort']) {
+				case 'name':
+					items.sort(function(a,b) {
+						var aval = $(a).attr('rel').toLowerCase(); // Case insensitive
+						var bval = $(b).attr('rel').toLowerCase();
+						return (aval < bval) ? -1 : (aval > bval) ? 1 : 0;
+					});
+					break;
+				case 'random':
+					items.sort(function(a,b) {
+						return (Math.random > 0.5) ? -1 : 1;
+					});
+			}
+			$.each(items, function(idx, itm) { parent.append(itm) });
 		},
 		/**
 		* Internal function triggered when clicking on an icon
@@ -490,7 +523,7 @@ $(function() {
 		tree: function(command) {
 			switch (command) {
 				case 'next': // Go to next sibling
-				case 'previous': // Go to previous sinling - All are handled by the same logic
+				case 'previous': // Go to previous sinling - next/previous are handled by the same logic
 					var children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent().getChildren();
 					for (c = 0; c < children.length; c++) {
 						if (children[c].data.key == $.gander.path) {
