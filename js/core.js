@@ -368,12 +368,15 @@ $(function() {
 						if (existing.length > 0) { // Item already exists
 							existing.find('img').attr('src', data.thumb).load(function() {
 								$.gander.thumbzoom('apply', this);
+								$(this).fadeIn();
 							});
 						} else { // New item
 							console.log('FIXME: ADDED NEW FILE ' + file);
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
-							newchild.click($.gander._itemclick).contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
+							newchild
+								.click($.gander._itemclick)
+								.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 							list.append(newchild);
 							// FIXME: new icons will not be in their correctly sorted place
 						}
