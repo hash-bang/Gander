@@ -57,7 +57,9 @@ $(function() {
 		init: function() {
 			// Navigation
 			shortcut.add('a', function() { $.gander.select('previous'); });
+			shortcut.add('shift+a', function() { $.gander.select('-10'); });
 			shortcut.add('s', function() { $.gander.select('next'); });
+			shortcut.add('shift+s', function() { $.gander.select('+10'); });
 			shortcut.add('z', function() { $.gander.select('first'); });
 			shortcut.add('x', function() { $.gander.select('last'); });
 			shortcut.add('home', function() { $.gander.select('first'); });
@@ -437,6 +439,12 @@ $(function() {
 						offset = $.gander.adjust(offset, -1, 0, list.length -1);
 					} else
 						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 1000});
+					break;
+				case '+10':
+					offset = $.gander.adjust(offset, +10, 0, list.length -1);
+					break;
+				case '-10':
+					offset = $.gander.adjust(offset, -10, 0, list.length -1);
 					break;
 				case 'first':
 					offset = -1;
