@@ -413,16 +413,31 @@ $(function() {
 				$.gander.options['sort'] = method;
 			var parent = $('#list');
 			var items = parent.children().get();
+			var aval, bval, afol, bfol;
 			switch ($.gander.options['sort']) {
 				case 'name':
 					items.sort(function(a,b) {
-						var aval = $(a).attr('rel').toLowerCase(); // Case insensitive
-						var bval = $(b).attr('rel').toLowerCase();
+						aval = $(a).attr('rel').toLowerCase(); // Case insensitive
+						afol = (aval.substr(-1) == '/');
+						bval = $(b).attr('rel').toLowerCase();
+						bfol = (bval.substr(-1) == '/');
+						if (afol && !bfol) {
+							return -1;
+						} else if (!afol && bfol) {
+							return 1;
+						}
 						return (aval < bval) ? -1 : (aval > bval) ? 1 : 0;
 					});
 					break;
 				case 'random':
 					items.sort(function(a,b) {
+						afol = ($(a).attr('rel').substr(-1) == '/');
+						bfol = ($(b).attr('rel').substr(-1) == '/');
+						if (afol && !bfol) {
+							return -1;
+						} else if (!afol && bfol) {
+							return 1;
+						}
 						return (Math.random > 0.5) ? -1 : 1;
 					});
 			}
