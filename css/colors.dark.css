@@ -19,6 +19,8 @@ body {
 	border-radius: 5px;
 	background: white;
 	color: black !important;
+	padding: 0 5px;
+	font-weight: bold;
 }
 
 #list li:hover {
