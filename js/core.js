@@ -375,10 +375,13 @@ $(function() {
 							makethumb++;
 						var existing = $('#list li[rel="' + file + '"]');
 						if (existing.length > 0) { // Item already exists
-							existing.find('img').attr('src', data.thumb).load(function() {
-								$.gander.thumbzoom('apply', this);
-								$(this).fadeIn();
-							});
+							existing.find('img')
+								.hide()
+								.attr('src', data.thumb)
+								.load(function() {
+									$.gander.thumbzoom('apply', this);
+									$(this).fadeIn();
+								});
 						} else { // New item
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
