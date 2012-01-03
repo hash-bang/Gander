@@ -376,9 +376,9 @@ $(function() {
 						var existing = $('#list li[rel="' + file + '"]');
 						if (existing.length > 0) { // Item already exists
 							existing.find('img')
-								.hide()
 								.attr('src', data.thumb)
 								.load(function() {
+									$(this).hide()
 									$.gander.thumbzoom('apply', this);
 									$(this).fadeIn();
 								});
