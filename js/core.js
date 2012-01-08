@@ -153,6 +153,10 @@ $(function() {
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
+			$(document).on('click', '.jGrowl', function() { // When clicking on a jGrowl popup - kill it
+				$(this).jGrowl('close');
+			});
+
 			// Filetree setup
 			$('#dirlist').dynatree({
 				minExpandLevel: 1,
@@ -229,22 +233,16 @@ $(function() {
 		* @return bool True if the message was created, false if it already exists
 		*/
 		growl: function(type, text, id, options) {
-			// FIXME: type is currently ignored
 			var opts = $.gander.options['jGrowl'];
-			if (id) {
-				if ($('#' + id).length > 0) {
-					return;
-				}
-				opts['open'] = function(e,m,o) {
+			if (id && $('#' + id).length > 0) // Assign an ID but this ID already exists - abort
+				return;
+			opts['open'] = function(e,m,o) {
+				if (id)
 					e.find('.jGrowl-message').attr('id', id);
-				};
-			}
-			if (options)
-				opts = $.extend(opts, options);
-			$.jGrowl('<img src="images/growl/' +  type + '.png"/>' + text, opts);
-			$('.jGrowl').click(function() {
-				$(this).jGrowl('close');
-			});
+				if (type)
+					e.find('.jGrowl-header').append('<img src="images/growl/' +  type + '.png"/>');
+			};
+			$.jGrowl(text, $.extend(opts, options));
 			return 1;
 		},
 		/**
