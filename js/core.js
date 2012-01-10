@@ -626,7 +626,7 @@ $(function() {
 				case 'fit-both':
 				case 'fitboth':
 				case 'fit':
-					return $.gander.zoom(($.gander.current['width'] > $.gander.current['height']) ? 'fit-width' : 'fit-height');
+					return $.gander.zoom(($.gander.current['width'] > $('#window-display').width()) ? 'fit-width' : 'fit-height');
 					break;
 				case '100':
 				case 'reset':
@@ -655,6 +655,7 @@ $(function() {
 						window.fullScreenApi.cancelFullScreen();
 					$('#list').show();
 					$(window).scrollTo($('#list li').eq($.gander.current['offset']));
+					$.gander.throbber('off');
 					$('#window-display').hide();
 					break;
 				case 'toggle':

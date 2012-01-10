@@ -52,4 +52,5 @@ body {
 #window-display {
 	background: black;
 	color: white;
+	cursor: none;
 }
