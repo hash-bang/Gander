@@ -7,7 +7,7 @@ A picture gallery system that works without requiring anything other than some m
 
 No databases, no screwing about with config. Put files in a directory and open the browser.
 
-Gander provides a fully-featured Web 2.0 based picture viewer in the style of [ACDSee](http://www.acdsee.com) for Windows or [gThumb](http://live.gnome.org/gthumb) or [Geeqie](http://geeqie.sourceforge.net) for Linux.
+Gander provides a fully-featured Web 2.0 based picture viewer in the style of [ACDSee](http://www.acdsee.com) for Windows or [gThumb](http://live.gnome.org/gthumb) or [Geeqie](http://geeqie.sourceforge.net) for Linux. The intention is to replicate all features from a desktop picture viewing program entirely in HTML, CSS and JavaScript.
 
 Features:
 
@@ -20,13 +20,23 @@ Features:
 * Advanced navigation - Move around folder tree's without leaving your keyboard
 
 
+How it works & What you need
+----------------------------
+
+While the majority of Gander is entirely client based (HTML, CSS + JavaScript) unfortunately there are a few things that are still not possible in JavaScript alone.
+
+To provide access to your server you will need to install a fairly simple PHP script somewhere on your server. The job of this script is to perform file level opeations such as generating thumbnails and working on the file itself (e.g. renaming, deleting etc).
+
+
 Known issues
 ------------
 
-* Zoom fit for images that are wider than they are tall doesn't work correctly (too zoomed in)
 * Selected directory tree items dont seem to hilight correctly
 * Settings are not currently loaded from the server on first execute
 * Navigating away from a folder where thumbnails are still loading does not destroy the status message
+* Status messages dont seem to time out (see 'End of Directory' messages)
+* Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
+* Mouse doesnt hide properly
 * When loading an image the resize can be slow - i.e. resize doesn't occur until the image is completely loaded
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
 * Non-writable cache dir error detection needs testing
@@ -38,11 +48,13 @@ Known issues
 TODO list
 ---------
 
+* Next / previous image caching
 * Toolbars
-* Updating a Growl message overwrites the icon and just sets text - perhaps move the icon to the parent element
+* Side clicking (left and right) while in image view should move to next and previous image
+* When entering random mode from an image move the current image to the start of the list
+* Image panning
 * Comments / description for images
 * List view and column view of items
-* Loading thumbnail icon for thumbnail view
 * Functionality to switch directories - i.e. toggle between two most recent
 * Transition when displaying a newly created thumbnail (fadein perhaps?)
 * Screen splitting (VIM style)

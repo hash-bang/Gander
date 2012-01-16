@@ -7,6 +7,7 @@ $(function() {
 		options: {
 			gander_server: 'gander.php',
 			sort: 'name', // Sort method. Values: name, random
+			sort_folders_first: 1, // Override 'sort' to always display folders first
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
@@ -104,6 +105,10 @@ $(function() {
 				{'Open':{icon: 'images/menus/open.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
 				{'Fullscreen':{icon: 'images/menus/fullscreen.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
 			];
+			$.gander.options['menu.item-folder'] = [
+				{'Open':{icon: 'images/menus/folder-open.png', onclick: function() { $.gander.cd($(this).attr('rel')); }}},
+				{'Open recursive':{icon: 'images/menus/folder-recurse.png', onclick: function() { $.gander.cd($(this).attr('rel') + '!'); }}},
+			];
 			$.gander.options['menu.list'] = [
 				{'Refresh':{icon: 'images/menus/refresh.png', onclick: function() { $.gander.refresh(); }}},
 				$.contextMenu.separator,
@@ -111,6 +116,7 @@ $(function() {
 				{'Go to bottom':{icon: 'images/menus/top.png', onclick: function() { $.gander.select('bottom'); }}},
 			];
 			$.gander.options['menu.tree'] = [
+				$.contextMenu.separator,
 				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
 				$.contextMenu.separator,
 				{'Go up':{icon: 'images/menus/up.png', onclick: function() { $.gander.tree('up'); }}},
@@ -269,7 +275,12 @@ $(function() {
 		* @param json json The JSON server response object
 		*/
 		_unpack: function(operation, json) {
-			if (json.header && json.header.errors && json.header.errors.length > 0) {
+			if (!json.header) {
+				$.gander.growl('error', 'Missing header in JSON API query while doing ' + operation);
+				console.log('Missing header on ' + operation);
+				return;
+			}
+			if (json.header.errors && json.header.errors.length > 0) {
 				$.each(json.header.errors, function(o, e) {
 					$.gander.growl('error', e);
 					console.log('Error on ' + operation + ' - ' + e);
@@ -313,38 +324,52 @@ $(function() {
 		* @param bool treerefresh Whether to refresh the directory tree. This is used by internal functions to instruct the DynaTree element to redraw the selected element
 		*/
 		cd: function(path, treerefresh) {
-			$.getJSON($.gander.options['gander_server'], {cmd: 'list', path: path, thumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first']}, function(json) {
-				$.gander._unpack('cd', json);
-				var list = $('#list');
-				var makethumb = 0; // How many thumbs there are left to load
-				if (path.substr(0,1) != '/')
-					path = '/' + path;
-				$.gander.path = path;
-				window.location.hash = path;
+			$.ajax({
+				url: $.gander.options['gander_server'], 
+				dataType: 'json',
+				type: 'POST',
+				data: {cmd: 'list', path: path, thumbs: 'quick', max_thumbs: $.gander.options['thumbs_max_get_first']},
+				success: function(json) {
+					$.gander._unpack('cd', json);
+					var list = $('#list');
+					var couldthumb = 0; // How many thumbs there are left to load
+					if (path.substr(0,1) != '/')
+						path = '/' + path;
+					$.gander.path = path;
+					window.location.hash = path;
 
-				list.empty();
-				$.each(json.list, function(file, data) {
-					if (data.makethumb)
-						makethumb++;
-					var fakeicon = (data.realthumb) ? 1:0;
-					var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb-img.gif) no-repeat center center"></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
-					newchild
-						.click($.gander._itemclick)
-						.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
-					var img = $('<img/>', {src: data.thumb, rel: fakeicon})
-						.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); });
-					newchild.find('.imgframe').append(img);
-					list.append(newchild);
-				});
-				$.gander.sort();
-				$.gander.current['offset'] = -1;
-				$.gander.select('first');
-				if (makethumb > 0) { // Still more work to do
-					setTimeout($.gander.refresh, 0);
-					$.gander.growl('thumbnails', makethumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
+					list.empty();
+					$.each(json.list, function(file, data) {
+						if (data.couldthumb)
+							couldthumb++;
+						var fakeicon = (data.realthumb) ? 1:0;
+						var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb-img.gif) no-repeat center center"><img rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+						newchild
+							.click($.gander._itemclick)
+							.data({
+								size: data.size,
+								data: data.date,
+								type: data.type,
+							})
+							.contextMenu(data.type == 'dir' ? $.gander.options['menu.item-folder'] : $.gander.options['menu.item'],$.gander.options['menu'])
+							.find('img')
+								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); })
+								.attr('src', data.thumb);
+						list.append(newchild);
+					});
+					$.gander.sort();
+					$.gander.current['offset'] = -1;
+					$.gander.select('first');
+					if (couldthumb > 0) { // Still more work to do
+						setTimeout($.gander.refresh, 0);
+						$.gander.growl('thumbnails', couldthumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
+					}
+					if (treerefresh)
+						$.gander._cdtree($.gander.path);
+				},
+				error: function(e,xhr,exception) {
+					$.gander.growl('error', 'Error while changing to directory ' + path + ' - ' + xhr.responseText + ' - ' + exception);
 				}
-				if (treerefresh)
-					$.gander._cdtree($.gander.path);
 			});
 		},
 		/**
@@ -362,24 +387,24 @@ $(function() {
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: $.gander.path, thumbs: 1, mkthumbs: 1, max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
+				data: {cmd: 'list', path: $.gander.path, thumbs: 'make', max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
 					var list = $('#list');
-					var makethumb = 0;
+					var couldthumb = 0;
 					var needsort = 0;
 					$.each(json.list, function(file, data) {
-						if (data.makethumb)
-							makethumb++;
+						if (data.couldthumb)
+							couldthumb++;
 						var existing = $('#list li[rel="' + file + '"]');
 						if (existing.length > 0) { // Item already exists
 							existing.find('img')
-								.attr('src', data.thumb)
 								.load(function() {
 									$(this).hide()
 									$.gander.thumbzoom('apply', this);
 									$(this).fadeIn();
-								});
+								})
+								.attr('src', data.thumb);
 						} else { // New item
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
@@ -392,16 +417,16 @@ $(function() {
 					});
 					if (needsort)
 						$.gander.sort();
-					if (makethumb > 0) { // Still more work to do
-						console.log('Refresh complete. Still ' + makethumb + ' items to load.');
+					if (couldthumb > 0) { // Still more work to do
+						console.log('Refresh complete. Still ' + couldthumb + ' items to load.');
 						$.gander.refresh();
-						$.gander.growl_update('thumbnailer_info', makethumb + ' remaining');
+						$.gander.growl_update('thumbnailer_info', couldthumb + ' remaining');
 					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
 						$.gander.growl_close('thumbnailer_info');
 					}
 				},
 				error: function(e,xhr,exception) {
-					$.gander.growl('Critical', 'Error while refreshing - ' + xhr.responseText + ' - ' + exception);
+					$.gander.growl('error', 'Error while refreshing - ' + xhr.responseText + ' - ' + exception);
 				}
 			});
 		},
@@ -419,25 +444,30 @@ $(function() {
 				case 'name':
 					items.sort(function(a,b) {
 						aval = $(a).attr('rel').toLowerCase(); // Case insensitive
-						afol = (aval.substr(-1) == '/');
 						bval = $(b).attr('rel').toLowerCase();
-						bfol = (bval.substr(-1) == '/');
-						if (afol && !bfol) {
-							return -1;
-						} else if (!afol && bfol) {
-							return 1;
+
+						if ($.gander.options['sort_folders_first']) {
+							afol = ($(a).data('type') == 'dir');
+							bfol = ($(b).data('type') == 'dir');
+							if (afol && !bfol) {
+								return -1;
+							} else if (!afol && bfol) {
+								return 1;
+							}
 						}
 						return (aval < bval) ? -1 : (aval > bval) ? 1 : 0;
 					});
 					break;
 				case 'random':
 					items.sort(function(a,b) {
-						afol = ($(a).attr('rel').substr(-1) == '/');
-						bfol = ($(b).attr('rel').substr(-1) == '/');
-						if (afol && !bfol) {
-							return -1;
-						} else if (!afol && bfol) {
-							return 1;
+						if ($.gander.options['sort_folders_first']) {
+							afol = ($(a).data('type') == 'dir');
+							bfol = ($(b).data('type') == 'dir');
+							if (afol && !bfol) {
+								return -1;
+							} else if (!afol && bfol) {
+								return 1;
+							}
 						}
 						return (Math.random > 0.5) ? -1 : 1;
 					});
@@ -505,8 +535,9 @@ $(function() {
 				case 'first':
 					offset = -1;
 					while (offset++ < list.length) { // Avoid folders
-						path = $(list[offset]).attr('rel');
-						if (path && path.substr(path.length-1) != '/')
+						var first = $(list[offset]);
+						path = first.attr('rel');
+						if (first.data('type') != 'dir')
 							break;
 					}
 					if (offset >= list.length-1) // No selectable items in directory
@@ -668,7 +699,7 @@ $(function() {
 					if (path != $.gander.current['path']) { // Opening a differnt file from previously
 						if (path in $.gander.cache) { // In cache
 							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
-						} else { // Fill cache request
+						} else { // New cache request
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
 							if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
