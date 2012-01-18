@@ -6,6 +6,7 @@ $(function() {
 		*/
 		options: {
 			gander_server: 'gander.php',
+			menu_hide_on_view: 1,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
@@ -136,10 +137,7 @@ $(function() {
 				{'Zoom fit height':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit-height', 'lock'); }}},
 			];
 
-
 			// NO CONFIG BEYOND THIS LINE
-
-
 			$(document).bind('mousewheel', function(event, delta) {
 				if ($.gander.viewer('isopen')) { // Only capture if we are viewing
 					$.gander.select(delta > 0 ? 'previous' : 'next');
@@ -162,6 +160,24 @@ $(function() {
 			$(document).on('click', '.jGrowl', function() { // When clicking on a jGrowl popup - kill it
 				$(this).jGrowl('close');
 			});
+
+			// Menu setup
+			$("#mainmenu").wijmenu({
+				orientation: "horizontal",
+				showDelay: 100,
+				showAnimation: {animated:"slide", option: { direction: "up" }, duration: 100, easing: null}
+			});
+			$(".wijmo-wijmenu-text").parent().click(function () {
+				$("#mainmenu").wijmenu("hideAllMenus");
+				var href =  $(this).find('a').attr('href'); // Trigger the 'a' href links when clicking on parent
+				if (href)
+					document.location = href;
+			}).css('cursor', 'pointer');
+			$(".wijmo-wijmenu-link").hover(function () {
+				$(this).addClass("ui-state-hover");
+			}, function () {
+				$(this).removeClass("ui-state-hover");
+			})
 
 			// Filetree setup
 			$('#dirlist').dynatree({
@@ -351,7 +367,7 @@ $(function() {
 								data: data.date,
 								type: data.type,
 							})
-							.contextMenu(data.type == 'dir' ? $.gander.options['menu.item-folder'] : $.gander.options['menu.item'],$.gander.options['menu'])
+							//.contextMenu(data.type == 'dir' ? $.gander.options['menu.item-folder'] : $.gander.options['menu.item'],$.gander.options['menu'])
 							.find('img')
 								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
@@ -687,6 +703,8 @@ $(function() {
 					$('#list').show();
 					$(window).scrollTo($('#list li').eq($.gander.current['offset']));
 					$.gander.throbber('off');
+					if ($.gander.options['menu_hide_on_view'])
+						$('#window-menu').show();
 					$('#window-display').hide();
 					break;
 				case 'toggle':
@@ -713,6 +731,8 @@ $(function() {
 						}
 						$.gander.current['path'] = path;
 					}
+					if ($.gander.options['menu_hide_on_view'])
+						$('#window-menu').hide();
 					$('#list').hide();
 					$('#window-display').show();
 

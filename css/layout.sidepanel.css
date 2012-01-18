@@ -3,15 +3,25 @@ body {
 	padding: 0;
 }
 
+#window-menu {
+	top: 0px;
+	z-index: 10000;
+	position: fixed;
+}
+
 #window-dir {
 	float: left;
 	position: fixed;
-	top: 0px;
+	top: 40px;
 	bottom: 0px;
 	width: 200px;
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+#window-set {
+	magin-top: 40px;
 }
 
 #window-dir #dirlist {

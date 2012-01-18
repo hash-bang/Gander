@@ -10,6 +10,7 @@
 		<link type="text/css" href="css/jquery.jgrowl.css" rel="stylesheet" />	
 		<link type="text/css" href="css/jquery.contextmenu.css" rel="stylesheet" />	
 		<link type="text/css" href="js/jquery.dynatree.skin/ui.dynatree.css" rel="stylesheet" />	
+		<link type="text/css" href="js/jquery.wijmo-open.1.5.0.css" rel="stylesheet" />	
 		<script type="text/javascript" src="js/jquery-1.7.1.min.js" alt="http://docs.jquery.com/Main_Page"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js" alt="http://jqueryui.com/demos/"></script>
 		<script type="text/javascript" src="js/jquery.dynatree.min.js" alt="http://wwwendt.de/tech/dynatree/doc/dynatree-doc.html"></script>
@@ -19,31 +20,74 @@
 		<script type="text/javascript" src="js/jquery.contextmenu.js" alt="http://www.javascripttoolbox.com/lib/contextmenu/"></script>
 		<script type="text/javascript" src="js/jquery.scrollto-1.4.2-min.js" alt="http://flesler.blogspot.com/2007/10/jqueryscrollto.html"></script>
 		<script type="text/javascript" src="js/jquery.touch-scroll.min.js" alt="https://github.com/neave/touch-scroll"></script>
+		<script type="text/javascript" src="js/jquery.wijmo-open.1.5.0.min.js"></script>
 		<script type="text/javascript" src="js/shortcut.js" alt="http://stepanreznikov.com/js-shortcuts/"></script>
 		<script type="text/javascript" src="js/core.js" alt="https://github.com/hash-bang/Gander"></script>
 	</head>
 	<body>
-		<div id="window-dir">
-			<div id="dirlist"></div>
+		<div id="window-menu">
+		<ul id="mainmenu">
+			<li><a><span class="ui-icon ui-icon-folder-collapsed wijmo-wijmenu-icon-left"></span><span class="wijmo-wijmenu-text">Go</span></a>
+				<ul>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.cd('/')">Home</a><span class="wijmo-wijmenu-icon-right">Ctrl+Up</span></div></li>
+					<li></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.tree('previous')">Previous sibling</a><span class="wijmo-wijmenu-icon-right">Ctrl+Up</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.tree('previous')">Next sibling</a><span class="wijmo-wijmenu-icon-right">Ctrl+Down</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.tree('up')">Back a folder</a><span class="wijmo-wijmenu-icon-right">Ctrl+Left</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.tree('in')">In to folder</a><span class="wijmo-wijmenu-icon-right">Ctrl+Right</span></div></li>
+					<li><a>Select</a>
+						<ul>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('first')">First</a><span class="wijmo-wijmenu-icon-right">Z</span></div></li>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('previous')">Previous</a><span class="wijmo-wijmenu-icon-right">S</span></div></li>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('next')">Next</a><span class="wijmo-wijmenu-icon-right">S</span></div></li>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('last')">Last</a><span class="wijmo-wijmenu-icon-right">X</span></div></li>
+							<li></li>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('-10')">Jump backwards 10</a><span class="wijmo-wijmenu-icon-right">Shift-A</span></div></li>
+							<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.select('+10')">Jump forwards 10</a><span class="wijmo-wijmenu-icon-right">Shift-S</span></div></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li><a><span class="ui-icon ui-icon-zoomin wijmo-wijmenu-icon-left"></span><span class="wijmo-wijmenu-text">Zoom</span></a>
+				<ul>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.zoom('in')">In</a><span class="wijmo-wijmenu-icon-right">W/+</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.zoom('out')">Out</a><span class="wijmo-wijmenu-icon-right">Q/-</span></div></li>
+					<li></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.zoom('fit')">Fit</a><span class="wijmo-wijmenu-icon-right">E</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.zoom('reset')">Actual size</a><span class="wijmo-wijmenu-icon-right">R</span></div></li>
+				</ul>
+			</li>
+			<li><a><span class="ui-icon ui-icon-carat-2-n-s wijmo-wijmenu-icon-left"></span><span class="wijmo-wijmenu-text">Sort</span></a>
+				<ul>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.sort('name')">By name</a><span class="wijmo-wijmenu-icon-right">Shift+T</span></div></li>
+					<li><div><a class="wijmo-wijmenu-text" href="javascript:$.gander.zoom('random')">Shuffle</a><span class="wijmo-wijmenu-icon-right">T</span></div></li>
+				</ul>
+			</li>
+		</ul>
 		</div>
-		<div id="window-list">
-			<ul id="list"></ul>
-		</div>
-		<div id="window-display">
-			<table width="100%" height="100%">
-				<tr valign="center">
-					<td align="center">
-						<img id="display" src="images/gander.png"/>
-						<div id="startup_error">
-							<p><b>Honk, honk!</b></p>
-							<p>It looks like something has gone horribly wrong!</p>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<div id="window-throbber">
-			<img src="images/throb.gif"/>
+		<div id="window-set">
+			<div id="window-dir">
+				<div id="dirlist"></div>
+			</div>
+			<div id="window-list">
+				<ul id="list"></ul>
+			</div>
+			<div id="window-display">
+				<table width="100%" height="100%">
+					<tr valign="center">
+						<td align="center">
+							<img id="display" src="images/gander.png"/>
+							<div id="startup_error">
+								<p><b>Honk, honk!</b></p>
+								<p>It looks like something has gone horribly wrong!</p>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="window-throbber">
+				<img src="images/throb.gif"/>
+			</div>
 		</div>
 	</body>
 </html>
