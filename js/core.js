@@ -343,7 +343,7 @@ $(function() {
 						if (data.couldthumb)
 							couldthumb++;
 						var fakeicon = (data.realthumb) ? 1:0;
-						var newchild = $('<li rel="' + file + '"><div><div class="imgframe" style="background: url(images/throb-img.gif) no-repeat center center"><img rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 						newchild
 							.click($.gander._itemclick)
 							.data({
@@ -353,7 +353,7 @@ $(function() {
 							})
 							.contextMenu(data.type == 'dir' ? $.gander.options['menu.item-folder'] : $.gander.options['menu.item'],$.gander.options['menu'])
 							.find('img')
-								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); })
+								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
 						list.append(newchild);
 					});
