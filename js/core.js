@@ -7,6 +7,7 @@ $(function() {
 		options: {
 			gander_server: 'gander.php',
 			menu_hide_on_view: 1,
+			mouse_hide_on_view: 1,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
@@ -705,6 +706,8 @@ $(function() {
 					$.gander.throbber('off');
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').show();
+					if ($.gander.options['mouse_hide_on_view'])
+						$('body').removeClass('nomouse');
 					$('#window-display').hide();
 					break;
 				case 'toggle':
@@ -733,6 +736,8 @@ $(function() {
 					}
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').hide();
+					if ($.gander.options['mouse_hide_on_view'])
+						$('body').addClass('nomouse');
 					$('#list').hide();
 					$('#window-display').show();
 

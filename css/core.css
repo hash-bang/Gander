@@ -7,6 +7,10 @@ body {
 	user-select: none;
 }
 
+.nomouse {
+	cursor: none;
+}
+
 #list {
 	list-style: none;
 	padding: 0;
