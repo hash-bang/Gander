@@ -10,6 +10,8 @@ $(function() {
 			mouse_hide_on_view: 1,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
+			sort_reset: 'name', // Reset the sort method to this when changing dir (set to '' to keep the sort setting)
+			sort_random_selected_first: 1, // When shuffling move the currently active item to the top
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
@@ -168,12 +170,6 @@ $(function() {
 				showDelay: 100,
 				showAnimation: {animated:"slide", option: { direction: "up" }, duration: 100, easing: null}
 			});
-			$(".wijmo-wijmenu-text").parent().click(function () {
-				$("#mainmenu").wijmenu("hideAllMenus");
-				var href =  $(this).find('a').attr('href'); // Trigger the 'a' href links when clicking on parent
-				if (href)
-					document.location = href;
-			}).css('cursor', 'pointer');
 			$(".wijmo-wijmenu-link").hover(function () {
 				$(this).addClass("ui-state-hover");
 			}, function () {
@@ -374,8 +370,8 @@ $(function() {
 								.attr('src', data.thumb);
 						list.append(newchild);
 					});
-					$.gander.sort();
-					$.gander.current['offset'] = -1;
+					$.gander.sort($.gander.options['sort_reset']);
+					$.gander.current['path'] = null;
 					$.gander.select('first');
 					if (couldthumb > 0) { // Still more work to do
 						setTimeout($.gander.refresh, 0);
@@ -458,10 +454,17 @@ $(function() {
 			var items = parent.children().get();
 			var aval, bval, afol, bfol;
 			switch ($.gander.options['sort']) {
+				case 'date': // Simple sorts
+				case 'size':
 				case 'name':
 					items.sort(function(a,b) {
-						aval = $(a).attr('rel').toLowerCase(); // Case insensitive
-						bval = $(b).attr('rel').toLowerCase();
+						if ($.gander.options['sort'] == 'name') {
+							aval = $(a).attr('rel').toLowerCase(); // Case insensitive
+							bval = $(b).attr('rel').toLowerCase();
+						} else { // Sort by raw data
+							aval = $(a).data($.gander.options['sort']);
+							bval = $(b).data($.gander.options['sort']);
+						}
 
 						if ($.gander.options['sort_folders_first']) {
 							afol = ($(a).data('type') == 'dir');
@@ -477,12 +480,21 @@ $(function() {
 					break;
 				case 'random':
 					items.sort(function(a,b) {
+						var aobj = $(a);
+						var bobj = $(b);
 						if ($.gander.options['sort_folders_first']) {
-							afol = ($(a).data('type') == 'dir');
-							bfol = ($(b).data('type') == 'dir');
+							afol = (aobj.data('type') == 'dir');
+							bfol = (bobj.data('type') == 'dir');
 							if (afol && !bfol) {
 								return -1;
 							} else if (!afol && bfol) {
+								return 1;
+							}
+						}
+						if ($.gander.options['sort_random_selected_first']) {
+							if (aobj.attr('rel') == $.gander.current['path']) {
+								return -1;
+							} else if (bobj.attr('rel') == $.gander.current['path']) {
 								return 1;
 							}
 						}
@@ -527,7 +539,7 @@ $(function() {
 		* @param string|int direction Optional command to give the file handler OR the offset to set the active item to. See the functions switch statement for further details
 		*/
 		select: function(direction) {
-			var offset = $.gander.current['offset'];
+			var offset = $('#list li[rel="' + $.gander.current['path'] + '"]').index();
 			var list = $('#list').children();
 			var path;
 			switch(direction) {
@@ -566,18 +578,14 @@ $(function() {
 				default: // Select a specific offset
 					offset = direction;
 			}
-			if (offset == $.gander.current['offset'])
-				return;
 			// Remove styles from last active image
-			if (offset > -1)
-				$('#list li').eq($.gander.current['offset']).removeClass('active');
-
-			$.gander.current['offset'] = offset;
+			$('#list li').removeClass('active');
 
 			// Style the selected item
 			var activeimg = $('#list li').eq(offset);
+			$.gander.current['path'] = activeimg.attr('rel');
 			activeimg.addClass('active');
-			$(window).scrollTo($('#list li').eq($.gander.current['offset']));
+			$(window).scrollTo($('#list li').eq(offset));
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
@@ -702,7 +710,8 @@ $(function() {
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
 					$('#list').show();
-					$(window).scrollTo($('#list li').eq($.gander.current['offset']));
+					if ($.gander.current['path'])
+						$(window).scrollTo($('#list li[rel="' + $.gander.current['path'] + '"]'));
 					$.gander.throbber('off');
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').show();
@@ -716,8 +725,13 @@ $(function() {
 				case 'show':
 				case 'open': // Open a specific file
 					if (!path) // No path specified - figure out the item that should show
-						path = $('#list li').eq($.gander.current['offset']).attr('rel');
-					if (path != $.gander.current['path']) { // Opening a differnt file from previously
+						if ($.gander.current['path']) {
+							path = $.gander.current['path']; // Copy from current
+						} else {
+							$.gander.growl('error', 'No image selected');
+							return; // No idea what to display
+						}
+					if (path != $.gander.current['path']) { // Opening a different file from previously
 						if (path in $.gander.cache) { // In cache
 							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 						} else { // New cache request

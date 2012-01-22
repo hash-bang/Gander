@@ -37,6 +37,7 @@ Known issues
 * Navigating away from a folder where thumbnails are still loading does not destroy the status message
 * Status messages dont seem to time out (see 'End of Directory' messages)
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
+* Changing a directory while viewing an image doesnt change the active image
 * When loading an image the resize can be slow - i.e. resize doesn't occur until the image is completely loaded
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
 * Non-writable cache dir error detection needs testing
@@ -50,12 +51,10 @@ TODO list
 
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
-* When entering random mode from an image move the current image to the start of the list
 * Image panning
 * Comments / description for images
 * List view and column view of items
 * Functionality to switch directories - i.e. toggle between two most recent
-* Transition when displaying a newly created thumbnail (fadein perhaps?)
 * Screen splitting (VIM style)
 * Load images recursively from a tree
 * Multiple image list tabs
