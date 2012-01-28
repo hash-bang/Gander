@@ -43,6 +43,7 @@ $(function() {
 			width: 0,
 			height: 0,
 			path: '',
+			viewing_path: ''
 		},
 		/**
 		* The active navigation path
@@ -682,7 +683,12 @@ $(function() {
 				case 'fit-both':
 				case 'fitboth':
 				case 'fit':
-					return $.gander.zoom(($.gander.current['width'] > $('#window-display').width()) ? 'fit-width' : 'fit-height');
+					if ($.gander.current['width'] / $('#window-display').width() > $.gander.current['height'] / $('#window-display').height()) {
+						return $.gander.zoom('fit-width');
+					} else {
+						return $.gander.zoom('fit-height');
+					}
+					//return $.gander.zoom(($.gander.current['width'] > $('#window-display').width()) ? 'fit-width' : 'fit-height');
 					break;
 				case '100':
 				case 'reset':
@@ -694,9 +700,7 @@ $(function() {
 			if (!$.gander.options['zoom_stretch_smaller'] && zoom > 100)
 				zoom = 100;
 
-			if (zoom == $.gander.current['zoom']) return;
 			$.gander.current['zoom'] = zoom;
-			console.log("Z: " + $.gander.current['zoom'] + ", W: " + ($.gander.current['width'] * (zoom/100)) + ", H: " + ($.gander.current['height'] * (zoom/100)));
 			$('#window-display #display').width($.gander.current['width'] * (zoom/100));
 		},
 		/**
@@ -731,7 +735,7 @@ $(function() {
 							$.gander.growl('error', 'No image selected');
 							return; // No idea what to display
 						}
-					if (path != $.gander.current['path']) { // Opening a different file from previously
+					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
 						if (path in $.gander.cache) { // In cache
 							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
 						} else { // New cache request
@@ -747,6 +751,7 @@ $(function() {
 							}
 						}
 						$.gander.current['path'] = path;
+						$.gander.current['viewing_path'] = path;
 					}
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').hide();
