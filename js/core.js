@@ -62,7 +62,7 @@ $(function() {
 		* Should be called once on startup
 		*/
 		init: function() {
-			// Navigation
+			// Keyboard shortcuts {{{
 			shortcut.add('a', function() { $.gander.select('previous'); });
 			shortcut.add('shift+a', function() { $.gander.select('-10'); });
 			shortcut.add('s', function() { $.gander.select('next'); });
@@ -103,43 +103,128 @@ $(function() {
 
 			// Window controls
 			shortcut.add('n', function() { $.gander.window('clone'); });
+			// }}}
+			// Menus {{{
+			// Item in list
+			$.contextMenu({
+				selector: '#window-list > #list > li.image',
+				items: {
+					'refresh': {name: 'Refresh', icon: 'refresh', callback: function() { $.gander.refresh(); }},
+					"sep1": "---------",
+					'go_to_top': {name: 'Go to top', icon: 'top', callback: function() { $.gander.select('first'); }},
+					'go_to_bottom': {name: 'Go to bottom', icon: 'bottom', callback: function() { $.gander.select('last'); }},
+				}
+			});
 
-			// Menus
-			// See http://www.javascripttoolbox.com/lib/contextmenu/ for syntax
-			$.gander.options['menu.item'] = [
-				{'Open':{icon: 'images/menus/open.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
-				{'Fullscreen':{icon: 'images/menus/fullscreen.png', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }}},
-			];
-			$.gander.options['menu.item-folder'] = [
-				{'Open':{icon: 'images/menus/folder-open.png', onclick: function() { $.gander.cd($(this).attr('rel')); }}},
-				{'Open recursive':{icon: 'images/menus/folder-recurse.png', onclick: function() { $.gander.cd($(this).attr('rel') + '!'); }}},
-			];
-			$.gander.options['menu.list'] = [
-				{'Refresh':{icon: 'images/menus/refresh.png', onclick: function() { $.gander.refresh(); }}},
-				$.contextMenu.separator,
-				{'Go to top':{icon: 'images/menus/top.png', onclick: function() { $.gander.select('first'); }}},
-				{'Go to bottom':{icon: 'images/menus/top.png', onclick: function() { $.gander.select('bottom'); }}},
-			];
-			$.gander.options['menu.tree'] = [
-				$.contextMenu.separator,
-				{'Home':{icon: 'images/menus/home.png', onclick: function() { $.gander.cd('/'); }}},
-				$.contextMenu.separator,
-				{'Go up':{icon: 'images/menus/up.png', onclick: function() { $.gander.tree('up'); }}},
-				{'Next dir':{icon: 'images/menus/next.png', onclick: function() { $.gander.tree('next'); }}},
-				{'Previous dir':{icon: 'images/menus/previous.png', onclick: function() { $.gander.tree('previous'); }}},
-			];
-			$.gander.options['menu.image'] = [
-				{'Close':{icon: 'images/menus/list.png', onclick: function() { $.gander.viewer('hide'); }}},
-				$.contextMenu.separator,
-				{'Next':{icon: 'images/menus/next.png', onclick: function() { $.gander.select('next'); }}},
-				{'Previous':{icon: 'images/menus/previous.png', onclick: function() { $.gander.select('previous'); }}},
-				$.contextMenu.separator,
-				{'Zoom to 100%':{icon: 'images/menus/zoom-actual.png', onclick: function() { $.gander.zoom('normal', 'lock'); }}},
-				{'Zoom fit':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit', 'lock'); }}},
-				// FIXME: These should have unique icons
-				{'Zoom fit width':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit-width', 'lock'); }}},
-				{'Zoom fit height':{icon: 'images/menus/zoom-fit.png', onclick: function() { $.gander.zoom('fit-height', 'lock'); }}},
-			];
+			// Item in list (folders)
+			$.contextMenu({
+				selector: '#window-list > #list > li.folder',
+				items: {
+					'open': {name: 'Open', icon: 'folder', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.viewer('open', $(this).attr('rel'), 1); }},
+					'fullscreen': {name: 'Fullscreen', icon: 'fullscreen', callback: function() { $.gander.viewer('open', $(this).attr('rel')); }},
+					"sep1": "---------",
+					'refresh': {name: 'Refresh', icon: 'refresh', callback: function() { $.gander.refresh(); }},
+					"sep2": "---------",
+					'go_to_top': {name: 'Go to top', icon: 'top', callback: function() { $.gander.select('first'); }},
+					'go_to_bottom': {name: 'Go to bottom', icon: 'bottom', callback: function() { $.gander.select('last'); }},
+				}
+			});
+
+			// Folder tree item
+			$.contextMenu({
+				selector: '#window-dir > #dirlist > ul li',
+				items: {
+					'open': {name: 'Open', icon: 'folder-open', callback: function() { console.log($('#dirlist').dynatree('getTree').getNodeByKey($.gander.path)); $.gander.cd($(this).attr('rel')); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($(this).attr('rel'), 1); }},
+					"sep1": "---------",
+					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
+					"sep2": "---------",
+					'go_up': {name: 'Go up', icon: 'up', callback: function() { $.gander.tree('up'); }},
+					'next_dir': {name: 'Next dir', icon: 'next', callback: function() { $.gander.tree('next'); }},
+					'previous_dir': {name: 'Previous dir', icon: 'previous', callback: function() { $.gander.tree('previous'); }},
+				}
+			});
+
+			// Active image
+			$.contextMenu({
+				selector: '#window-display',
+				items: {
+					'close': {name: 'Close', icon: 'list', callback: function() { $.gander.viewer('hide'); }},
+					"sep1": "---------",
+					'Next': {name: 'Next', icon: 'next', callback: function() { $.gander.select('next'); }},
+					'Previous': {name: 'Previous', icon: 'previous', callback: function() { $.gander.select('previous'); }},
+					"sep2": "---------",
+					'Zoom to 100%': {name: 'Zoom to 100%', icon: 'zoom-actual', callback: function() { $.gander.zoom('normal', 'lock'); }},
+					'Zoom fit': {name: 'Zoom fit', icon: 'zoom-fit', callback: function() { $.gander.zoom('fit', 'lock'); }},
+					'Zoom fit width': {name: 'Zoom fit width', icon: 'zoom-fit-width', callback: function() { $.gander.zoom('fit-width', 'lock'); }},
+					'Zoom fit height': {name: 'Zoom fit height', icon: 'zoom-fit-height', callback: function() { $.gander.zoom('fit-height', 'lock'); }},
+				}
+			});
+
+			// Main menu - Go
+			$.contextMenu({
+				selector: '#window-menu > #menu-go',
+				trigger: 'hover',
+				autoHide: true,
+				delay: 500,
+				items: {
+					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
+					"sep1": "---------",
+					'go_up': {name: 'Go up', icon: 'up', callback: function() { $.gander.tree('up'); }},
+					'next_dir': {name: 'Next dir', icon: 'next', callback: function() { $.gander.tree('next'); }},
+					'previous_dir': {name: 'Previous dir', icon: 'previous', callback: function() { $.gander.tree('previous'); }},
+				}
+			});
+
+			// Main menu - Select
+			$.contextMenu({
+				selector: '#window-menu > #menu-select',
+				trigger: 'hover',
+				autoHide: true,
+				delay: 500,
+				items: {
+					'first': {name: 'First', icon: 'first', callback: function() { $.gander.select('first'); }},
+					'previous': {name: 'Previous', icon: 'previous', callback: function() { $.gander.select('previous'); }},
+					'next': {name: 'Next', icon: 'next', callback: function() { $.gander.select('next'); }},
+					'last': {name: 'Last', icon: 'last', callback: function() { $.gander.select('last'); }},
+					"sep1": "---------",
+					'back_10': {name: 'Jump backwards 10', icon: 'back_fast', callback: function() { $.gander.select('-10'); }},
+					'next_10': {name: 'Jump forewards 10', icon: 'next_fast', callback: function() { $.gander.select('+10'); }},
+				}
+			});
+
+			// Main menu - Zoom
+			$.contextMenu({
+				selector: '#window-menu > #menu-zoom',
+				trigger: 'hover',
+				autoHide: true,
+				delay: 500,
+				items: {
+					'zoom_in': {name: 'Zoom in', icon: 'zoom-in', callback: function() { $.gander.zoom('in'); }},
+					'zoom_out': {name: 'Zoom out', icon: 'zoom-out', callback: function() { $.gander.zoom('out'); }},
+					'zoom_to_100': {name: 'Zoom to 100%', icon: 'zoom-actual', callback: function() { $.gander.zoom('normal', 'lock'); }},
+					'zoom_fit': {name: 'Zoom fit', icon: 'zoom-fit', callback: function() { $.gander.zoom('fit', 'lock'); }},
+					'zoom_fit_width': {name: 'Zoom fit width', icon: 'zoom-fit-width', callback: function() { $.gander.zoom('fit-width', 'lock'); }},
+					'zoom_fit_height': {name: 'Zoom fit height', icon: 'zoom-fit-height', callback: function() { $.gander.zoom('fit-height', 'lock'); }},
+				}
+			});
+
+			// Main menu - Sort
+			$.contextMenu({
+				selector: '#window-menu > #menu-sort',
+				trigger: 'hover',
+				autoHide: true,
+				delay: 500,
+				items: {
+					'sort_name': {name: 'By name', icon: 'sort-name', callback: function() { $.gander.sort('name'); }},
+					'sort_date': {name: 'By date', icon: 'sort-date', callback: function() { $.gander.sort('date'); }},
+					'sort_size': {name: 'By size', icon: 'sort-size', callback: function() { $.gander.sort('size'); }},
+					"sep1": "---------",
+					'sort_random': {name: 'Shuffle', icon: 'sort-random', callback: function() { $.gander.sort('random'); }},
+				}
+			});
+			/// }}}
 
 			// NO CONFIG BEYOND THIS LINE
 			$(document).bind('mousewheel', function(event, delta) {
@@ -148,9 +233,6 @@ $(function() {
 					return false;
 				}
 			});
-			$('#window-list').contextMenu($.gander.options['menu.list'],$.gander.options['menu'])
-			$('#window-dir').contextMenu($.gander.options['menu.tree'],$.gander.options['menu'])
-			$('#window-display').contextMenu($.gander.options['menu.image'],$.gander.options['menu'])
 
 			// Default values
 			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
@@ -164,18 +246,6 @@ $(function() {
 			$(document).on('click', '.jGrowl', function() { // When clicking on a jGrowl popup - kill it
 				$(this).jGrowl('close');
 			});
-
-			// Menu setup
-			$("#mainmenu").wijmenu({
-				orientation: "horizontal",
-				showDelay: 100,
-				showAnimation: {animated:"slide", option: { direction: "up" }, duration: 100, easing: null}
-			});
-			$(".wijmo-wijmenu-link").hover(function () {
-				$(this).addClass("ui-state-hover");
-			}, function () {
-				$(this).removeClass("ui-state-hover");
-			})
 
 			// Filetree setup
 			$('#dirlist').dynatree({
@@ -336,13 +406,14 @@ $(function() {
 		* This also refreshes the file list contents as loads thumbnails as needed
 		* @param string path The new path to change the file list to
 		* @param bool treerefresh Whether to refresh the directory tree. This is used by internal functions to instruct the DynaTree element to redraw the selected element
+		* @param bool recurse Whether to open the folder recursively
 		*/
-		cd: function(path, treerefresh) {
+		cd: function(path, treerefresh, recurse) {
 			$.ajax({
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: path, thumbs: 'quick', max_thumbs: $.gander.options['thumbs_max_get_first']},
+				data: {cmd: 'list', path: path, thumbs: 'quick', max_thumbs: $.gander.options['thumbs_max_get_first'], recursive: recurse},
 				success: function(json) {
 					$.gander._unpack('cd', json);
 					var list = $('#list');
@@ -365,7 +436,7 @@ $(function() {
 								data: data.date,
 								type: data.type,
 							})
-							//.contextMenu(data.type == 'dir' ? $.gander.options['menu.item-folder'] : $.gander.options['menu.item'],$.gander.options['menu'])
+							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
 							.find('img')
 								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
@@ -423,8 +494,8 @@ $(function() {
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
 							newchild
-								.click($.gander._itemclick)
-								.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
+								.click($.gander._itemclick);
+								//.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 							list.append(newchild);
 							needsort = 1;
 						}

@@ -210,6 +210,7 @@ switch ($cmd) {
 	* @params string $_REQUEST['path'] A single path to explore or multiple paths seperated by ';'. If any path ends in '!' it is scanned recursively. If any meta character is preceeded by a backslash its purpose is ignored (e.g. '\!' translates to '!' and does nothing special)
 	* @param string $_REQUEST['thumbs'] Whether to return thumbnails. Values: none - do nothing, quick - return ready-to-hand thumbnails, make - attempt to make thumbnails if they dont already exist
 	* @param array $_REQUEST['skip'] An array of file paths not to recurse into or return
+	* @param bool $_REQUEST['recursive'] Force all directories to be recursive (this is the same as all paths ending in '!')
 	* @param int $_REQUEST['max_thumbs'] The maximum number of thumbs to attempt to make if $_REQUEST['thumbs'] = 'make'
 	*/
 	case 'list':
@@ -242,7 +243,7 @@ switch ($cmd) {
 		}
 
 		for($p = 0; $p < count($paths); $p++) {
-			$recurse = 0;
+			$recurse = isset($_REQUEST['recursive']) && $_REQUEST['recursive'];
 			$path = $paths[$p];
 			if (preg_match('/(?<!\\\\)\!$/', $path)) { // Ends in '!' (but not \!)
 				$path = substr($path, 0, -1);
@@ -273,6 +274,7 @@ switch ($cmd) {
 					microtime(1) < $panic && // Still got time to spend
 					$made = getthumb($base, $path) // It was successful
 				) {
+					$files[$file]['type'] = 'image';
 					$files[$file]['realthumb'] = 1;
 					$files[$file]['thumb'] = $made;
 				} elseif ( // Could make a thumbnail
@@ -283,6 +285,7 @@ switch ($cmd) {
 					mkthumb($base, $path) && // It was successful
 					$find = getthumb($base, $path) // We can retrive it again
 				) {
+					$files[$file]['type'] = 'image';
 					$files[$file]['realthumb'] = 1;
 					$files[$file]['fresh'] = 1;
 					$files[$file]['thumb'] = $find;
@@ -293,6 +296,7 @@ switch ($cmd) {
 					if ($recurse)
 						array_splice($paths, $p+1, 0, $file);
 				} elseif (($ext = pathinfo($file, PATHINFO_EXTENSION)) && file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')) { // File type thumb found
+					$files[$file]['type'] = 'image';
 					if ($thumb != 'none')
 						$files[$file]['thumb'] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
 					if ($couldthumb)

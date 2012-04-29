@@ -1,0 +1,3 @@
+[submodule "lib/jquery-contextmenu"]
+	path = lib/jquery-contextmenu
+	url = https://github.com/medialize/jQuery-contextMenu.git

@@ -2,8 +2,12 @@ body {
 	background: #33373B;
 }
 
-#window-dir, #window-dir #dirlist .dynatree-container {
+#window-menu, #window-dir, #window-dir #dirlist .dynatree-container {
 	background: #1D1D1D;
+}
+
+#window-menu a {
+	color: white;
 }
 
 #window-list {

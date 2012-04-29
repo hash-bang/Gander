@@ -96,11 +96,3 @@ body {
 .jGrowl .jGrowl-notification {
 	min-height: 45px !important;
 }
-
-#mainmenu .wijmo-wijmenu-icon-right {
-	float: right;
-	z-index: 10000;
-	position: absolute;
-	right: 10px;
-	cursor: pointer;
-}

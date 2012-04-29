@@ -7,6 +7,23 @@ body {
 	top: 0px;
 	z-index: 10000;
 	position: fixed;
+	padding: 5px;
+	border-bottom-right-radius: 10px;
+	-moz-border-bottom-right-radius: 10px;
+}
+
+#window-menu a {
+	font-size: 12pt;
+	float: left;
+	list-style: none;
+	padding: 5px 10px;
+	cursor: pointer;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#window-menu a:hover {
+	background: #364049;
 }
 
 #window-dir {
