@@ -36,7 +36,6 @@ Known issues
 * Navigating away from a folder where thumbnails are still loading does not destroy the status message
 * Status messages dont seem to time out (see 'End of Directory' messages)
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
-* Changing a directory while viewing an image doesnt change the active image
 * When loading an image the resize can be slow - i.e. resize doesn't occur until the image is completely loaded
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
 * Non-writable cache dir error detection needs testing

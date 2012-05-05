@@ -231,12 +231,6 @@ $(function() {
 			/// }}}
 
 			// NO CONFIG BEYOND THIS LINE
-			$(document).bind('mousewheel', function(event, delta) {
-				if ($.gander.viewer('isopen')) { // Only capture if we are viewing
-					$.gander.select(delta > 0 ? 'previous' : 'next');
-					return false;
-				}
-			});
 
 			// Default values
 			$.gander.current['thumbzoom'] = $.gander.options['zoom_thumb_normal'];
@@ -247,6 +241,14 @@ $(function() {
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
+			// Event bindings {{{
+			$(window).resize(function() { $.gander.window('resize') });
+			$(document).bind('mousewheel', function(event, delta) {
+				if ($.gander.viewer('isopen')) { // Only capture if we are viewing
+					$.gander.select(delta > 0 ? 'previous' : 'next');
+					return false;
+				}
+			});
 			$(document).on('click', '.jGrowl', function() { // When clicking on a jGrowl popup - kill it
 				$(this).jGrowl('close');
 			});
@@ -261,6 +263,7 @@ $(function() {
 					alert('I dont know how to handle this file');
 				}
 			});
+			// }}}
 
 			// Filetree setup
 			$('#dirlist').dynatree({
@@ -885,6 +888,9 @@ $(function() {
 					newwindow=window.open(window.location,'gander', 'height=' + $(window).height() + ',width=' + $(window).width() + ',screenX=' + ((document.all)?window.screenLeft:window.screenX) + ',screenY=' + ((document.all)?window.screenTop:window.screenY) + ',scrollbars=yes,menubar=no,location=no,status=no,toolbar=no');
 					if (window.focus)
 						newwindow.focus();
+					break;
+				case 'resize':
+					$.gander.zoom($.gander.options['zoom_on_open']);
 					break;
 			}
 		}
