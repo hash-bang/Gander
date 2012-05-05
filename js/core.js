@@ -455,7 +455,7 @@ $(function() {
 							})
 							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
 							.find('img')
-								.load(function() { $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
+								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
 						list.append(newchild);
 					});
