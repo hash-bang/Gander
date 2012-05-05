@@ -168,6 +168,7 @@ $(function() {
 				trigger: 'hover',
 				autoHide: true,
 				delay: 500,
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
 					"sep1": "---------",
@@ -183,6 +184,7 @@ $(function() {
 				trigger: 'hover',
 				autoHide: true,
 				delay: 500,
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'first': {name: 'First', icon: 'first', callback: function() { $.gander.select('first'); }},
 					'previous': {name: 'Previous', icon: 'previous', callback: function() { $.gander.select('previous'); }},
@@ -200,6 +202,7 @@ $(function() {
 				trigger: 'hover',
 				autoHide: true,
 				delay: 500,
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'zoom_in': {name: 'Zoom in', icon: 'zoom-in', callback: function() { $.gander.zoom('in'); }},
 					'zoom_out': {name: 'Zoom out', icon: 'zoom-out', callback: function() { $.gander.zoom('out'); }},
@@ -216,6 +219,7 @@ $(function() {
 				trigger: 'hover',
 				autoHide: true,
 				delay: 500,
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'sort_name': {name: 'By name', icon: 'sort-name', callback: function() { $.gander.sort('name'); }},
 					'sort_date': {name: 'By date', icon: 'sort-date', callback: function() { $.gander.sort('date'); }},
