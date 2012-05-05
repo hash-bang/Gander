@@ -32,7 +32,6 @@ Known issues
 ------------
 
 * Selected directory tree items dont seem to hilight correctly
-* Context menus for images load up too many pointless objects (1 table + structure per image!)
 * Settings are not currently loaded from the server on first execute
 * Navigating away from a folder where thumbnails are still loading does not destroy the status message
 * Status messages dont seem to time out (see 'End of Directory' messages)

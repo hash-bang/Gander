@@ -250,6 +250,17 @@ $(function() {
 			$(document).on('click', '.jGrowl', function() { // When clicking on a jGrowl popup - kill it
 				$(this).jGrowl('close');
 			});
+			$('#window-list #list').on('click', 'li', function() {
+				var item = $(this);
+				$.gander.select(item.index());
+				if (item.hasClass('image')) { // Is an image
+					$.gander.viewer('open', item.attr('rel'));
+				} else if (item.hasClass('folder')) { 
+					$.gander.cd(item.attr('rel'));
+				} else { // Is unknown
+					alert('I dont know how to handle this file');
+				}
+			});
 
 			// Filetree setup
 			$('#dirlist').dynatree({
@@ -434,7 +445,6 @@ $(function() {
 						var fakeicon = (data.realthumb) ? 1:0;
 						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 						newchild
-							.click($.gander._itemclick)
 							.data({
 								size: data.size,
 								data: data.date,
@@ -497,9 +507,6 @@ $(function() {
 						} else { // New item
 							var fakeicon = (data.realthumb) ? 1:0;
 							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
-							newchild
-								.click($.gander._itemclick);
-								//.contextMenu($.gander.options['menu.item'],$.gander.options['menu']);
 							list.append(newchild);
 							needsort = 1;
 						}
@@ -578,19 +585,6 @@ $(function() {
 					});
 			}
 			$.each(items, function(idx, itm) { parent.append(itm) });
-		},
-		/**
-		* Internal function triggered when clicking on an icon
-		* This funciton is used by 'cd' and 'refresh' to bind the click event of indidivual items
-		*/
-		_itemclick: function() {
-			$.gander.select($(this).index());
-			var path = $(this).attr('rel');
-			if (path.substr(-1) == '/') { // Is a directory
-				$.gander.cd(path.substr(0,path.length-1));
-			} else { // Is a file
-				$.gander.viewer('open', path);
-			}
 		},
 		/**
 		* Internal function to adjust a numerical value whilst constraining it within a minimum and maximum
