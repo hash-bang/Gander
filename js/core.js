@@ -291,7 +291,8 @@ $(function() {
 					});
 				},
 				onClick: function(node) {
-					$.gander.cd(node.data.key);
+					if (node.getEventTargetType(event) == "title")
+						$.gander.cd(node.data.key);
 				},
 				strings: {
 					loading: "Loading...",
