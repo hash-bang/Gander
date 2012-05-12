@@ -342,7 +342,7 @@ $(function() {
 		* @return bool True if the message was created, false if it already exists
 		*/
 		growl: function(type, text, id, options) {
-			var opts = $.gander.options['jGrowl'];
+			var opts = $.extend($.gander.options['jGrowl'], options);
 			if (id && $('#' + id).length > 0) // Assign an ID but this ID already exists - abort
 				return;
 			opts['open'] = function(e,m,o) {
@@ -351,7 +351,12 @@ $(function() {
 				if (type)
 					e.find('.jGrowl-header').append('<img src="images/growl/' +  type + '.png"/>');
 			};
-			$.jGrowl(text, $.extend(opts, options));
+			$.jGrowl(text, opts);
+			if (id && options['life']) // HOTFIX: For some reason Growl doesnt kill certain messages on time - add a setTimeout event to make sure
+				setTimeout(function() {
+					console.log('Growl killer: ' + id);
+					$.gander.growl_close(id);
+				}, options['life']);
 			return 1;
 		},
 		/**
@@ -369,7 +374,7 @@ $(function() {
 		* @see growl()
 		*/
 		growl_close: function(id) {
-			$('#' + id).parents('.jGrowl-notification').remove();
+			$('#' + id).parents('.jGrowl-notification').fadeOut('fast', function() { $(this).remove(); });
 		},
 		/**
 		* Internal function to deal with AJAX responses.
@@ -618,13 +623,13 @@ $(function() {
 					if (offset < list.length -1) {
 						offset += 1;
 					} else
-						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 1000});
+						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 2000});
 					break;
 				case 'previous':
 					if (offset > 0) {
 						offset = $.gander.adjust(offset, -1, 0, list.length -1);
 					} else
-						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 1000});
+						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 2000});
 					break;
 				case '+10':
 					offset = $.gander.adjust(offset, +10, 0, list.length -1);
