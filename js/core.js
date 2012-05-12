@@ -509,10 +509,7 @@ $(function() {
 								})
 								.attr('src', data.thumb);
 						} else { // New item
-							var fakeicon = (data.realthumb) ? 1:0;
-							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img src="' + data.thumb + '" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong></li>');
-							list.append(newchild);
-							needsort = 1;
+							console.log('Rejected icon thumnail for non-existant item: ' + file);
 						}
 					});
 					if (needsort)
