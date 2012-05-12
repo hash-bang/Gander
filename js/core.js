@@ -30,7 +30,7 @@ $(function() {
 
 			// The following options are supplied by the server. Overwriting these will have little effect
 			media_transmit: 1,
-			media_transmit_path: '/taz/media/%p'
+			media_transmit_path: '/pictures/%p'
 		},
 		/**
 		* Details on the currently viewed image
@@ -815,9 +815,18 @@ $(function() {
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
 							if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
-								$.getJSON($.gander.options['gander_server'], {cmd: 'get', path: path}, function(json) {
-									$.gander._unpack('open', json);
-									$('#display').load($.gander._displayloaded).attr('src', json.data);
+								$.ajax({
+									url: $.gander.options['gander_server'],
+									dataType: 'json',
+									type: 'POST',
+									data: {
+										cmd: 'get',
+										path: path,
+									},
+									success: function(json) {
+										$.gander._unpack('open', json);
+										$('#display').load($.gander._displayloaded).attr('src', json.data);
+									}
 								});
 							} else { // Stream
 								$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
