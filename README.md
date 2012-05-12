@@ -1,8 +1,5 @@
 Gander
 ======
-
-_Gander is still under major development - use at your own risk_
-
 A picture gallery system that works without requiring anything other than some media to show.
 
 No databases, no screwing about with config. Put files in a directory and open the browser.
@@ -22,7 +19,6 @@ Features:
 
 How it works & What you need
 ----------------------------
-
 While the majority of Gander is entirely client based (HTML, CSS + JavaScript) unfortunately there are a few things that are still not possible in JavaScript alone.
 
 To provide access to your server you will need to install a fairly simple PHP script somewhere on your server. The job of this script is to perform file level opeations such as generating thumbnails and working on the file itself (e.g. renaming, deleting etc).
@@ -30,23 +26,15 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
-
 * Selected directory tree items dont seem to hilight correctly
 * Settings are not currently loaded from the server on first execute
-* Navigating away from a folder where thumbnails are still loading does not destroy the status message
-* Status messages dont seem to time out (see 'End of Directory' messages)
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
-* When loading an image the resize can be slow - i.e. resize doesn't occur until the image is completely loaded
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
-* Non-writable cache dir error detection needs testing
-* Recursive thumbnails (i.e. looking inside the thumbnail directory) will probably end in a crash
-* Loading folder trees is slow as a query must be done to figure out if there are any child folders
 * Emblems needed: Link, Folder icon / favourite
 
 
 TODO list
 ---------
-
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
