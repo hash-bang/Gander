@@ -135,6 +135,9 @@ $(function() {
 			$.contextMenu({
 				selector: '#window-dir > #dirlist > ul li',
 				items: {
+					'test': {name: 'Test', icon: 'folder-recurse', callback: function() {
+						console.log($.gander._dynapath(this));
+					}},
 					'open': {name: 'Open', icon: 'folder-open', callback: function() { console.log($('#dirlist').dynatree('getTree').getNodeByKey($.gander.path)); $.gander.cd($(this).attr('rel')); }},
 					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($(this).attr('rel'), 1); }},
 					"sep1": "---------",
@@ -424,6 +427,26 @@ $(function() {
 					}
 				};
 			}
+		},
+		/**
+		* Returns the full path of a document element in a Dynatree
+		* FIXME: I'm sure there is a more efficient way of doing this but ui.getNode doesnt seem to work
+		* @param object The object to get the path of
+		* @return string The Gander path of the given item
+		*/
+		_dynapath: function(o) {
+			var path = '';
+			var obj = $(o);
+			var depth = 0;
+			while(obj.length) {
+				console.log('SPAN ' + obj.find('.dynatree-title').text());
+				path += '/' + obj.find('.dynatree-title').text();
+				obj = $(o).parents('li');
+				if (depth++ >= 10)
+					break;
+			}
+			console.log('FINAL ' + path);
+			return path;
 		},
 		/**
 		* Change the file list to a given path
