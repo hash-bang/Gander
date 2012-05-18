@@ -155,6 +155,15 @@ switch ($cmd) {
 			'data' => 'Hello World',
 		));
 		break;
+	case 'init':
+		echo json_encode(array(
+			'header' => $header,
+			'data' => array(
+				'media_transmit' => GANDER_MEDIA_TRANSMIT,
+				'media_transmit_path' => GANDER_MEDIA_TRANSMIT_PATH,
+			),
+		));
+		break;
 	case 'get': // Retrieve an image
 		switch (GANDER_THUMB_TRANSMIT) {
 			case 0: // Return as JSON

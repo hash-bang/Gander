@@ -314,6 +314,21 @@ $(function() {
 				}
 			});*/
 			$('#window-display #startup_error').remove();
+
+			$.ajax({
+				url: $.gander.options['gander_server'], 
+				dataType: 'json',
+				type: 'POST',
+				data: {cmd: 'init'},
+				success: function(json) {
+					$.gander._unpack('init', json);
+					$.gander.options = $.extend($.gander.options, json.data);
+					$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', {drawtree: 1});
+				},
+				error: function(e,xhr,exception) {
+					$.gander.growl('error', 'Error during init - ' + xhr.responseText + ' - ' + exception);
+				}
+			});
 		},
 		/**
 		* Simple, idiot proof command runner.
@@ -937,5 +952,4 @@ $(function() {
 		}
 	}});
 	$.gander.init();
-	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', {drawtree: 1});
 });

@@ -27,7 +27,6 @@ To provide access to your server you will need to install a fairly simple PHP sc
 Known issues
 ------------
 * Selected directory tree items dont seem to hilight correctly
-* Settings are not currently loaded from the server on first execute
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
 * Emblems needed: Link, Folder icon / favourite
