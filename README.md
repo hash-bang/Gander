@@ -28,8 +28,6 @@ Known issues
 ------------
 * Selected directory tree items dont seem to hilight correctly
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
-* Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
-* Emblems needed: Link, Folder icon / favourite
 
 
 TODO list
@@ -37,11 +35,12 @@ TODO list
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
+* Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
+* Emblems: Link, Folder icon / favourite
 * Comments / description for images
 * List view and column view of items
 * Functionality to switch directories - i.e. toggle between two most recent
 * Screen splitting (VIM style)
-* Load images recursively from a tree
 * Multiple image list tabs
 * Pull in images into browse from other folders (similar to 'queue' in music players)
 * Star image - implies view by starred or filter by starred
