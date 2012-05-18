@@ -140,7 +140,7 @@ if (GANDER_TUNNEL && !isset($notunnel)) {
 	echo $content;
 	$return = proc_close($proc);
 	if ($return > 0) {
-		echo json_encode(array('header' => array('errors' => array("Failed to tunnel correctly. Gander sub-process returned code #$return"))));
+		echo json_encode(array('header' => array('errors' => array("Failed to tunnel correctly. Gander sub-process returned code #$return - CMD=$cmd, STDOUT=$err"))));
 	}
 	exit;
 }
