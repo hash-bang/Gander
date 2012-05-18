@@ -137,7 +137,7 @@ $(function() {
 				selector: '#window-dir > #dirlist > ul li',
 				items: {
 					'open': {name: 'Open', icon: 'folder-open', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
-					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($.gander._dynapath(this), 0, 1); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($.gander._dynapath(this), {recurse: 1}); }},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
 					"sep2": "---------",
@@ -449,15 +449,24 @@ $(function() {
 		* Change the file list to a given path
 		* This also refreshes the file list contents as loads thumbnails as needed
 		* @param string path The new path to change the file list to
-		* @param bool treerefresh Whether to refresh the directory tree. This is used by internal functions to instruct the DynaTree element to redraw the selected element
-		* @param bool recurse Whether to open the folder recursively
+		* @param array options Array of extra options to pass
 		*/
-		cd: function(path, treerefresh, recurse) {
+		cd: function(path, options) {
+			var opts = $.extend({
+				resurse: 0, // Whether to recurse into the directory
+				drawtree: 0, // Whether to refresh the folder tree as well
+			}, options);
 			$.ajax({
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: path, thumbs: 'quick', max_thumbs: $.gander.options['thumbs_max_get_first'], recursive: recurse},
+				data: {
+					cmd: 'list',
+					path: path,
+					thumbs: 'quick',
+					max_thumbs: $.gander.options['thumbs_max_get_first'],
+					recursive: opts['recurse']
+				},
 				success: function(json) {
 					$.gander._unpack('cd', json);
 					var list = $('#list');
@@ -492,7 +501,7 @@ $(function() {
 						setTimeout($.gander.refresh, 0);
 						$.gander.growl('thumbnails', couldthumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
 					}
-					if (treerefresh)
+					if (opts['drawtree'])
 						$.gander._cdtree($.gander.path);
 				},
 				error: function(e,xhr,exception) {
@@ -697,9 +706,9 @@ $(function() {
 					for (c = 0; c < children.length; c++) {
 						if (children[c].data.key == $.gander.path) {
 							if (command == 'next' && c+1 < children.length) {
-								$.gander.cd(children[c+1].data.key, 1);
+								$.gander.cd(children[c+1].data.key, {drawtree: 1});
 							} else if (command == 'previous' && c > 0) {
-								$.gander.cd(children[c-1].data.key, 1);
+								$.gander.cd(children[c-1].data.key, {drawtree: 1});
 							}
 						}
 					}
@@ -707,11 +716,11 @@ $(function() {
 				case 'in': // Go to first child
 					children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getChildren();
 					if (children.length > 0)
-						$.gander.cd(children[0].data.key, 1);
+						$.gander.cd(children[0].data.key, {drawtree: 1});
 					break;
 				case 'up': // Go to parent directory
 					var parent = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent();
-					$.gander.cd(parent.data.key, 1);
+					$.gander.cd(parent.data.key, {drawtree: 1});
 					break;
 			}
 		},
@@ -928,5 +937,5 @@ $(function() {
 		}
 	}});
 	$.gander.init();
-	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', 1);
+	$.gander.cd(window.location.hash ? window.location.hash.substr(1) : '/', {drawtree: 1});
 });
