@@ -135,6 +135,7 @@ $(function() {
 			// Folder tree item
 			$.contextMenu({
 				selector: '#window-dir > #dirlist > ul li',
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height()});},
 				items: {
 					'open': {name: 'Open', icon: 'folder-open', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
 					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($.gander._dynapath(this), {recurse: 1}); }},
