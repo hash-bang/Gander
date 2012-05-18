@@ -6,6 +6,7 @@ $(function() {
 		*/
 		options: {
 			gander_server: 'gander.php',
+			max_depth: 99, // Maximum depth of paths (used to prevent infinite loops when scaning hierarchies)
 			menu_hide_on_view: 1,
 			mouse_hide_on_view: 1,
 			sort: 'name', // Sort method. Values: name, random
@@ -135,11 +136,8 @@ $(function() {
 			$.contextMenu({
 				selector: '#window-dir > #dirlist > ul li',
 				items: {
-					'test': {name: 'Test', icon: 'folder-recurse', callback: function() {
-						console.log($.gander._dynapath(this));
-					}},
-					'open': {name: 'Open', icon: 'folder-open', callback: function() { console.log($('#dirlist').dynatree('getTree').getNodeByKey($.gander.path)); $.gander.cd($(this).attr('rel')); }},
-					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($(this).attr('rel'), 1); }},
+					'open': {name: 'Open', icon: 'folder-open', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($.gander._dynapath(this), 0, 1); }},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
 					"sep2": "---------",
@@ -435,18 +433,17 @@ $(function() {
 		* @return string The Gander path of the given item
 		*/
 		_dynapath: function(o) {
-			var path = '';
-			var obj = $(o);
+			var path = [];
+			var obj = $(o).first();
 			var depth = 0;
 			while(obj.length) {
-				console.log('SPAN ' + obj.find('.dynatree-title').text());
-				path += '/' + obj.find('.dynatree-title').text();
-				obj = $(o).parents('li');
-				if (depth++ >= 10)
+				path.unshift(obj.find('.dynatree-title').first().text());
+				obj = $(obj).parents('li').first();
+				if (depth++ >= $.gander.options.max_depth)
 					break;
 			}
-			console.log('FINAL ' + path);
-			return path;
+			path.shift(); // Remove first element (root)
+			return '/' + path.join('/');
 		},
 		/**
 		* Change the file list to a given path
