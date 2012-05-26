@@ -225,13 +225,17 @@ $(function() {
 			$.contextMenu({
 				selector: '#window-menu > #menu-sort',
 				trigger: 'left',
-				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
-				items: {
-					'sort_name': {name: 'By name', icon: 'sort-name', callback: function() { $.gander.sort('name'); }},
-					'sort_date': {name: 'By date', icon: 'sort-date', callback: function() { $.gander.sort('date'); }},
-					'sort_size': {name: 'By size', icon: 'sort-size', callback: function() { $.gander.sort('size'); }},
-					"sep1": "---------",
-					'sort_random': {name: 'Shuffle', icon: 'sort-random', callback: function() { $.gander.sort('random'); }},
+				build: function() {
+					return {
+						position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
+						items: {
+							'sort_name': {name: 'By name', icon: ($.gander.options['sort'] == 'name' ? 'menu-chosen' : null), callback: function() { $.gander.sort('name'); }},
+							'sort_date': {name: 'By date', icon: ($.gander.options['sort'] == 'date' ? 'menu-chosen' : null), callback: function() { $.gander.sort('date'); }},
+							'sort_size': {name: 'By size', icon: ($.gander.options['sort'] == 'size' ? 'menu-chosen' : null), callback: function() { $.gander.sort('size'); }},
+							"sep1": "---------",
+							'sort_random': {name: 'Shuffle', icon: ($.gander.options['sort'] == 'random' ? 'menu-chosen' : null), callback: function() { $.gander.sort('random'); }},
+						}
+					};
 				}
 			});
 			/// }}}
