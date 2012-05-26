@@ -47,11 +47,12 @@ $(function() {
 			viewing_path: ''
 		},
 		/**
-		* The active navigation path
-		* @var string
+		* Array of paths we are currently viewing
+		* The first index is the active path (for folder tree purposes)
+		* @var array
 		* @see cd()
 		*/
-		path: '/',
+		path: ['/'],
 		/**
 		* Array of cached images. Each image path is specified as the key
 		* @var array
@@ -150,6 +151,9 @@ $(function() {
 					'open_recuseive_rand': {name: 'Open Recursive (+Shuffle)', icon: 'folder-recurse', callback: function() {
 						$.gander.sort('random');
 						$.gander.cd($.gander._dynapath(this), {recurse: 1});
+					}},
+					'open_add': {name: 'Add to view', icon: 'folder-add', callback: function() {
+						$.gander.cd($.gander._dynapath(this), {append: 1});
 					}},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
@@ -481,6 +485,7 @@ $(function() {
 		*/
 		cd: function(path, options) {
 			var opts = $.extend({
+				append: 0, // Whether to append the newly loaded list to the view (if 0 the view is overwritten)
 				resurse: 0, // Whether to recurse into the directory
 				drawtree: 0, // Whether to refresh the folder tree as well
 			}, options);
@@ -497,14 +502,18 @@ $(function() {
 				},
 				success: function(json) {
 					$.gander._unpack('cd', json);
+
 					var list = $('#list');
 					var couldthumb = 0; // How many thumbs there are left to load
-					if (path.substr(0,1) != '/')
-						path = '/' + path;
-					$.gander.path = path;
+					if (!opts['append']) {
+						if (json.header.paths) // Read paths back from server
+							$.gander.path = json.header.paths;
+						list.empty();
+					} else if (json.header.paths) // Append paths from server
+						$.gander.path = $.gander.path.concat(json.header.paths);
+
 					window.location.hash = path;
 
-					list.empty();
 					$.each(json.list, function(file, data) {
 						if (data.couldthumb)
 							couldthumb++;
@@ -530,7 +539,7 @@ $(function() {
 						$.gander.growl('thumbnails', couldthumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
 					}
 					if (opts['drawtree'])
-						$.gander._cdtree($.gander.path);
+						$.gander._cdtree($.gander.path[0]);
 				},
 				error: function(e,xhr,exception) {
 					$.gander.growl('error', 'Error while changing to directory ' + path + ' - ' + xhr.responseText + ' - ' + exception);
@@ -552,7 +561,7 @@ $(function() {
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: $.gander.path, thumbs: 'make', max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
+				data: {cmd: 'list', path: $.gander.path.join(';'), thumbs: 'make', max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
 					var list = $('#list');
@@ -729,10 +738,10 @@ $(function() {
 		tree: function(command) {
 			switch (command) {
 				case 'next': // Go to next sibling
-				case 'previous': // Go to previous sinling - next/previous are handled by the same logic
-					var children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent().getChildren();
+				case 'previous': // Go to previous sibling - next/previous are handled by the same logic
+					var children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path[0]).getParent().getChildren();
 					for (c = 0; c < children.length; c++) {
-						if (children[c].data.key == $.gander.path) {
+						if (children[c].data.key == $.gander.path[0]) {
 							if (command == 'next' && c+1 < children.length) {
 								$.gander.cd(children[c+1].data.key, {drawtree: 1});
 							} else if (command == 'previous' && c > 0) {
@@ -742,12 +751,12 @@ $(function() {
 					}
 					break;
 				case 'in': // Go to first child
-					children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getChildren();
+					children = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path[0]).getChildren();
 					if (children.length > 0)
 						$.gander.cd(children[0].data.key, {drawtree: 1});
 					break;
 				case 'up': // Go to parent directory
-					var parent = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path).getParent();
+					var parent = $('#dirlist').dynatree('getTree').getNodeByKey($.gander.path[0]).getParent();
 					$.gander.cd(parent.data.key, {drawtree: 1});
 					break;
 			}

@@ -231,6 +231,8 @@ switch ($cmd) {
 		$files = array();
 		$sent = 0;
 
+		$header['paths'] = array();
+
 		if (!is_dir(GANDER_THUMBPATH)) { // Thumbnail path doesnt exist - try to make it
 			if (!mkdir(GANDER_THUMBPATH))
 				$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') does not exist. Attempts to create the directory failed';
@@ -254,6 +256,7 @@ switch ($cmd) {
 		for($p = 0; $p < count($paths); $p++) {
 			$recurse = isset($_REQUEST['recursive']) && $_REQUEST['recursive'];
 			$path = $paths[$p];
+			$header['paths'][] = $path;
 			if (preg_match('/(?<!\\\\)\!$/', $path)) { // Ends in '!' (but not \!)
 				$path = substr($path, 0, -1);
 				$recurse = 1;
