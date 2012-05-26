@@ -179,9 +179,7 @@ $(function() {
 			// Main menu - Go
 			$.contextMenu({
 				selector: '#window-menu > #menu-go',
-				trigger: 'hover',
-				autoHide: true,
-				delay: 500,
+				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
@@ -195,9 +193,7 @@ $(function() {
 			// Main menu - Select
 			$.contextMenu({
 				selector: '#window-menu > #menu-select',
-				trigger: 'hover',
-				autoHide: true,
-				delay: 500,
+				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'first': {name: 'First', icon: 'first', callback: function() { $.gander.select('first'); }},
@@ -213,9 +209,7 @@ $(function() {
 			// Main menu - Zoom
 			$.contextMenu({
 				selector: '#window-menu > #menu-zoom',
-				trigger: 'hover',
-				autoHide: true,
-				delay: 500,
+				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'zoom_in': {name: 'Zoom in', icon: 'zoom-in', callback: function() { $.gander.zoom('in'); }},
@@ -230,9 +224,7 @@ $(function() {
 			// Main menu - Sort
 			$.contextMenu({
 				selector: '#window-menu > #menu-sort',
-				trigger: 'hover',
-				autoHide: true,
-				delay: 500,
+				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
 					'sort_name': {name: 'By name', icon: 'sort-name', callback: function() { $.gander.sort('name'); }},
