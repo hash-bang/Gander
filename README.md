@@ -26,12 +26,14 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
+* Thumbnails dont get generated when recursively viewing a directory
 * Selected directory tree items dont seem to hilight correctly
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
 
 
 TODO list
 ---------
+* Pull in images into browse from other folders (similar to 'queue' in music players)
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
@@ -42,7 +44,6 @@ TODO list
 * Functionality to switch directories - i.e. toggle between two most recent
 * Screen splitting (VIM style)
 * Multiple image list tabs
-* Pull in images into browse from other folders (similar to 'queue' in music players)
 * Star image - implies view by starred or filter by starred
 * Track image views - Save the last time an image was accessed
 * Thumbnail for folders - 'Set as folder thumbnail' option
