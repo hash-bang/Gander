@@ -65,46 +65,42 @@ $(function() {
 		*/
 		init: function() {
 			// Keyboard shortcuts {{{
-			shortcut.add('a', function() { $.gander.select('previous'); });
-			shortcut.add('shift+a', function() { $.gander.select('-10'); });
-			shortcut.add('s', function() { $.gander.select('next'); });
-			shortcut.add('shift+s', function() { $.gander.select('+10'); });
-			shortcut.add('z', function() { $.gander.select('first'); });
-			shortcut.add('x', function() { $.gander.select('last'); });
-			shortcut.add('home', function() { $.gander.select('first'); });
-			shortcut.add('end', function() { $.gander.select('last'); });
-			shortcut.add('pageup', function() { $.gander.select('first'); });
-			shortcut.add('pagedown', function() { $.gander.select('last'); });
-			shortcut.add('left', function() { $.gander.select('previous'); });
-			shortcut.add('right', function() { $.gander.select('next'); });
-			shortcut.add('space', function() { $.gander.select('next'); });
+			key('a', function() { $.gander.select('previous'); });
+			key('shift+a', function() { $.gander.select('-10'); });
+			key('s', function() { $.gander.select('next'); });
+			key('shift+s', function() { $.gander.select('+10'); });
+			key('z', function() { $.gander.select('first'); });
+			key('x', function() { $.gander.select('last'); });
+			key('home', function() { $.gander.select('first'); });
+			key('end', function() { $.gander.select('last'); });
+			key('pageup', function() { $.gander.select('first'); });
+			key('pagedown', function() { $.gander.select('last'); });
+			key('left', function() { $.gander.select('previous'); });
+			key('right', function() { $.gander.select('next'); });
+			key('space', function() { $.gander.select('next'); });
 
 			// Zooms
-			shortcut.add('w', function() { $.gander.zoom('in'); });
-			shortcut.add('q', function() { $.gander.zoom('out'); });
-			shortcut.add('e', function() { $.gander.zoom('fit'); });
-			shortcut.add('r', function() { $.gander.zoom('reset'); });
-			shortcut.add('+', function() { $.gander.zoom('in'); });
-			shortcut.add('-', function() { $.gander.zoom('out'); });
-			shortcut.add('shift+up', function() { $.gander.zoom('in'); });
-			shortcut.add('shift+down', function() { $.gander.zoom('out'); });
+			key('w, +, shift+up', function() { $.gander.zoom('in'); });
+			key('q, -, shift+down', function() { $.gander.zoom('out'); });
+			key('e', function() { $.gander.zoom('fit'); });
+			key('r', function() { $.gander.zoom('reset'); });
 
 			// Move within tree
-			shortcut.add('ctrl+left', function() { $.gander.tree('up'); });
-			shortcut.add('ctrl+right', function() { $.gander.tree('in'); });
-			shortcut.add('ctrl+up', function() { $.gander.tree('previous'); });
-			shortcut.add('ctrl+down', function() { $.gander.tree('next'); });
+			key('ctrl+left', function() { $.gander.tree('up'); });
+			key('ctrl+right', function() { $.gander.tree('in'); });
+			key('ctrl+up', function() { $.gander.tree('previous'); });
+			key('ctrl+down', function() { $.gander.tree('next'); });
 
 			// Viewer
-			shortcut.add('f', function() { $.gander.viewer('toggle'); });
-			shortcut.add('escape', function() { $.gander.viewer('hide'); });
+			key('f', function() { $.gander.viewer('toggle'); });
+			key('escape', function() { $.gander.viewer('hide'); });
 
 			// Sort modes
-			shortcut.add('t', function() { $.gander.sort('random'); });
-			shortcut.add('shift+t', function() { $.gander.sort('name'); });
+			key('t', function() { $.gander.sort('random'); });
+			key('shift+t', function() { $.gander.sort('name'); });
 
 			// Window controls
-			shortcut.add('n', function() { $.gander.window('clone'); });
+			key('n', function() { $.gander.window('clone'); });
 			// }}}
 			// Menus {{{
 			// Item in list
