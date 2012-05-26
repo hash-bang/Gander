@@ -33,7 +33,6 @@ Known issues
 
 TODO list
 ---------
-* Pull in images into browse from other folders (similar to 'queue' in music players)
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
