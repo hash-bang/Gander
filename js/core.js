@@ -11,7 +11,7 @@ $(function() {
 			mouse_hide_on_view: 1,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
-			sort_reset: 'name', // Reset the sort method to this when changing dir (set to '' to keep the sort setting)
+			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
 			sort_random_selected_first: 1, // When shuffling move the currently active item to the top
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
 			zoom_thumb_adjust: 20,
@@ -144,7 +144,13 @@ $(function() {
 				},
 				items: {
 					'open': {name: 'Open', icon: 'folder-open', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
-					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.cd($.gander._dynapath(this), {recurse: 1}); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() {
+						$.gander.cd($.gander._dynapath(this), {recurse: 1});
+					}},
+					'open_recuseive_rand': {name: 'Open Recursive (+Shuffle)', icon: 'folder-recurse', callback: function() {
+						$.gander.sort('random');
+						$.gander.cd($.gander._dynapath(this), {recurse: 1});
+					}},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
 					"sep2": "---------",
@@ -588,7 +594,7 @@ $(function() {
 		* @param string method Optional method to set $.gander.options['sort'] to before we begin. If unspecified the current sort method is used instead
 		*/
 		sort: function(method) {
-			if (method)
+			if (method && method != 'keep')
 				$.gander.options['sort'] = method;
 			var parent = $('#list');
 			var items = parent.children().get();
