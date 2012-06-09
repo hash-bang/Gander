@@ -29,6 +29,7 @@ Known issues
 * Selected directory tree items dont seem to hilight correctly when changing directories
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
 * Files with meta characters (e.g. '+') dont load at all - even the thumbnails
+* Clicking directory names in the folder view is hard - text too small. Perhaps stretch to full width?
 
 
 TODO list
