@@ -26,13 +26,14 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
-* Thumbnails dont get generated when recursively viewing a directory
-* Selected directory tree items dont seem to hilight correctly
+* Selected directory tree items dont seem to hilight correctly when changing directories
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
+* Files with meta characters (e.g. '+') dont load at all - even the thumbnails
 
 
 TODO list
 ---------
+* Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
@@ -50,7 +51,6 @@ TODO list
 * Random and Random-lock functionality
 * Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions
-* Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
 * View other file types - e.g. text files, sound, movies
 * Functionality to remember preferred zoom and position of image and restore it when needed
 * Zoom via mouse wheel functionality (maybe hold down a modifier key?)
