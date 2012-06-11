@@ -29,10 +29,14 @@ Known issues
 * Selected directory tree items dont seem to hilight correctly when changing directories
 * Clicking directory names in the folder view is hard - text too small. Perhaps stretch to full width?
 * Dir tree flows off vertical height of screen
+* Sorting by date doesnt seem to do anything
+* File names with '%20' in their names get screwed up
 
 
 TODO list
 ---------
+* Natural sort
+* Thumb-zoom implementation in menus / shortcuts
 * Left / right big buttons for scrolling on tablets
 * Open directory in new tab
 * Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
