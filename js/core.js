@@ -595,7 +595,6 @@ $(function() {
 		* @param string method Optional method to set $.gander.options['sort'] to before we begin. If unspecified the current sort method is used instead
 		*/
 		sort: function(method) {
-			console.log('SORT ' + method);
 			if (method && method != 'keep')
 				$.gander.options['sort'] = method;
 			var aval, bval, afol, bfol;
