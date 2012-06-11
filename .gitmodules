@@ -4,3 +4,6 @@
 [submodule "lib/keymaster"]
 	path = lib/keymaster
 	url = https://github.com/madrobby/keymaster.git
+[submodule "lib/juery-plugins"]
+	path = lib/juery-plugins
+	url = https://github.com/padolsey/jQuery-Plugins.git

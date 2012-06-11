@@ -26,9 +26,9 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
-* Thumbnails dont get generated when recursively viewing a directory
 * Selected directory tree items dont seem to hilight correctly
 * Folders containing meta characters such as ';' or ending in '!' wont load correctly (needs an escape)
+* Sorting is slow
 
 
 TODO list
