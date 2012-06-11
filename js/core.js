@@ -540,6 +540,9 @@ $(function() {
 								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
 						list.append(newchild);
+
+						// MC - Testing code for cache
+						//newchild.prepend('<img class="cached" src="images/icons/avi.png"/>');
 					});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.current['path'] = null;
