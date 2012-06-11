@@ -1,5 +1,7 @@
 $(function() {
 	$.extend({ gander: {
+
+
 		/**
 		* Gander configuration options
 		* @var array
@@ -33,6 +35,8 @@ $(function() {
 			media_transmit: 1,
 			media_transmit_path: '/pictures/%p'
 		},
+
+
 		/**
 		* Details on the currently viewed image
 		* @var array
@@ -46,6 +50,8 @@ $(function() {
 			path: '',
 			viewing_path: ''
 		},
+
+
 		/**
 		* Array of paths we are currently viewing
 		* The first index is the active path (for folder tree purposes)
@@ -53,6 +59,7 @@ $(function() {
 		* @see cd()
 		*/
 		path: ['/'],
+
 
 		/**
 		* Initialization function
@@ -334,6 +341,8 @@ $(function() {
 				}
 			});
 		},
+
+
 		/**
 		* Simple, idiot proof command runner.
 		* This stub is intended to execute simple verbs (open, close, zoom/in, zoom/out etc)
@@ -353,6 +362,8 @@ $(function() {
 					alert('Unknown command: ' + cmd);
 			}
 		},
+
+
 		/**
 		* Simple function to display a message to the user
 		* @param string type The type of the message. Values: notice, error, thumbnails
@@ -379,6 +390,8 @@ $(function() {
 				}, options['life']);
 			return 1;
 		},
+
+
 		/**
 		* Updates the text of a notification created with $.gander.growl()
 		* @param string id The ID of the message to update
@@ -388,6 +401,8 @@ $(function() {
 		growl_update: function(id, text) {
 			$('#' + id).html(text);
 		},
+
+
 		/**
 		* Closes a notification created with $.gander.growl()
 		* @param string id The ID of the message to close
@@ -396,6 +411,8 @@ $(function() {
 		growl_close: function(id) {
 			$('#' + id).parents('.jGrowl-notification').fadeOut('fast', function() { $(this).remove(); });
 		},
+
+
 		/**
 		* Internal function to deal with AJAX responses.
 		* This function unpacks the response and relays any errors to the user
@@ -415,6 +432,8 @@ $(function() {
 				});
 			}
 		},
+
+
 		/**
 		* Internal functionality to navigate down the hierarchical tree
 		* This gets complex because the tree is loaded dynamicly as needed so we have to open a node, then wait until the sub-nodes load to continue
@@ -445,6 +464,8 @@ $(function() {
 				};
 			}
 		},
+
+
 		/**
 		* Returns the full path of a document element in a Dynatree
 		* FIXME: I'm sure there is a more efficient way of doing this but ui.getNode doesnt seem to work
@@ -464,6 +485,8 @@ $(function() {
 			path.shift(); // Remove first element (root)
 			return '/' + path.join('/');
 		},
+
+
 		/**
 		* Change the file list to a given path
 		* This also refreshes the file list contents as loads thumbnails as needed
@@ -533,6 +556,8 @@ $(function() {
 				}
 			});
 		},
+
+
 		/**
 		* Similar to 'cd' except this funciton tries to redraw an existing file store
 		* Usually used when refreshing thumbnails
@@ -585,6 +610,8 @@ $(function() {
 				}
 			});
 		},
+
+
 		/**
 		* Apply the sort method to the item list
 		* @param string method Optional method to set $.gander.options['sort'] to before we begin. If unspecified the current sort method is used instead
@@ -642,6 +669,8 @@ $(function() {
 					});
 			}
 		},
+
+
 		/**
 		* Internal function to adjust a numerical value whilst constraining it within a minimum and maximum
 		* @param int|float value The value as it currently stands
@@ -659,6 +688,8 @@ $(function() {
 				return value + adjust;
 			}
 		},
+
+
 		/**
 		* File selection interface
 		* This is primerilly aimed at the main file list navigation
@@ -715,6 +746,8 @@ $(function() {
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
+
+
 		/**
 		* Tree functionality interface
 		* @param string command Optional command to give the tree interface handler. See the inner switch for more details.
@@ -745,6 +778,8 @@ $(function() {
 					break;
 			}
 		},
+
+
 		/**
 		* Thumbnail functionality interface
 		* @param string direction Optional command to give the thumbnail interface handler. See the functions switch statement for further details
@@ -781,6 +816,8 @@ $(function() {
 				}
 			});
 		},
+
+
 		/**
 		* Image zoom functionality interface
 		* @param string direction Optional command to give the zoom interface handler. See the functions switch statement for further details
@@ -828,6 +865,8 @@ $(function() {
 			$.gander.current['zoom'] = zoom;
 			$('#window-display #display').width($.gander.current['width'] * (zoom/100));
 		},
+
+
 		/**
 		* Image viewing area interface
 		* @param string cmd Optional command to give the image viewer interface handler. See the functions switch statement for further details
@@ -910,8 +949,10 @@ $(function() {
 					alert('Unknown viewer command: ' + cmd);
 				}
 		},
+
+
 		/**
-		* Trobber interface
+		* Throbber interface
 		* @param string cmd Optional command to give the throbber interface handler. See the functions switch statement for further details
 		*/
 		throbber: function(cmd) {
@@ -924,6 +965,8 @@ $(function() {
 					break;
 			}
 		},
+
+
 		/**
 		* Internal function attached to the onLoad event of the #display picture viewer
 		*/
@@ -933,6 +976,8 @@ $(function() {
 			$.gander.zoom($.gander.options['zoom_on_open']);
 			$.gander.throbber('off');
 		},
+
+
 		/**
 		* Window interface
 		*/

@@ -33,6 +33,8 @@ Known issues
 
 TODO list
 ---------
+* Left / right big buttons for scrolling on tablets
+* Open directory in new tab
 * Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
 * Next / previous image caching
 * Side clicking (left and right) while in image view should move to next and previous image
@@ -42,7 +44,6 @@ TODO list
 * Comments / description for images
 * List view and column view of items
 * Functionality to switch directories - i.e. toggle between two most recent
-* Screen splitting (VIM style)
 * Multiple image list tabs
 * Star image - implies view by starred or filter by starred
 * Track image views - Save the last time an image was accessed
@@ -54,3 +55,4 @@ TODO list
 * View other file types - e.g. text files, sound, movies
 * Functionality to remember preferred zoom and position of image and restore it when needed
 * Zoom via mouse wheel functionality (maybe hold down a modifier key?)
+* Screen splitting (VIM style)
