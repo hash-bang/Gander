@@ -595,16 +595,15 @@ $(function() {
 		* @param string method Optional method to set $.gander.options['sort'] to before we begin. If unspecified the current sort method is used instead
 		*/
 		sort: function(method) {
+			console.log('SORT ' + method);
 			if (method && method != 'keep')
 				$.gander.options['sort'] = method;
-			var parent = $('#list');
-			var items = parent.children().get();
 			var aval, bval, afol, bfol;
 			switch ($.gander.options['sort']) {
 				case 'date': // Simple sorts
 				case 'size':
 				case 'name':
-					items.sort(function(a,b) {
+					$('#list > li').sortElements(function(a,b) {
 						if ($.gander.options['sort'] == 'name') {
 							aval = $(a).attr('rel').toLowerCase(); // Case insensitive
 							bval = $(b).attr('rel').toLowerCase();
@@ -626,7 +625,7 @@ $(function() {
 					});
 					break;
 				case 'random':
-					items.sort(function(a,b) {
+					$('#list > li').sortElements(function(a,b) {
 						var aobj = $(a);
 						var bobj = $(b);
 						if ($.gander.options['sort_folders_first']) {
@@ -648,7 +647,6 @@ $(function() {
 						return (Math.random() > 0.5) ? -1 : 1;
 					});
 			}
-			$.each(items, function(idx, itm) { parent.append(itm) });
 		},
 		/**
 		* Internal function to adjust a numerical value whilst constraining it within a minimum and maximum
