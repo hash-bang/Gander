@@ -645,7 +645,7 @@ $(function() {
 								return 1;
 							}
 						}
-						return (Math.random > 0.5) ? -1 : 1;
+						return (Math.random() > 0.5) ? -1 : 1;
 					});
 			}
 			$.each(items, function(idx, itm) { parent.append(itm) });
