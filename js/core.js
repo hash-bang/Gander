@@ -53,11 +53,6 @@ $(function() {
 		* @see cd()
 		*/
 		path: ['/'],
-		/**
-		* Array of cached images. Each image path is specified as the key
-		* @var array
-		*/
-		cache: {},
 
 		/**
 		* Initialization function
@@ -866,29 +861,26 @@ $(function() {
 							return; // No idea what to display
 						}
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
-						if (path in $.gander.cache) { // In cache
-							$('#display').load($.gander._displayloaded).attr('src', $.gander.cache[path]);
-						} else { // New cache request
-							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
-								$.gander.throbber('on');
-							if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
-								$.ajax({
-									url: $.gander.options['gander_server'],
-									dataType: 'json',
-									type: 'POST',
-									data: {
-										cmd: 'get',
-										path: path,
-									},
-									success: function(json) {
-										$.gander._unpack('open', json);
-										$('#display').load($.gander._displayloaded).attr('src', json.data);
-									}
-								});
-							} else { // Stream
-								$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
-							}
+						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
+							$.gander.throbber('on');
+						if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
+							$.ajax({
+								url: $.gander.options['gander_server'],
+								dataType: 'json',
+								type: 'POST',
+								data: {
+									cmd: 'get',
+									path: path,
+								},
+								success: function(json) {
+									$.gander._unpack('open', json);
+									$('#display').load($.gander._displayloaded).attr('src', json.data);
+								}
+							});
+						} else { // Stream
+							$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
 						}
+						
 						$.gander.current['path'] = path;
 						$.gander.current['viewing_path'] = path;
 					}

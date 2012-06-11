@@ -119,6 +119,11 @@ if (isset($_SERVER['SERVER_NAME']) && file_exists($s = "config/host_{$_SERVER['S
 	require($s);
 require('config/settings.php');
 
+// Inherit REQUEST[path] from redirect if necessary - Useful for bypassing strings such as '&' etc in the URI via mod_rewrite
+if (isset($_SERVER['REDIRECT_path']))
+	$_REQUEST['path'] = $_SERVER['REDIRECT_path'];
+
+
 if (GANDER_TUNNEL && !isset($notunnel)) {
 	$cmd = GANDER_TUNNEL_CMD ? GANDER_TUNNEL_CMD : 'TERM=dumb sudo -u ' . GANDER_TUNNEL_USER . ' /usr/bin/php ' . __FILE__; // Work out which command to use
 	$_REQUEST['SERVER_NAME'] = $_SERVER['SERVER_NAME']; // We need to carry this over because the config system depends on knowing the current server name
