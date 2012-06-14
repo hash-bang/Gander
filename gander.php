@@ -174,7 +174,7 @@ switch ($cmd) {
 			case 0: // Return as JSON
 				echo json_encode(array(
 					'header' => $header,
-					'data' => b64($_REQUEST['path']),
+					'data' => b64(GANDER_PATH . $_REQUEST['path']),
 				));
 				exit();
 			case 1: // Return as stream
