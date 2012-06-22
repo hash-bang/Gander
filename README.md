@@ -31,12 +31,17 @@ Known issues
 * Dir tree flows off vertical height of screen
 * Sorting by date doesnt seem to do anything
 * File names with '%20' in their names get screwed up
+* When viewing recursively, thumbnails dont load in the sort order
+* A maximum limit on number of files loaded recursively
+* Exclude non-loadable items - e.g. .html files
 
 
 TODO list
 ---------
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
+* Breadcrumb path
+* Progress bar in thumbnail loading notification
 * Left / right big buttons for scrolling on tablets
 * Open directory in new tab
 * Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
