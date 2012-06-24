@@ -318,11 +318,13 @@ switch ($cmd) {
 						$files[$file]['thumb'] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
 					if ($couldthumb)
 						$files[$file]['couldthumb'] = 1;
-				} elseif (!GANDER_UNKNOWN_IGNORE) { // Unknown file type
+				} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
 					if ($thumb != 'none')
 						$files[$file]['thumb'] = GANDER_ROOT . 'images/icons/_unknown.png';
 					if ($couldthumb)
 						$files[$file]['couldthumb'] = 1;
+				} else { // Unknown file type - omit
+					unset($files[$file]);
 				}
 			}
 		}
