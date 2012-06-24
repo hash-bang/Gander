@@ -27,6 +27,16 @@ body {
 	font-weight: bold;
 }
 
+.dynatree-node {
+	display: block;
+	cursor: pointer;
+}
+
+.dynatree-node:hover .dynatree-title {
+	font-weight: bold !important;
+	text-decoration: underline;
+}
+
 #list li:hover {
 	background: #364049;
 	border: 1px solid #38393d;

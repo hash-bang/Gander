@@ -306,7 +306,7 @@ $(function() {
 					});
 				},
 				onClick: function(node) {
-					if (node.getEventTargetType(event) == "title")
+					if (node.getEventTargetType(event) != "expander")
 						$.gander.cd(node.data.key);
 				},
 				strings: {
