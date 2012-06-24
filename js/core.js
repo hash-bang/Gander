@@ -552,6 +552,7 @@ $(function() {
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.current['path'] = null;
 					$.gander.select('first');
+					$.gander.window('resize');
 					if (couldthumb > 0) { // Still more work to do
 						setTimeout($.gander.refresh, 0);
 						$.gander.growl('thumbnails', couldthumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
