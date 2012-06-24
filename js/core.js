@@ -508,7 +508,8 @@ $(function() {
 					path: path,
 					thumbs: 'quick',
 					max_thumbs: $.gander.options['thumbs_max_get_first'],
-					recursive: opts['recurse']
+					recursive: opts['recurse'],
+					sort: $.gander.options['sort_reset']
 				},
 				success: function(json) {
 					$.gander._unpack('cd', json);
@@ -576,7 +577,14 @@ $(function() {
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
-				data: {cmd: 'list', path: $.gander.path.join(';'), thumbs: 'make', max_thumbs: $.gander.options['thumbs_max_get_first'], skip: skip},
+				data: {
+					cmd: 'list',
+					path: $.gander.path.join(';'),
+					thumbs: 'make',
+					max_thumbs: $.gander.options['thumbs_max_get_first'],
+					skip: skip,
+					sort: $.gander.options['sort']
+				},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
 					var list = $('#list');
