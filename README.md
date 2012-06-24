@@ -38,6 +38,7 @@ Known issues
 
 TODO list
 ---------
+* Binding for key to alternate to last viewed directory
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
 * Breadcrumb path
