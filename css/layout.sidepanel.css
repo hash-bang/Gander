@@ -83,3 +83,13 @@ body {
 	border-radius: 20px;
 	padding: 10px;
 }
+
+/* Scroller setup */
+#window-list, #window-dir {
+	overflow: hidden !important;
+}
+
+#window-list #list, #window-dir #dirlist {
+	height: 800px !important;
+	position: relative;
+}

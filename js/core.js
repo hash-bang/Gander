@@ -249,9 +249,12 @@ $(function() {
 
 			// Window setup
 			//$('#window-display, #window-list').dialog();
-			$('#window-dir #dirlist').touchScroll({scrollHeight: 10000});
+			//$('#window-dir #dirlist').touchScroll({scrollHeight: 10000});
 			$('#window-display').hide();
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
+
+			// Scrollers
+			$('#window-list, #window-dir').jScrollPane();
 
 			// Event bindings {{{
 			$(window).resize(function() { $.gander.window('resize') });
@@ -325,6 +328,7 @@ $(function() {
 				}
 			});*/
 			$('#window-display #startup_error').remove();
+			$.gander.window('resize');
 
 			$.ajax({
 				url: $.gander.options['gander_server'], 
@@ -998,6 +1002,14 @@ $(function() {
 					break;
 				case 'resize':
 					$.gander.zoom($.gander.options['zoom_on_open']);
+					// Resize list + resize the scrollbar
+					$('#window-list').css('height', $(window).height());
+					var pane = $('#window-list').data('jsp');
+					if (pane)
+						pane.reinitialise();
+					var pane = $('#window-dir').data('jsp');
+					if (pane)
+						pane.reinitialise();
 					break;
 			}
 		}
