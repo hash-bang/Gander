@@ -27,9 +27,7 @@ To provide access to your server you will need to install a fairly simple PHP sc
 Known issues
 ------------
 * Selected directory tree items dont seem to hilight correctly when changing directories
-* Clicking directory names in the folder view is hard - text too small. Perhaps stretch to full width?
 * Dir tree flows off vertical height of screen
-* Sorting by date doesnt seem to do anything
 * File names with '%20' in their names get screwed up
 * When viewing recursively, thumbnails dont load in the sort order
 * A maximum limit on number of files loaded recursively
