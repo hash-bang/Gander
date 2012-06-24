@@ -52,7 +52,7 @@
 * Default thumbnailer resolutions
 * Set these to the HIGHEST res you can imagine using
 */
-@define('GANDER_THUMB_ABLE', '/png|jpe?g|gif$/i');
+@define('GANDER_THUMB_ABLE', '/\.(?:png|jpe?g|gif)$/i');
 @define('GANDER_THUMB_WIDTH', 150);
 @define('GANDER_THUMB_HEIGHT', 150);
 
