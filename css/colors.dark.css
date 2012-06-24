@@ -58,3 +58,20 @@ body {
 	color: white;
 	cursor: none;
 }
+
+/* Scrollers */
+.jspVerticalBar {
+	width: 10px !important;
+	background: transparent !important;
+}
+
+.jspTrack {
+	background: transparent !important;
+}
+
+.jspDrag {
+	background: #555 !important;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
