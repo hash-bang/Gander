@@ -537,7 +537,7 @@ $(function() {
 						newchild
 							.data({
 								size: data.size,
-								data: data.date,
+								date: data.date,
 								type: data.type,
 							})
 							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
