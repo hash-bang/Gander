@@ -720,6 +720,10 @@ $(function() {
 			var list = $('#list').children();
 			var path;
 			switch(direction) {
+				case 'reselect':
+					// Internal function to force reselection
+					// This is usually used when exiting view mode and we need to redraw what is currently selected
+					break;
 				case 'next':
 					if (offset < list.length -1) {
 						offset += 1;
@@ -902,15 +906,14 @@ $(function() {
 				case 'hide':
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
+					$('#window-display').hide();
 					$('#list').show();
-					if ($.gander.current['path'])
-						$(window).scrollTo($('#list li[rel="' + $.gander.current['path'] + '"]'));
+					$.gander.select('reselect');
 					$.gander.throbber('off');
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').show();
 					if ($.gander.options['mouse_hide_on_view'])
 						$('body').removeClass('nomouse');
-					$('#window-display').hide();
 					break;
 				case 'toggle':
 					$.gander.viewer(($('#window-display').css('display') == 'none') ? 'show' : 'hide');
