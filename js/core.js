@@ -762,7 +762,12 @@ $(function() {
 			var activeimg = $('#list li').eq(offset);
 			$.gander.current['path'] = activeimg.attr('rel');
 			activeimg.addClass('active');
-			$(window).scrollTo($('#list li').eq(offset));
+			var active = $('#list li').eq(offset);
+
+			var pane = $('#window-list').data('jsp');
+			if (pane)
+				pane.scrollTo(active.position().left, active.position().top);
+
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
 		},
@@ -1015,15 +1020,17 @@ $(function() {
 					break;
 				case 'resize':
 					$.gander.zoom($.gander.options['zoom_on_open']);
-					// Resize list + resize the scrollbar
+					$.gander.window('resize-list');
+					$.gander.window('resize-dir');
+					break;
+				case 'resize-list':
+					// Lazy resize of the file list
 					$('#window-list').css('height', $(window).height());
 					var pane = $('#window-list').data('jsp');
 					if (pane)
 						pane.reinitialise();
-					$.gander.window('resize-dir');
 					break;
 				case 'resize-dir':
-					console.log('TRIGGER RESIZE DIR');
 					// Lazy resize for the dir tree
 					$('#window-dir').css('height', $(window).height() - 50);
 					var pane = $('#window-dir').data('jsp');
