@@ -302,8 +302,12 @@ $(function() {
 						data: { path: node.data.key },
 						success: function() {
 							$.gander._cdtree();
+							$.gander.window('resize-dir');
 						}
 					});
+				},
+				onExpand: function(flag, node) {
+					$.gander.window('resize-dir');
 				},
 				onClick: function(node) {
 					if (node.getEventTargetType(event) != "expander")
@@ -1016,6 +1020,12 @@ $(function() {
 					var pane = $('#window-list').data('jsp');
 					if (pane)
 						pane.reinitialise();
+					$.gander.window('resize-dir');
+					break;
+				case 'resize-dir':
+					console.log('TRIGGER RESIZE DIR');
+					// Lazy resize for the dir tree
+					$('#window-dir').css('height', $(window).height() - 50);
 					var pane = $('#window-dir').data('jsp');
 					if (pane)
 						pane.reinitialise();

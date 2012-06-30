@@ -89,7 +89,15 @@ body {
 	overflow: hidden !important;
 }
 
-#window-list #list, #window-dir #dirlist {
-	height: 800px !important;
+#window-list #list {
+	height: 900px !important;
 	position: relative;
+}
+
+#window-dir #dirlist {
+	position: relative;
+}
+
+#window-dir #dirlist .dynatree-container {
+	padding-bottom: 20px;
 }

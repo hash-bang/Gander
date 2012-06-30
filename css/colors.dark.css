@@ -75,6 +75,11 @@ body {
 	background: transparent !important;
 }
 
+.jspHorizontalBar {
+	height: 10px !important;
+	background: transparent !important;
+}
+
 .jspTrack {
 	background: transparent !important;
 }
@@ -84,4 +89,8 @@ body {
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
+}
+
+.jspCorner {
+	display: none;
 }
