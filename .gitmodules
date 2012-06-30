@@ -7,3 +7,6 @@
 [submodule "lib/jquery-plugins"]
 	path = lib/jquery-plugins
 	url = https://github.com/padolsey/jQuery-Plugins.git
+[submodule "lib/jquery-scrollpane"]
+	path = lib/jquery-scrollpane
+	url = https://github.com/vitch/jScrollPane.git
