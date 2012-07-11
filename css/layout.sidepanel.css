@@ -67,6 +67,41 @@ body {
 	bottom: 0px;
 }
 
+#window-display .bumper {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	color: transparent;
+	font-size: 50px;
+}
+
+#window-display .bumper:hover {
+	background: #33373B;
+	color: white;
+}
+
+#window-display .bumper > div {
+	position: relative;
+	top: 50%;
+	margin-top: 35px;
+}
+
+#window-display #bumper-left {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100px;
+	height: 100%;
+}
+
+#window-display #bumper-right {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	width: 100px;
+	height: 100%;
+}
+
 #window-display #display-frame {
 	border: 5px solid blue;
 }

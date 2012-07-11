@@ -283,6 +283,8 @@ $(function() {
 					alert('I dont know how to handle this file');
 				}
 			});
+			$('#window-display #bumper-left').on('click', function(e) { $.gander.select('previous'); e.stopPropagation(); });
+			$('#window-display #bumper-right').on('click', function(e) { $.gander.select('next'); e.stopPropagation(); });
 			// }}}
 
 			// Filetree setup
