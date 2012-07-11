@@ -108,7 +108,7 @@ $(function() {
 			// Menus {{{
 			// Item in list
 			$.contextMenu({
-				selector: '#window-list > #list > li.image',
+				selector: '#window-list #list > li.image',
 				items: {
 					'refresh': {name: 'Refresh', icon: 'refresh', callback: function() { $.gander.refresh(); }},
 					"sep1": "---------",
@@ -119,7 +119,7 @@ $(function() {
 
 			// Item in list (folders)
 			$.contextMenu({
-				selector: '#window-list > #list > li.folder',
+				selector: '#window-list #list > li.folder',
 				items: {
 					'open': {name: 'Open', icon: 'folder', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }},
 					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.viewer('open', $(this).attr('rel'), 1); }},
@@ -134,7 +134,7 @@ $(function() {
 
 			// Folder tree item
 			$.contextMenu({
-				selector: '#window-dir > #dirlist > ul li',
+				selector: '#window-dir #dirlist > ul li',
 				position: function(m) {
 					var label = m.$trigger.find('.dynatree-node').first();
 					m.$menu.css({
@@ -257,7 +257,8 @@ $(function() {
 			// Scrollers
 			$('#window-list, #window-dir').jScrollPane({
 				enableKeyboardNavigation: false,
-				hideFocus: true
+				hideFocus: true,
+				clickOnTrack: false
 			});
 
 			// Event bindings {{{
