@@ -277,7 +277,7 @@ $(function() {
 				if (item.hasClass('image')) { // Is an image
 					$.gander.viewer('open', item.attr('rel'));
 				} else if (item.hasClass('folder')) { 
-					$.gander.cd(item.attr('rel'));
+					$.gander.cd(item.attr('rel'), {drawtree: 1});
 				} else { // Is unknown
 					alert('I dont know how to handle this file');
 				}
@@ -455,8 +455,10 @@ $(function() {
 		_cdtreebits: [],
 		_cdtree: function(path) {
 			if (path) { // New tree spec - break up into bits
+				if (path.substr(0,1) == '#') // Clip '#' prefix if it exists
+					path = path.substr(1);
 				var fullpath = '';
-				$.gander._cdtreebits = $.map(path.substr(1).split('/'), function(i) {
+				$.gander._cdtreebits = $.map(path.split('/'), function(i) {
 					fullpath += '/' + i;
 					return fullpath;
 				});
