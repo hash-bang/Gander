@@ -255,7 +255,10 @@ $(function() {
 			$('#window-display #display, #window-display').click(function() { $.gander.viewer('hide'); });
 
 			// Scrollers
-			$('#window-list, #window-dir').jScrollPane();
+			$('#window-list, #window-dir').jScrollPane({
+				enableKeyboardNavigation: false,
+				hideFocus: true
+			});
 
 			// Event bindings {{{
 			$(window).resize(function() { $.gander.window('resize') });
