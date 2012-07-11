@@ -68,9 +68,9 @@ $(function() {
 		init: function() {
 			// Keyboard shortcuts {{{
 			key('a', function() { $.gander.select('previous'); });
-			key('shift+a', function() { $.gander.select('-10'); });
+			key('ctrl+a, shift+a', function() { $.gander.select('-10'); });
 			key('s', function() { $.gander.select('next'); });
-			key('shift+s', function() { $.gander.select('+10'); });
+			key('ctrl+s, shift+s', function() { $.gander.select('+10'); });
 			key('z', function() { $.gander.select('first'); });
 			key('x', function() { $.gander.select('last'); });
 			key('home', function() { $.gander.select('first'); });
@@ -82,16 +82,16 @@ $(function() {
 			key('space', function() { $.gander.select('next'); });
 
 			// Zooms
-			key('w, +, shift+up', function() { $.gander.zoom('in'); });
-			key('q, -, shift+down', function() { $.gander.zoom('out'); });
+			key('w, +', function() { $.gander.zoom('in'); });
+			key('q, -', function() { $.gander.zoom('out'); });
 			key('e', function() { $.gander.zoom('fit'); });
 			key('r', function() { $.gander.zoom('reset'); });
 
 			// Move within tree
-			key('ctrl+left', function() { $.gander.tree('up'); });
-			key('ctrl+right', function() { $.gander.tree('in'); });
-			key('ctrl+up', function() { $.gander.tree('previous'); });
-			key('ctrl+down', function() { $.gander.tree('next'); });
+			key('ctrl+left, shift+left', function() { $.gander.tree('up'); });
+			key('ctrl+right, shift+right', function() { $.gander.tree('in'); });
+			key('ctrl+up, shift+up', function() { $.gander.tree('previous'); });
+			key('ctrl+down, shift+down', function() { $.gander.tree('next'); });
 
 			// Viewer
 			key('f', function() { $.gander.viewer('toggle'); });
@@ -100,6 +100,7 @@ $(function() {
 			// Sort modes
 			key('t', function() { $.gander.sort('random'); });
 			key('shift+t', function() { $.gander.sort('name'); });
+			key('ctrl+t', function() { $.gander.sort('date'); });
 
 			// Window controls
 			key('n', function() { $.gander.window('clone'); });
