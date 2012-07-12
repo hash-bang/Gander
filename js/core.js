@@ -11,6 +11,9 @@ $(function() {
 			max_depth: 99, // Maximum depth of paths (used to prevent infinite loops when scaning hierarchies)
 			menu_hide_on_view: 1,
 			mouse_hide_on_view: 1,
+			cache_forward: 1, // How many images forward to try and keep in the cache
+			cache_backward: 1, // How many images backward
+			cache_reset_src: 'images/icons/avi.png', // Smallish image to use as a placeholder for non-cached images
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
@@ -569,7 +572,7 @@ $(function() {
 								.attr('src', data.thumb);
 						list.append(newchild);
 
-						newchild.prepend('<img class="cached" src="images/icons/avi.png"/>');
+						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
 					});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.current['path'] = null;
@@ -792,6 +795,37 @@ $(function() {
 
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
+
+			// Image caching {{{
+			// Forward caching
+			var candidate = activeimg;
+			$('#list li').each(function(i) {
+				var candidate = $(this);
+				var cacheimg = candidate.find('.cached');
+				if (
+					(i >= offset - $.gander.options['cache_backward']) &&
+					(i <= offset + $.gander.options['cache_forward'])
+				) { // Cache this
+					if (cacheimg.attr('src') == $.gander.options['cache_reset_src']) // Not already cached - but should be
+						$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+				} else if (cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Release from cache
+					cacheimg.attr('src', $.gander.options['cache_reset_src']);
+				}
+
+			});
+
+			// Backward caching
+			/*
+			candidate = activeimg;
+			for (var f = 0; f < $.gander.options['cache_backward']; f++) {
+				$.gander._loadsrc(candidate.find('.cached'), candidate.attr('rel'));
+				candidate.attr('rel', 'cached');
+				candidate = candidate.prev('li');
+				if (!candidate.length)
+					break;
+			}
+			*/
+			// }}}
 		},
 
 
@@ -915,6 +949,33 @@ $(function() {
 
 
 		/**
+		* Load a dynamic image into an img.src
+		* This method uses $.gander.options['media_transmit'] to determine the load method to use
+		* @param jQueryObject e The element to load the image path into
+		* @param string src The (apparent) source path to use
+		*/
+		_loadsrc: function(e, src) {
+			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
+				$.ajax({
+					url: $.gander.options['gander_server'],
+					dataType: 'json',
+					type: 'POST',
+					data: {
+						cmd: 'get',
+						path: src,
+					},
+					success: function(json) {
+						$.gander._unpack('open', json);
+						e.attr('src', json.data);
+					}
+				});
+			} else { // Stream
+				e.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
+			}
+		},
+
+
+		/**
 		* Image viewing area interface
 		* @param string cmd Optional command to give the image viewer interface handler. See the functions switch statement for further details
 		* @param string path Optional file path used in the 'open' command to open a specific image
@@ -948,24 +1009,7 @@ $(function() {
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
 						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 							$.gander.throbber('on');
-						if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
-							$.ajax({
-								url: $.gander.options['gander_server'],
-								dataType: 'json',
-								type: 'POST',
-								data: {
-									cmd: 'get',
-									path: path,
-								},
-								success: function(json) {
-									$.gander._unpack('open', json);
-									$('#display').attr('src', json.data);
-								}
-							});
-						} else { // Stream
-							$('#display').attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
-						}
-						
+						$.gander._loadsrc($('#display'), path);
 						$.gander.current['path'] = path;
 						$.gander.current['viewing_path'] = path;
 					}
