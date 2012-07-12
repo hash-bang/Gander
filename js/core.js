@@ -289,6 +289,12 @@ $(function() {
 
 			$('#window-display #bumper-left').on('click', function(e) { $.gander.select('previous'); e.stopPropagation(); });
 			$('#window-display #bumper-right').on('click', function(e) { $.gander.select('next'); e.stopPropagation(); });
+			$('#window-display #display').on('load', function() { // When the main image loads...
+				$.gander.current['width'] = this.naturalWidth;
+				$.gander.current['height'] = this.naturalHeight;
+				$.gander.zoom($.gander.options['zoom_on_open']);
+				$.gander.throbber('off');
+			});
 			// }}}
 
 			// Filetree setup
@@ -563,8 +569,7 @@ $(function() {
 								.attr('src', data.thumb);
 						list.append(newchild);
 
-						// MC - Testing code for cache
-						//newchild.prepend('<img class="cached" src="images/icons/avi.png"/>');
+						newchild.prepend('<img class="cached" src="images/icons/avi.png"/>');
 					});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.current['path'] = null;
@@ -954,11 +959,11 @@ $(function() {
 								},
 								success: function(json) {
 									$.gander._unpack('open', json);
-									$('#display').load($.gander._displayloaded).attr('src', json.data);
+									$('#display').attr('src', json.data);
 								}
 							});
 						} else { // Stream
-							$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
+							$('#display').attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
 						}
 						
 						$.gander.current['path'] = path;
@@ -1005,17 +1010,6 @@ $(function() {
 					$('#window-throbber').hide();
 					break;
 			}
-		},
-
-
-		/**
-		* Internal function attached to the onLoad event of the #display picture viewer
-		*/
-		_displayloaded: function() {
-			$.gander.current['width'] = this.naturalWidth;
-			$.gander.current['height'] = this.naturalHeight;
-			$.gander.zoom($.gander.options['zoom_on_open']);
-			$.gander.throbber('off');
 		},
 
 
