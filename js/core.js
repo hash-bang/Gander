@@ -458,7 +458,7 @@ $(function() {
 		_cdtreebits: [],
 		_cdtree: function(path) {
 			if (path) { // New tree spec - break up into bits
-				if (path.substr(0,1) == '#') // Clip '#' prefix if it exists
+				if (path.substr(0,1) == '/') // Clip '#' prefix if it exists
 					path = path.substr(1);
 				var fullpath = '';
 				$.gander._cdtreebits = $.map(path.split('/'), function(i) {
