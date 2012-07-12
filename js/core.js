@@ -1007,11 +1007,18 @@ $(function() {
 							return; // No idea what to display
 						}
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
-						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
-							$.gander.throbber('on');
-						$.gander._loadsrc($('#display'), path);
-						$.gander.current['path'] = path;
-						$.gander.current['viewing_path'] = path;
+						var cacheimg = $('#list li.active .cached');
+						if (cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
+							console.log('Load from cache');
+							$('#display').attr('src', cacheimg.attr('src'));
+						} else { // Request a new loader
+
+							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
+								$.gander.throbber('on');
+							$.gander._loadsrc($('#display'), path);
+							$.gander.current['path'] = path;
+							$.gander.current['viewing_path'] = path;
+						}
 					}
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').hide();
@@ -1021,7 +1028,6 @@ $(function() {
 					$('#window-display').show();
 
 					// Handle fullscreen options
-
 					if ($.gander.options['fullscreen'] == 1) { // Try for real fullscreen
 						if (!window.fullScreenApi.isFullScreen()) {
 							if (window.fullScreenApi.supportsFullScreen) {
