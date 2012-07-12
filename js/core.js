@@ -13,7 +13,7 @@ $(function() {
 			mouse_hide_on_view: 1,
 			cache_forward: 1, // How many images forward to try and keep in the cache
 			cache_backward: 1, // How many images backward
-			cache_reset_src: 'images/icons/avi.png', // Smallish image to use as a placeholder for non-cached images
+			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
