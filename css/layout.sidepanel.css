@@ -75,10 +75,12 @@ body {
 	font-size: 50px;
 }
 
+/*
 #window-display .bumper:hover {
 	background: #33373B;
 	color: white;
 }
+*/
 
 #window-display .bumper > div {
 	position: relative;
