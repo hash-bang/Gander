@@ -26,12 +26,8 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
-* Selected directory tree items dont seem to hilight correctly when changing directories
-* Dir tree flows off vertical height of screen
-* File names with '%20' in their names get screwed up
 * When viewing recursively, thumbnails dont load in the sort order
 * A maximum limit on number of files loaded recursively
-* Exclude non-loadable items - e.g. .html files
 
 
 TODO list
