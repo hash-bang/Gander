@@ -282,7 +282,11 @@ $(function() {
 				} else { // Is unknown
 					alert('I dont know how to handle this file');
 				}
+			})
+			$('#window-list #list, #window-display').on('dragstart', 'img', function() {
+				return false;
 			});
+
 			$('#window-display #bumper-left').on('click', function(e) { $.gander.select('previous'); e.stopPropagation(); });
 			$('#window-display #bumper-right').on('click', function(e) { $.gander.select('next'); e.stopPropagation(); });
 			// }}}
