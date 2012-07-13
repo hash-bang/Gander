@@ -14,6 +14,8 @@ $(function() {
 			cache_forward: 1, // How many images forward to try and keep in the cache
 			cache_backward: 1, // How many images backward
 			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
+			idle_timeout: 3000, // How long Gander should be idle before triggering cleanup events (e.g. caching)
+			idle_tick: 1000, // Page the idle handler after this timeout when idle
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
@@ -353,6 +355,14 @@ $(function() {
 			});*/
 			$('#window-display #startup_error').remove();
 			$.gander.window('resize');
+			$.idleTimer($.gander.options['idle_timeout']);
+			$(document).bind("idle.idleTimer", function() {
+				$.gander.idle = true;
+			 	$.gander._idle();
+			});
+			$(document).bind("active.idleTimer", function(){
+				 $.gander.idle = false;
+			});
 
 			$.ajax({
 				url: $.gander.options['gander_server'], 
@@ -795,9 +805,32 @@ $(function() {
 
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
+		},
 
+
+		/**
+		* Perform all idle tasks
+		* This function will repeat until !$.gander.idle
+		*/
+		_idle: function() {
+			if (!$.gander.idle) // Quit if we are not idle
+				return;
+			$.gander._idle_cache();
+			setTimeout($.gander._idle, $.gander.options['idle_tick']);
+		},
+
+
+		/**
+		* Perform caching tasks
+		* This function is meant to be invoked by a timer when the UI is idle
+		*/
+		_idle_cache: function() {
 			// Image caching {{{
 			// Forward caching
+			var activeimg = $('#list li.active').first();
+			var offset = activeimg.index();
+			if (!activeimg)
+				return;
 			var candidate = activeimg;
 			$('#list li').each(function(i) {
 				var candidate = $(this);

@@ -10,3 +10,6 @@
 [submodule "lib/jquery-scrollpane"]
 	path = lib/jquery-scrollpane
 	url = https://github.com/vitch/jScrollPane.git
+[submodule "lib/jquery-idletimer"]
+	path = lib/jquery-idletimer
+	url = https://github.com/paulirish/jquery-idletimer.git
