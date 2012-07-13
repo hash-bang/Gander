@@ -1154,8 +1154,21 @@ $(function() {
 		*/
 		_idle_cache_clean: function() {
 			console.log('CACHE CLEAN');
+			var active = $('#list li.active').first().index();
+			$('#list li .cached.img-loaded').each(function() {
+				var thisind = $(this).parents('li').index();
+				if (
+					(thisind < active - $.gander.options['cache_backward']) ||
+					(thisind > active + $.gander.options['cache_forward'])
+				) {
+					$(this)
+						.attr('src', $.gander.options['cache_reset_src'])
+						.removeClass('img-loading img-loaded')
+						.addClass('img-none');
+				}
+			});
 		}
-		// }} } Idle functionality
+		// }}} Idle functionality
 	}});
 	$.gander.init();
 });
