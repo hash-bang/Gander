@@ -92,6 +92,10 @@ body {
 	cursor: pointer;
 }
 
+ul.dynatree-container {
+	border: none !important;
+}
+
 /* jGrowl fixes */
 .jGrowl {
 	padding: 5px 10px;
