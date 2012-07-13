@@ -943,7 +943,7 @@ $(function() {
 		* @param string src The (apparent) source path to use
 		*/
 		_loadsrc: function(e, src) {
-			e.data('loadstatus', 'loading');
+			e.removeClass('img-none img-loaded').addClass('img-loading');
 			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
 				$.ajax({
 					url: $.gander.options['gander_server'],
@@ -956,13 +956,13 @@ $(function() {
 					success: function(json) {
 						$.gander._unpack('open', json);
 						e.attr('src', json.data);
-						e.data('loadstatus', 'loaded');
+						e.removeClass('img-none img-loading').addClass('img-loaded');
 					}
 				});
 			} else { // Stream
 				e
 					.one('load', function() {
-						e.data('loadstatus', 'loaded');
+						e.removeClass('img-none img-loading').addClass('img-loaded');
 					})
 					.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
 			}
@@ -1002,7 +1002,7 @@ $(function() {
 						}
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
 						var cacheimg = $('#list li.active .cached');
-						if (cacheimg.data('loadstatus') == 'loaded' && cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
+						if (cacheimg.hasClass('img-loaded') && cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
 							console.log('Load from cache');
 							$('#display').attr('src', cacheimg.attr('src'));
 						} else { // Request a new loader
@@ -1127,8 +1127,7 @@ $(function() {
 				if (!candidate)
 					break;
 				var cacheimg = candidate.find('.cached');
-				var loadstatus = cacheimg.data('loadstatus');
-				if (!loadstatus || loadstatus == 'none') {
+				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
 					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;
@@ -1141,8 +1140,7 @@ $(function() {
 				if (!candidate)
 					break;
 				var cacheimg = candidate.find('.cached');
-				var loadstatus = cacheimg.data('loadstatus');
-				if (!loadstatus || loadstatus == 'none') {
+				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
 					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;

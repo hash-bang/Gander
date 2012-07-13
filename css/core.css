@@ -16,6 +16,18 @@ body {
 	z-index: 10;
 }
 
+.cached.img-loaded {
+	border: 2px solid green !important;
+}
+
+.cached.img-loading {
+	border: 2px solid yellow !important;
+}
+
+.cached.img-none {
+	border: 2px solid red !important;
+}
+
 .nomouse {
 	cursor: none;
 }
