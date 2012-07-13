@@ -1050,7 +1050,7 @@ $(function() {
 					break;
 				case 'resize-dir':
 					// Lazy resize for the dir tree
-					$('#window-dir').css('height', $(window).height() - 50);
+					$('#window-dir').css('height', $(window).height() - 44);
 					var pane = $('#window-dir').data('jsp');
 					if (pane)
 						pane.reinitialise();
