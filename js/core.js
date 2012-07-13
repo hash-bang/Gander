@@ -11,11 +11,12 @@ $(function() {
 			max_depth: 99, // Maximum depth of paths (used to prevent infinite loops when scaning hierarchies)
 			menu_hide_on_view: 1,
 			mouse_hide_on_view: 1,
-			cache_forward: 1, // How many images forward to try and keep in the cache
-			cache_backward: 1, // How many images backward
+			cache_forward: 3, // How many images forward to try and keep in the cache
+			cache_backward: 2, // How many images backward
 			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
 			idle_timeout: 3000, // How long Gander should be idle before triggering cleanup events (e.g. caching)
 			idle_tick: 1000, // Page the idle handler after this timeout when idle
+			idle_cache_per_tick: 1, // How many images to cache per tick
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
@@ -817,60 +818,6 @@ $(function() {
 
 
 		/**
-		* Perform all idle tasks
-		* This function will repeat until !$.gander.idle
-		*/
-		_idle: function() {
-			if (!$.gander.idle) // Quit if we are not idle
-				return;
-			$.gander._idle_cache();
-			setTimeout($.gander._idle, $.gander.options['idle_tick']);
-		},
-
-
-		/**
-		* Perform caching tasks
-		* This function is meant to be invoked by a timer when the UI is idle
-		*/
-		_idle_cache: function() {
-			// Image caching {{{
-			// Forward caching
-			var activeimg = $('#list li.active').first();
-			var offset = activeimg.index();
-			if (!activeimg)
-				return;
-			var candidate = activeimg;
-			$('#list li').each(function(i) {
-				var candidate = $(this);
-				var cacheimg = candidate.find('.cached');
-				if (
-					(i >= offset - $.gander.options['cache_backward']) &&
-					(i <= offset + $.gander.options['cache_forward'])
-				) { // Cache this
-					if (cacheimg.attr('src') == $.gander.options['cache_reset_src']) // Not already cached - but should be
-						$.gander._loadsrc(cacheimg, candidate.attr('rel'));
-				} else if (cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Release from cache
-					cacheimg.attr('src', $.gander.options['cache_reset_src']);
-				}
-
-			});
-
-			// Backward caching
-			/*
-			candidate = activeimg;
-			for (var f = 0; f < $.gander.options['cache_backward']; f++) {
-				$.gander._loadsrc(candidate.find('.cached'), candidate.attr('rel'));
-				candidate.attr('rel', 'cached');
-				candidate = candidate.prev('li');
-				if (!candidate.length)
-					break;
-			}
-			*/
-			// }}}
-		},
-
-
-		/**
 		* Tree functionality interface
 		* @param string command Optional command to give the tree interface handler. See the inner switch for more details.
 		*/
@@ -996,6 +943,7 @@ $(function() {
 		* @param string src The (apparent) source path to use
 		*/
 		_loadsrc: function(e, src) {
+			e.data('loadstatus', 'loading');
 			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
 				$.ajax({
 					url: $.gander.options['gander_server'],
@@ -1008,10 +956,15 @@ $(function() {
 					success: function(json) {
 						$.gander._unpack('open', json);
 						e.attr('src', json.data);
+						e.data('loadstatus', 'loaded');
 					}
 				});
 			} else { // Stream
-				e.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
+				e
+					.one('load', function() {
+						e.data('loadstatus', 'loaded');
+					})
+					.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
 			}
 		},
 
@@ -1049,7 +1002,7 @@ $(function() {
 						}
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
 						var cacheimg = $('#list li.active .cached');
-						if (cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
+						if (cacheimg.data('loadstatus') == 'loaded' && cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
 							console.log('Load from cache');
 							$('#display').attr('src', cacheimg.attr('src'));
 						} else { // Request a new loader
@@ -1139,7 +1092,72 @@ $(function() {
 						pane.reinitialise();
 					break;
 			}
+		},
+
+
+		// Idle functionality {{{
+		/**
+		* Perform all idle tasks
+		* This function will repeat until !$.gander.idle
+		*/
+		_idle: function() {
+			if (!$.gander.idle) // Quit if we are not idle
+				return;
+			$.gander._idle_cache();
+			$.gander._idle_cache_clean();
+			setTimeout($.gander._idle, $.gander.options['idle_tick']);
+		},
+
+
+		/**
+		* Perform caching tasks
+		* This function is meant to be invoked by a timer when the UI is idle
+		* @see _idle()
+		*/
+		_idle_cache: function() {
+			// Forward caching
+			var activeimg = $('#list li.active').first();
+			var loaded = 0;
+			if (!activeimg)
+				return;
+			var candidate = activeimg;
+
+			for (var x = 0; x < $.gander.options['cache_forward']; x++) { // Walk forwards
+				candidate = candidate.next('li');
+				if (!candidate)
+					break;
+				var cacheimg = candidate.find('.cached');
+				var loadstatus = cacheimg.data('loadstatus');
+				if (!loadstatus || loadstatus == 'none') {
+					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					if (++loaded >= $.gander.options['idle_cache_per_tick'])
+						return;
+				}
+			}
+
+			candidate = activeimg;
+			for (var x = 0; x < $.gander.options['cache_backward']; x++) { // Walk backwards
+				candidate = candidate.prev('li');
+				if (!candidate)
+					break;
+				var cacheimg = candidate.find('.cached');
+				var loadstatus = cacheimg.data('loadstatus');
+				if (!loadstatus || loadstatus == 'none') {
+					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					if (++loaded >= $.gander.options['idle_cache_per_tick'])
+						return;
+				}
+			}
+		},
+
+		/**
+		* Function to clean out cached images
+		* @see _idle()
+		*/
+		_idle_cache_clean: function() {
+			console.log('CACHE CLEAN');
 		}
+		// }} } Idle functionality
 	}});
 	$.gander.init();
 });
