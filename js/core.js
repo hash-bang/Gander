@@ -67,6 +67,14 @@ $(function() {
 
 
 		/**
+		* Indicates if we are currently in an idle state
+		* This is triggered by nothing happening for $.gander.options['idle_timeout'] like keyboard or mouse events
+		* @var bool
+		*/
+		idle: 0,
+
+
+		/**
 		* Initialization function
 		* Should be called once on startup
 		*/
