@@ -11,6 +11,7 @@ $(function() {
 			max_depth: 99, // Maximum depth of paths (used to prevent infinite loops when scaning hierarchies)
 			menu_hide_on_view: 1,
 			mouse_hide_on_view: 1,
+			mouse_wheel_speed: 100,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
@@ -256,6 +257,7 @@ $(function() {
 
 			// Scrollers
 			$('#window-list, #window-dir').jScrollPane({
+				mouseWheelSpeed: $.gander.options['mouse_wheel_speed'],
 				enableKeyboardNavigation: false,
 				hideFocus: true,
 				clickOnTrack: false
