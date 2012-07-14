@@ -1122,16 +1122,16 @@ $(function() {
 				return;
 			var candidate = activeimg;
 
-			for (var x = 0; x < $.gander.options['cache_forward']; x++) { // Walk forwards
-				candidate = candidate.next('li');
-				if (!candidate)
-					break;
+			for (var x = 0; x < $.gander.options['cache_forward'] + 1; x++) { // Walk forwards
 				var cacheimg = candidate.find('.cached');
 				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
 					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;
 				}
+				candidate = candidate.next('li'); // Move on afterwards to make sure we catch the active img as well
+				if (!candidate)
+					break;
 			}
 
 			candidate = activeimg;
