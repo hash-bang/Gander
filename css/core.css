@@ -9,11 +9,24 @@ body {
 
 .cached {
 	border: 2px solid blue;
-	display: block !important;
+	/* Change this to 'block' to show the cache blocks on the thumbnails */
+	display: none !important;
 	width: 32px;
 	height: 32px;
 	position: absolute;
 	z-index: 10;
+}
+
+.cached.img-loaded {
+	border: 2px solid green !important;
+}
+
+.cached.img-loading {
+	border: 2px solid yellow !important;
+}
+
+.cached.img-none {
+	border: 2px solid red !important;
 }
 
 .nomouse {

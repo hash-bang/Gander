@@ -11,6 +11,12 @@ $(function() {
 			max_depth: 99, // Maximum depth of paths (used to prevent infinite loops when scaning hierarchies)
 			menu_hide_on_view: 1,
 			mouse_hide_on_view: 1,
+			cache_forward: 3, // How many images forward to try and keep in the cache
+			cache_backward: 2, // How many images backward
+			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
+			idle_timeout: 3000, // How long Gander should be idle before triggering cleanup events (e.g. caching)
+			idle_tick: 1000, // Page the idle handler after this timeout when idle
+			idle_cache_per_tick: 1, // How many images to cache per tick
 			mouse_wheel_speed: 100,
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
@@ -60,6 +66,14 @@ $(function() {
 		* @see cd()
 		*/
 		path: ['/'],
+
+
+		/**
+		* Indicates if we are currently in an idle state
+		* This is triggered by nothing happening for $.gander.options['idle_timeout'] like keyboard or mouse events
+		* @var bool
+		*/
+		idle: 0,
 
 
 		/**
@@ -291,6 +305,12 @@ $(function() {
 
 			$('#window-display #bumper-left').on('click', function(e) { $.gander.select('previous'); e.stopPropagation(); });
 			$('#window-display #bumper-right').on('click', function(e) { $.gander.select('next'); e.stopPropagation(); });
+			$('#window-display #display').on('load', function() { // When the main image loads...
+				$.gander.current['width'] = this.naturalWidth;
+				$.gander.current['height'] = this.naturalHeight;
+				$.gander.zoom($.gander.options['zoom_on_open']);
+				$.gander.throbber('off');
+			});
 			// }}}
 
 			// Filetree setup
@@ -346,6 +366,14 @@ $(function() {
 			});*/
 			$('#window-display #startup_error').remove();
 			$.gander.window('resize');
+			$.idleTimer($.gander.options['idle_timeout']);
+			$(document).bind("idle.idleTimer", function() {
+				$.gander.idle = true;
+			 	$.gander._idle();
+			});
+			$(document).bind("active.idleTimer", function(){
+				 $.gander.idle = false;
+			});
 
 			$.ajax({
 				url: $.gander.options['gander_server'], 
@@ -552,7 +580,7 @@ $(function() {
 						if (data.couldthumb)
 							couldthumb++;
 						var fakeicon = (data.realthumb) ? 1:0;
-						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 						newchild
 							.data({
 								size: data.size,
@@ -560,13 +588,12 @@ $(function() {
 								type: data.type,
 							})
 							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
-							.find('img')
+							.find('img.thumb')
 								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
 						list.append(newchild);
 
-						// MC - Testing code for cache
-						//newchild.prepend('<img class="cached" src="images/icons/avi.png"/>');
+						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
 					});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.current['path'] = null;
@@ -619,7 +646,7 @@ $(function() {
 							couldthumb++;
 						var existing = $('#list li[rel="' + file + '"]');
 						if (existing.length > 0) { // Item already exists
-							existing.find('img')
+							existing.find('img.thumb')
 								.load(function() {
 									$(this).hide()
 									$.gander.thumbzoom('apply', this);
@@ -912,6 +939,39 @@ $(function() {
 
 
 		/**
+		* Load a dynamic image into an img.src
+		* This method uses $.gander.options['media_transmit'] to determine the load method to use
+		* @param jQueryObject e The element to load the image path into
+		* @param string src The (apparent) source path to use
+		*/
+		_loadsrc: function(e, src) {
+			e.removeClass('img-none img-loaded').addClass('img-loading');
+			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
+				$.ajax({
+					url: $.gander.options['gander_server'],
+					dataType: 'json',
+					type: 'POST',
+					data: {
+						cmd: 'get',
+						path: src,
+					},
+					success: function(json) {
+						$.gander._unpack('open', json);
+						e.attr('src', json.data);
+						e.removeClass('img-none img-loading').addClass('img-loaded');
+					}
+				});
+			} else { // Stream
+				e
+					.one('load', function() {
+						e.removeClass('img-none img-loading').addClass('img-loaded');
+					})
+					.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
+			}
+		},
+
+
+		/**
 		* Image viewing area interface
 		* @param string cmd Optional command to give the image viewer interface handler. See the functions switch statement for further details
 		* @param string path Optional file path used in the 'open' command to open a specific image
@@ -943,28 +1003,18 @@ $(function() {
 							return; // No idea what to display
 						}
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
-						if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
-							$.gander.throbber('on');
-						if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
-							$.ajax({
-								url: $.gander.options['gander_server'],
-								dataType: 'json',
-								type: 'POST',
-								data: {
-									cmd: 'get',
-									path: path,
-								},
-								success: function(json) {
-									$.gander._unpack('open', json);
-									$('#display').load($.gander._displayloaded).attr('src', json.data);
-								}
-							});
-						} else { // Stream
-							$('#display').load($.gander._displayloaded).attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + path));
+						var cacheimg = $('#list li.active .cached');
+						if (cacheimg.hasClass('img-loaded') && cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
+							console.log('Load from cache');
+							$('#display').attr('src', cacheimg.attr('src'));
+						} else { // Request a new loader
+
+							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
+								$.gander.throbber('on');
+							$.gander._loadsrc($('#display'), path);
+							$.gander.current['path'] = path;
+							$.gander.current['viewing_path'] = path;
 						}
-						
-						$.gander.current['path'] = path;
-						$.gander.current['viewing_path'] = path;
 					}
 					if ($.gander.options['menu_hide_on_view'])
 						$('#window-menu').hide();
@@ -974,7 +1024,6 @@ $(function() {
 					$('#window-display').show();
 
 					// Handle fullscreen options
-
 					if ($.gander.options['fullscreen'] == 1) { // Try for real fullscreen
 						if (!window.fullScreenApi.isFullScreen()) {
 							if (window.fullScreenApi.supportsFullScreen) {
@@ -1007,17 +1056,6 @@ $(function() {
 					$('#window-throbber').hide();
 					break;
 			}
-		},
-
-
-		/**
-		* Internal function attached to the onLoad event of the #display picture viewer
-		*/
-		_displayloaded: function() {
-			$.gander.current['width'] = this.naturalWidth;
-			$.gander.current['height'] = this.naturalHeight;
-			$.gander.zoom($.gander.options['zoom_on_open']);
-			$.gander.throbber('off');
 		},
 
 
@@ -1056,7 +1094,83 @@ $(function() {
 						pane.reinitialise();
 					break;
 			}
+		},
+
+
+		// Idle functionality {{{
+		/**
+		* Perform all idle tasks
+		* This function will repeat until !$.gander.idle
+		*/
+		_idle: function() {
+			if (!$.gander.idle) // Quit if we are not idle
+				return;
+			$.gander._idle_cache();
+			$.gander._idle_cache_clean();
+			setTimeout($.gander._idle, $.gander.options['idle_tick']);
+		},
+
+
+		/**
+		* Perform caching tasks
+		* This function is meant to be invoked by a timer when the UI is idle
+		* @see _idle()
+		*/
+		_idle_cache: function() {
+			// Forward caching
+			var activeimg = $('#list li.active').first();
+			var loaded = 0;
+			if (!activeimg)
+				return;
+			var candidate = activeimg;
+
+			for (var x = 0; x < $.gander.options['cache_forward'] + 1; x++) { // Walk forwards
+				var cacheimg = candidate.find('.cached');
+				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
+					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					if (++loaded >= $.gander.options['idle_cache_per_tick'])
+						return;
+				}
+				candidate = candidate.next('li.image'); // Move on afterwards to make sure we catch the active img as well
+				if (!candidate)
+					break;
+			}
+
+			candidate = activeimg;
+			for (var x = 0; x < $.gander.options['cache_backward']; x++) { // Walk backwards
+				candidate = candidate.prev('li.image');
+				if (!candidate)
+					break;
+				var cacheimg = candidate.find('.cached');
+				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
+					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					if (++loaded >= $.gander.options['idle_cache_per_tick'])
+						return;
+				}
+			}
+		},
+
+		/**
+		* Function to clean out cached images
+		* @see _idle()
+		*/
+		_idle_cache_clean: function() {
+			console.log('CACHE CLEAN');
+			var active = $('#list li.active').first().index();
+			$('#list li .cached.img-loaded').each(function() {
+				var thisind = $(this).parents('li').index();
+				if (
+					(thisind < active - $.gander.options['cache_backward']) ||
+					(thisind > active + $.gander.options['cache_forward'])
+				) {
+					$(this)
+						.attr('src', $.gander.options['cache_reset_src'])
+						.removeClass('img-loading img-loaded')
+						.addClass('img-none');
+				}
+			});
 		}
+		// }}} Idle functionality
 	}});
 	$.gander.init();
 });
