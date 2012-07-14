@@ -9,7 +9,8 @@ body {
 
 .cached {
 	border: 2px solid blue;
-	display: block !important;
+	/* Change this to 'block' to show the cache blocks on the thumbnails */
+	display: none !important;
 	width: 32px;
 	height: 32px;
 	position: absolute;
