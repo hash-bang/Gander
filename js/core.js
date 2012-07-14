@@ -1129,14 +1129,14 @@ $(function() {
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;
 				}
-				candidate = candidate.next('li'); // Move on afterwards to make sure we catch the active img as well
+				candidate = candidate.next('li.image'); // Move on afterwards to make sure we catch the active img as well
 				if (!candidate)
 					break;
 			}
 
 			candidate = activeimg;
 			for (var x = 0; x < $.gander.options['cache_backward']; x++) { // Walk backwards
-				candidate = candidate.prev('li');
+				candidate = candidate.prev('li.image');
 				if (!candidate)
 					break;
 				var cacheimg = candidate.find('.cached');
