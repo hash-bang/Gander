@@ -644,10 +644,9 @@ $(function() {
 					$.each(json.list, function(file, data) {
 						if (data.couldthumb)
 							couldthumb++;
-						var existing = $('#list li[rel="' + file + '"]');
-						if (existing.length > 0) { // Item already exists
-							existing.find('img.thumb')
-								.load(function() {
+						var existing = $('#list li[rel="' + file + '"] img.thumb');
+						if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
+							existing.load(function() {
 									$(this).hide()
 									$.gander.thumbzoom('apply', this);
 									$(this).fadeIn();
@@ -657,8 +656,6 @@ $(function() {
 							console.log('Rejected icon thumnail for non-existant item: ' + file);
 						}
 					});
-					if (needsort)
-						$.gander.sort();
 					if (couldthumb > 0) { // Still more work to do
 						console.log('Refresh complete. Still ' + couldthumb + ' items to load.');
 						$.gander.refresh();
