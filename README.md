@@ -35,13 +35,8 @@ TODO list
 * Binding for key to alternate to last viewed directory
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
-* Breadcrumb path
-* Progress bar in thumbnail loading notification
-* Left / right big buttons for scrolling on tablets
 * Open directory in new tab
 * Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
-* Next / previous image caching
-* Side clicking (left and right) while in image view should move to next and previous image
 * Image panning
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
 * Emblems: Link, Folder icon / favourite
@@ -53,10 +48,9 @@ TODO list
 * Track image views - Save the last time an image was accessed
 * Thumbnail for folders - 'Set as folder thumbnail' option
 * In-image thumbnail quick navigation bar to show siblings
-* Random and Random-lock functionality
 * Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions
 * View other file types - e.g. text files, sound, movies
-* Functionality to remember preferred zoom and position of image and restore it when needed
+* Functionality to remember preferred zoom and position of image and restore it on next load
 * Zoom via mouse wheel functionality (maybe hold down a modifier key?)
 * Screen splitting (VIM style)
