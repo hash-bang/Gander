@@ -51,17 +51,7 @@
 					<li><a href="#" id="menu-zoom">Zoom</a></li>
 					<li><a href="#" id="menu-sort">Sort</a></li>
 					<li class="divider"></li>
-					<li>
-						<ul id="window-breadcrumb" class="breadcrumb">
-						  <li>
-						    <a href="#">Home</a> <span class="divider">/</span>
-						  </li>
-						  <li>
-						    <a href="#">Library</a> <span class="divider">/</span>
-						  </li>
-						  <li class="active">Data</li>
-						</ul>
-					</li>
+					<li><ul id="window-breadcrumb" class="breadcrumb"></ul></li>
 				</ul>
 			</div>
 		</div>

@@ -576,6 +576,15 @@ $(function() {
 
 					window.location.hash = path;
 
+					var breadcrumb = $('#window-breadcrumb');
+					var crumbs = path.split('/');
+					var trail = '';
+					breadcrumb.empty();
+					for (b = 1; b < crumbs.length; b++) {
+						trail += '/' + crumbs[b];
+						breadcrumb.append('<li><a href="#' + trail + '">' + crumbs[b] + '</a>' + (b < crumbs.length-1 ? '<span class="divider">/</span>' : '') + '</li>');
+					}
+
 					$.each(json.list, function(file, data) {
 						if (data.couldthumb)
 							couldthumb++;
