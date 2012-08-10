@@ -53,17 +53,16 @@ body {
 	font-size: 50px;
 }
 
-/*
-#window-display .bumper:hover {
-	background: #33373B;
-	color: white;
-}
-*/
-
 #window-display .bumper > div {
+	display: none;
 	position: relative;
 	top: 50%;
 	margin-top: 35px;
+}
+
+#window-display .bumper:hover > div {
+	display: block;
+	color: white;
 }
 
 #window-display #bumper-left {
