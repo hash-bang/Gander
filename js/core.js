@@ -591,6 +591,7 @@ $(function() {
 					var crumbs = path.split('/');
 					var trail = '';
 					breadcrumb.empty();
+					breadcrumb.append('<li><a href="#/"><i class="icon-white icon-home"></i></a><span class="divider">/</span></li>');
 					for (b = 1; b < crumbs.length; b++) {
 						trail += '/' + crumbs[b];
 						breadcrumb.append('<li><a href="#' + trail + '">' + crumbs[b] + '</a>' + (b < crumbs.length-1 ? '<span class="divider">/</span>' : '') + '</li>');

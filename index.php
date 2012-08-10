@@ -44,14 +44,14 @@
 		<div id="window-menu" class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<ul class="nav">
-					<li><a href="javascript:$.gander.cd('/')"><i class="icon-white icon-home"></i></a></li>
-					<li class="divider"></li>
 					<li><a href="#" id="menu-go">Go</a></li<>
 					<li><a href="#" id="menu-select">Select</a></li>
 					<li><a href="#" id="menu-zoom">Zoom</a></li>
 					<li><a href="#" id="menu-sort">Sort</a></li>
 					<li class="divider"></li>
-					<li><ul id="window-breadcrumb" class="breadcrumb"></ul></li>
+					<li><ul id="window-breadcrumb" class="breadcrumb">
+						<li>Loading</li>
+					</ul></li>
 				</ul>
 			</div>
 		</div>
