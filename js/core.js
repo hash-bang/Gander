@@ -119,6 +119,9 @@ $(function() {
 
 			// Window controls
 			key('n', function() { $.gander.window('clone'); });
+			
+			// Misc
+			key('tab', function() { $(document).jGrowl('close') });
 			// }}}
 			// Menus {{{
 			// Item in list
