@@ -100,7 +100,16 @@ body {
 	background: url('../images/emblems/foldericon.png') no-repeat;
 }
 
-/* DynaTree fixes */
+/* Bootstrap fixes {{{ */
+/* Force the locations of the glyicons packages as booswatch often screws it up */
+[class^="icon-"], [class*=" icon-"] {
+	background-image: url('../lib/bootstrap/bootstrap/img/glyphicons-halflings.png') !important;
+}
+.icon-white {
+	background-image: url('../lib/bootstrap/bootstrap/img/glyphicons-halflings-white.png') !important;
+}
+/* }}} */
+/* DynaTree fixes {{{ */
 .dynatree-title {
 	cursor: pointer;
 }
@@ -108,8 +117,8 @@ body {
 ul.dynatree-container {
 	border: none !important;
 }
-
-/* jGrowl fixes */
+/* }}} */
+/* jGrowl fixes {{{ */
 .jGrowl {
 	padding: 5px 10px;
 }
@@ -122,3 +131,20 @@ ul.dynatree-container {
 .jGrowl .jGrowl-notification {
 	min-height: 45px !important;
 }
+/* }}} */
+/* jQueryContextMenu & Bootstrap fixes {{{ */
+.context-menu-list {
+	list-style: none !important;
+}
+
+.context-menu-list .context-menu-item {
+	display: block !important;
+	width: auto !important;
+	height: auto !important;
+	line-height: 100% !important;
+}
+.context-menu-item {
+	text-shadow: none !important;
+	color: black;
+}
+/* }}} */

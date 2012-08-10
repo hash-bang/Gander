@@ -16,6 +16,11 @@
 @define('GANDER_ROOT', '/'); // How the webbrowser should get to files. If you are installing Gander in the root dir this needs to be '/' if its in a folder called 'gander' it needs to be '/gander/'. This setting must always end in '/'
 
 /**
+* Web UI
+*/
+@define('BOOTSTRAP_CSS', 'slate'); // Which bootstrap theme to use. Leave blank for default or enter the name of a directory located in lib/bootswatch (see http://bootswatch.com/ for more)
+
+/**
 * PATHS 
 * All these must end with '/'
 */

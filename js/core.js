@@ -196,9 +196,9 @@ $(function() {
 
 			// Main menu - Go
 			$.contextMenu({
-				selector: '#window-menu > #menu-go',
+				selector: '#window-menu #menu-go',
 				trigger: 'left',
-				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
+				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 20});},
 				items: {
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
 					"sep1": "---------",
@@ -210,7 +210,7 @@ $(function() {
 
 			// Main menu - Select
 			$.contextMenu({
-				selector: '#window-menu > #menu-select',
+				selector: '#window-menu #menu-select',
 				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
@@ -226,7 +226,7 @@ $(function() {
 
 			// Main menu - Zoom
 			$.contextMenu({
-				selector: '#window-menu > #menu-zoom',
+				selector: '#window-menu #menu-zoom',
 				trigger: 'left',
 				position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 				items: {
@@ -241,7 +241,7 @@ $(function() {
 
 			// Main menu - Sort
 			$.contextMenu({
-				selector: '#window-menu > #menu-sort',
+				selector: '#window-menu #menu-sort',
 				trigger: 'left',
 				build: function() {
 					return {
@@ -1078,7 +1078,7 @@ $(function() {
 					break;
 				case 'resize-list':
 					// Lazy resize of the file list
-					$('#window-list').css('height', $(window).height());
+					$('#window-list').css('height', $(window).height() - 44);
 					var pane = $('#window-list').data('jsp');
 					if (pane)
 						pane.reinitialise();

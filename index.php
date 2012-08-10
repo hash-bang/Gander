@@ -1,3 +1,4 @@
+<? require('config/settings.php') ?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -6,12 +7,22 @@
 		<link rel="icon" type="image/png" href="favicon.png">
 		<link type="text/css" href="css/ui-darkness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
 		<link type="text/css" href="images/menus/icons.css" rel="stylesheet" />	
+		<!-- jQuery -->
+		<script type="text/javascript" src="js/jquery-1.7.1.min.js" alt="http://docs.jquery.com/Main_Page"></script>
+		<!-- Bootstrap -->
+		<script type="text/javascript" src="lib/bootstrap/bootstrap/js/bootstrap.min.js"></script>
+		<link type="text/css" href="lib/bootstrap/bootstrap/css/bootstrap.min.css" rel="stylesheet" />	
+		<? if (BOOTSTRAP_CSS) { ?>
+		<link type="text/css" href="lib/bootswatch/<?=BOOTSTRAP_CSS?>/bootstrap.min.css" rel="stylesheet" />	
+		<? } else { // Use default ?>
+		<link type="text/css" href="lib/bootstrap/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />	
+		<? } ?>
+		<!-- Gander core -->
 		<link type="text/css" href="css/core.css" rel="stylesheet" />	
 		<link type="text/css" href="css/colors.dark.css" rel="stylesheet" />	
 		<link type="text/css" href="css/layout.sidepanel.css" rel="stylesheet" />	
 		<link type="text/css" href="css/jquery.jgrowl.css" rel="stylesheet" />	
 		<link type="text/css" href="js/jquery.dynatree.skin/ui.dynatree.css" rel="stylesheet" />	
-		<script type="text/javascript" src="js/jquery-1.7.1.min.js" alt="http://docs.jquery.com/Main_Page"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js" alt="http://jqueryui.com/demos/"></script>
 		<script type="text/javascript" src="lib/jquery-plugins/sortElements/jquery.sortElements.js" alt="https://github.com/padolsey/jQuery-Plugins"></script>
 		<script type="text/javascript" src="js/jquery.dynatree.min.js" alt="http://wwwendt.de/tech/dynatree/doc/dynatree-doc.html"></script>
@@ -30,11 +41,29 @@
 		<script type="text/javascript" src="js/core.js" alt="https://github.com/hash-bang/Gander"></script>
 	</head>
 	<body>
-		<div id="window-menu">
-			<a id="menu-go">Go</a>
-			<a id="menu-select">Select</a>
-			<a id="menu-zoom">Zoom</a>
-			<a id="menu-sort">Sort</a>
+		<div id="window-menu" class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<ul class="nav">
+					<li><a href="javascript:$.gander.cd('/')"><i class="icon-white icon-home"></i></a></li>
+					<li class="divider"></li>
+					<li><a href="#" id="menu-go">Go</a></li<>
+					<li><a href="#" id="menu-select">Select</a></li>
+					<li><a href="#" id="menu-zoom">Zoom</a></li>
+					<li><a href="#" id="menu-sort">Sort</a></li>
+					<li class="divider"></li>
+					<li>
+						<ul id="window-breadcrumb" class="breadcrumb">
+						  <li>
+						    <a href="#">Home</a> <span class="divider">/</span>
+						  </li>
+						  <li>
+						    <a href="#">Library</a> <span class="divider">/</span>
+						  </li>
+						  <li class="active">Data</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<div id="window-set">
 			<div id="window-dir">

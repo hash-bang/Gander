@@ -1,25 +1,25 @@
-.icon-edit { background-image: url(page_white_edit.png); }
-.icon-back_fast { background-image: url(back_fast.png); }
-.icon-bottom { background-image: url(bottom.png); }
-.icon-first { background-image: url(first.png); }
-.icon-folder { background-image: url(folder.png); }
-.icon-folder-recurse { background-image: url(folder-recurse.png); }
-.icon-folder-add { background-image: url(folder-add.png); }
-.icon-fullscreen { background-image: url(fullscreen.png); }
-.icon-home { background-image: url(home.png); }
-.icon-last { background-image: url(last.png); }
-.icon-list { background-image: url(list.png); }
-.icon-menu-chosen { background-image: url(menu-chosen.png); }
-.icon-next { background-image: url(next.png); }
-.icon-next_fast { background-image: url(next_fast.png); }
-.icon-open { background-image: url(open.png); }
-.icon-previous { background-image: url(previous.png); }
-.icon-refresh { background-image: url(refresh.png); }
-.icon-top { background-image: url(top.png); }
-.icon-up { background-image: url(up.png); }
-.icon-zoom-actual { background-image: url(zoom-actual.png); }
-.icon-zoom-fit-height { background-image: url(zoom-fit-height.png); }
-.icon-zoom-fit-width { background-image: url(zoom-fit-width.png); }
-.icon-zoom-fit { background-image: url(zoom-fit.png); }
-.icon-zoom-in { background-image: url(zoom-in.png); }
-.icon-zoom-out { background-image: url(zoom-out.png); }
+.context-menu-item.icon-edit { background-image: url(page_white_edit.png) !important; }
+.context-menu-item.icon-back_fast { background-image: url(back_fast.png) !important; }
+.context-menu-item.icon-bottom { background-image: url(bottom.png) !important; }
+.context-menu-item.icon-first { background-image: url(first.png) !important; }
+.context-menu-item.icon-folder { background-image: url(folder.png) !important; }
+.context-menu-item.icon-folder-recurse { background-image: url(folder-recurse.png) !important; }
+.context-menu-item.icon-folder-add { background-image: url(folder-add.png) !important; }
+.context-menu-item.icon-fullscreen { background-image: url(fullscreen.png) !important; }
+.context-menu-item.icon-home { background-image: url(home.png) !important; }
+.context-menu-item.icon-last { background-image: url(last.png) !important; }
+.context-menu-item.icon-list { background-image: url(list.png) !important; }
+.context-menu-item.icon-menu-chosen { background-image: url(menu-chosen.png) !important; }
+.context-menu-item.icon-next { background-image: url(next.png) !important; }
+.context-menu-item.icon-next_fast { background-image: url(next_fast.png) !important; }
+.context-menu-item.icon-open { background-image: url(open.png) !important; }
+.context-menu-item.icon-previous { background-image: url(previous.png) !important; }
+.context-menu-item.icon-refresh { background-image: url(refresh.png) !important; }
+.context-menu-item.icon-top { background-image: url(top.png) !important; }
+.context-menu-item.icon-up { background-image: url(up.png) !important; }
+.context-menu-item.icon-zoom-actual { background-image: url(zoom-actual.png) !important; }
+.context-menu-item.icon-zoom-fit-height { background-image: url(zoom-fit-height.png) !important; }
+.context-menu-item.icon-zoom-fit-width { background-image: url(zoom-fit-width.png) !important; }
+.context-menu-item.icon-zoom-fit { background-image: url(zoom-fit.png) !important; }
+.context-menu-item.icon-zoom-in { background-image: url(zoom-in.png) !important; }
+.context-menu-item.icon-zoom-out { background-image: url(zoom-out.png) !important; }
