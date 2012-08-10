@@ -673,8 +673,6 @@ $(function() {
 									$(this).fadeIn();
 								})
 								.attr('src', data.thumb);
-						} else { // New item
-							console.log('Rejected icon thumnail for non-existant item: ' + file);
 						}
 					});
 					if (couldthumb > 0) { // Still more work to do
