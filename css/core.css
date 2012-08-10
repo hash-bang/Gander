@@ -131,6 +131,10 @@ ul.dynatree-container {
 .jGrowl .jGrowl-notification {
 	min-height: 45px !important;
 }
+
+.jGrowl .progress {
+	margin: 5px;
+}
 /* }}} */
 /* jQueryContextMenu & Bootstrap fixes {{{ */
 .context-menu-list {

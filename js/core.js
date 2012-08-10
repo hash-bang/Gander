@@ -618,7 +618,8 @@ $(function() {
 					$.gander.window('resize');
 					if (couldthumb > 0) { // Still more work to do
 						setTimeout($.gander.refresh, 0);
-						$.gander.growl('thumbnails', couldthumb + ' remaining', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
+						$.gander.totalcouldthumb = couldthumb;
+						$.gander.growl('thumbnails', couldthumb + ' thumbnails to load', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
 					}
 					if (opts['drawtree'])
 						$.gander._cdtree($.gander.path[0]);
@@ -635,7 +636,6 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		refresh: function() {
-			console.log('REFRESH!');
 			var skip = []; // Calculate skip list from items we have in stock
 			$('#list li img[rel="1"]').each(function(o,i) {
 				skip.push($(i).parents('li').attr('rel'));
@@ -674,9 +674,9 @@ $(function() {
 						}
 					});
 					if (couldthumb > 0) { // Still more work to do
-						console.log('Refresh complete. Still ' + couldthumb + ' items to load.');
 						$.gander.refresh();
-						$.gander.growl_update('thumbnailer_info', couldthumb + ' remaining');
+						var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
+						$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
 					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
 						$.gander.growl_close('thumbnailer_info');
 					}
