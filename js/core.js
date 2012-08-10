@@ -279,6 +279,13 @@ $(function() {
 
 			// Event bindings {{{
 			$(window).resize(function() { $.gander.window('resize') });
+			$(window).on('hashchange', function() {
+				if ($.gander.skiphashchange) {
+					$.gander.skiphashchange = 0;
+				} else {
+					$.gander.cd(window.location.hash.substr(1));
+				}
+			});
 			$(document).bind('mousewheel', function(event, delta) {
 				if ($.gander.viewer('isopen')) { // Only capture if we are viewing
 					$.gander.select(delta > 0 ? 'previous' : 'next');
@@ -574,6 +581,7 @@ $(function() {
 					} else if (json.header.paths) // Append paths from server
 						$.gander.path = $.gander.path.concat(json.header.paths);
 
+					$.gander.skiphashchange = 1;
 					window.location.hash = path;
 
 					var breadcrumb = $('#window-breadcrumb');
