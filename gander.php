@@ -151,7 +151,7 @@ if (GANDER_TUNNEL && !isset($notunnel)) {
 }
 
 chdir(GANDER_PATH);
-$header = array();
+$header = array('errors' => array());
 $cmd = $_REQUEST['cmd'];
 switch ($cmd) {
 	case 'hello':
@@ -370,4 +370,45 @@ switch ($cmd) {
 		//$out['header'] = $header; // MC- Upsets the dynatree JSON parser
 		echo json_encode($out);
 		break;
+
+	case 'emblem':
+		if (!isset($_REQUEST['path']))
+			$header['errors'][] = "No paths specified to apply emblems to";
+		if (!isset($_REQUEST['emblem']))
+			$header['errors'][] = "No emblems specified";
+		if (!isset($_REQUEST['operation']))
+			$header['errors'][] = "No operation specified";
+		if (!$header['errors']) { // Apply
+			$base = basename($_REQUEST['path']);
+			$db = GANDER_PATH . dirname($_REQUEST['path']) . "/.gander.json";
+
+			$dbc = (file_exists($db)) ? json_decode(file_get_contents($db), TRUE) : array();
+			switch ($_REQUEST['operation']) {
+				case 'add':
+					if (!isset($dbc[$base]))
+						$dbc[$base] = array();
+					if (!isset($dbc[$base]['emblems']))
+						$dbc[$base]['emblems'] = array();
+					if (!in_array($_REQUEST['emblem'], $dbc[$base]['emblems']))
+						$dbc[$base]['emblems'][] = $_REQUEST['emblem'];
+					break;
+				case 'remove':
+					if (!isset($dbc[$base]) || !isset($dbc[$base]['emblems'])) // Not set anyway
+						break;
+					$dbc[$base]['emblems'] = preg_grep('/' . preg_quote($_REQUEST['emblem']) . '/', $dbc[$base]['emblems'], PREG_GREP_INVERT);
+					if (!$dbc[$base]['emblems']) // Emblem array is now blank - nuke it
+						unset($dbc[$base]['emblems']);
+					if (!$dbc[$base]) // Main file info array is now blank - nuke it
+						unset($dbc[$base]);
+					break;
+				default:
+					$header['errors'][] = "Unknown emblem operation: {$_REQUEST['operation']}";
+			}
+			file_put_contents($db, json_encode($dbc));
+		}
+
+		echo json_encode(array(
+			'header' => $header,
+		));
+		
 }

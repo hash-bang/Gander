@@ -40,7 +40,8 @@ $(function() {
 
 			// The following options are supplied by the server. Overwriting these will have little effect
 			media_transmit: 1,
-			media_transmit_path: '/pictures/%p'
+			media_transmit_path: '/pictures/%p',
+			emblem_path: 'images/emblems/%p.png'
 		},
 
 
@@ -82,6 +83,7 @@ $(function() {
 		*/
 		init: function() {
 			// Keyboard shortcuts {{{
+			// Basic navigation
 			key('a', function() { $.gander.select('previous'); });
 			key('ctrl+a, shift+a', function() { $.gander.select('-10'); });
 			key('s', function() { $.gander.select('next'); });
@@ -116,6 +118,9 @@ $(function() {
 			key('t', function() { $.gander.sort('random'); });
 			key('shift+t', function() { $.gander.sort('name'); });
 			key('ctrl+t', function() { $.gander.sort('date'); });
+
+			// Emblems
+			key('ctrl+/', function() { $.gander.emblem('toggle', 'star'); });
 
 			// Window controls
 			key('n', function() { $.gander.window('clone'); });
@@ -833,6 +838,48 @@ $(function() {
 
 			if ($.gander.viewer('isopen'))
 				$.gander.viewer('open', $(list[offset]).attr('rel'));
+		},
+
+
+		/**
+		* Emblem control interface
+		* @param string cmd The command to execute on the currently selected object
+		* @param string emblem The emblem to act on (e.g. cmd=add, emblem is the emblem to add)
+		*/
+		emblem: function(cmd, emblem) {
+			var active = $('#list li[rel="' + $.gander.current['path'] + '"]');
+			switch (cmd) {
+				case 'add':
+				case 'remove':
+					$.ajax({
+						url: $.gander.options['gander_server'], 
+						dataType: 'json',
+						type: 'POST',
+						data: {
+							cmd: 'emblem',
+							operation: cmd,
+							emblem: emblem,
+							path: $.gander.current['path']
+						},
+						success: function(json) {
+							$.gander._unpack('emblem', json);
+							if (cmd == 'add') {
+								active.find('.emblems').append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
+							} else
+								active.find('.emblems .' + emblem).remove();
+						},
+						error: function(e,xhr,exception) {
+							$.gander.growl('error', 'Error during emblem - ' + xhr.responseText + ' - ' + exception);
+						}
+					});
+					break;
+				case 'toggle':
+					if (active.find('.emblems .' + emblem).length) {
+						$.gander.emblem('remove', emblem);
+					} else
+						$.gander.emblem('add', emblem);
+					break;
+			}
 		},
 
 
