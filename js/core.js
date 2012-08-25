@@ -162,7 +162,7 @@ $(function() {
 					});
 				},
 				items: {
-					'open': {name: 'Open', icon: 'folder-open', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
+					'open': {name: 'Open', icon: 'folder', callback: function() { $.gander.cd($.gander._dynapath(this)); }},
 					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() {
 						$.gander.cd($.gander._dynapath(this), {recurse: 1});
 					}},
