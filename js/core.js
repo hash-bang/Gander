@@ -23,6 +23,7 @@ $(function() {
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
 			sort_random_selected_first: 1, // When shuffling move the currently active item to the top
+			sort_star_first: 0, // Move 'starred' items to the front after folders
 			zoom_thumb_normal: 150, // Size, in pixels, of the thumbnails
 			zoom_thumb_adjust: 20,
 			zoom_thumb_min: 50,
@@ -256,10 +257,13 @@ $(function() {
 					return {
 						position: function(m) {m.$menu.css({left: m.$trigger.offset().left, top: m.$trigger.offset().top + m.$trigger.height() + 10});},
 						items: {
+							'sort_folders_first': {name: 'Sort folders first', icon: ($.gander.options['sort_folders_first'] ? 'menu-chosen' : null), callback: function() { $.gander.option('toggle', 'sort_folders_first'); $.gander.sort('keep'); }},
+							'sort_star_first': {name: 'Sort starred first', icon: ($.gander.options['sort_star_first'] ? 'menu-chosen' : null), callback: function() { $.gander.option('toggle', 'sort_star_first'); $.gander.sort('keep'); }},
+							"sep1": "---------",
 							'sort_name': {name: 'By name', icon: ($.gander.options['sort'] == 'name' ? 'menu-chosen' : null), callback: function() { $.gander.sort('name'); }},
 							'sort_date': {name: 'By date', icon: ($.gander.options['sort'] == 'date' ? 'menu-chosen' : null), callback: function() { $.gander.sort('date'); }},
 							'sort_size': {name: 'By size', icon: ($.gander.options['sort'] == 'size' ? 'menu-chosen' : null), callback: function() { $.gander.sort('size'); }},
-							"sep1": "---------",
+							"sep2": "---------",
 							'sort_random': {name: 'Shuffle', icon: ($.gander.options['sort'] == 'random' ? 'menu-chosen' : null), callback: function() { $.gander.sort('random'); }},
 						}
 					};
@@ -732,6 +736,15 @@ $(function() {
 								return 1;
 							}
 						}
+						if ($.gander.options['sort_star_first']) {
+							astar = ($(a).find('.emblems .star').length);
+							bstar = ($(b).find('.emblems .star').length);
+							if (astar && !bstar) {
+								return -1;
+							} else if (!astar && bstar) {
+								return 1;
+							}
+						}
 						return (aval < bval) ? -1 : (aval > bval) ? 1 : 0;
 					});
 					break;
@@ -1005,6 +1018,23 @@ $(function() {
 
 			$.gander.current['zoom'] = zoom;
 			$('#window-display #display').width($.gander.current['width'] * (zoom/100));
+		},
+
+
+		/**
+		* Option manipulation functionality
+		* @param string cmd The command to run
+		* @param string option The option to run the command on
+		*/
+		option: function(cmd, option) {
+			switch(cmd) {
+				case 'toggle':
+					if ($.gander.options[option]) {
+						$.gander.options[option] = 0;
+					} else
+						$.gander.options[option] = 1;
+					break;
+			}
 		},
 
 
