@@ -91,7 +91,7 @@ body {
 }
 
 #list li .emblems {
-	z-index: 10;
+	z-index: 1;
 	top: -50px;
 	position: relative;
 	display: block;
