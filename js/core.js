@@ -122,6 +122,7 @@ $(function() {
 			
 			// Misc
 			key('tab', function() { $(document).jGrowl('close') });
+			key('ctrl+`', function() { $.gander.debug('toggle'); });
 			// }}}
 			// Menus {{{
 			// Item in list
@@ -1108,6 +1109,29 @@ $(function() {
 					var pane = $('#window-dir').data('jsp');
 					if (pane)
 						pane.reinitialise();
+					break;
+			}
+		},
+
+		/**
+		* Control debug functionality
+		* @param string cmd The command to send to the debugging function
+		*/
+		debug: function(cmd) {
+			switch (cmd) {
+				case 'on':
+					$('body').addClass('debug');
+					$.gander.growl('notice', 'Debugging mode enabled', 'debug', {life: 2000});
+					break;
+				case 'off':
+					$('body').removeClass('debug');
+					$.gander.growl('notice', 'Debugging mode disabled', 'debug', {life: 2000});
+					break;
+				case 'toggle':
+					if ($('body').hasClass('debug')) {
+						$.gander.debug('off');
+					} else
+						$.gander.debug('on');
 					break;
 			}
 		},

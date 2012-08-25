@@ -7,10 +7,16 @@ body {
 	user-select: none;
 }
 
+/* Debugging functionality {{{ */
+.debug .cached {
+	display: block !important;
+}
+/* }}} */
+
 .cached {
 	border: 2px solid blue;
 	/* Change this to 'block' to show the cache blocks on the thumbnails */
-	display: none !important;
+	display: none;
 	width: 32px;
 	height: 32px;
 	position: absolute;
@@ -68,7 +74,7 @@ body {
 	text-align: center;
 }
 
-#list li img {
+#list li img.thumb {
 	margin-left: auto;
 	margin-right: auto;
 	vertical-align: bottom;
