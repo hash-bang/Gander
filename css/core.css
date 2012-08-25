@@ -153,8 +153,14 @@ ul.dynatree-container {
 	display: block !important;
 	width: auto !important;
 	height: auto !important;
-	line-height: 100% !important;
+	line-height: 22px !important;
+	min-height: 22px;
 }
+
+.context-menu-separator {
+	min-height: 0px !important;
+}
+
 .context-menu-item {
 	text-shadow: none !important;
 	color: black;
