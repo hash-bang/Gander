@@ -618,6 +618,12 @@ $(function() {
 							.find('img.thumb')
 								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
 								.attr('src', data.thumb);
+						if (data.emblems) {
+							var emblemobj = newchild.find('.emblems');
+							$.each(data.emblems, function(i, emblem) {
+								emblemobj.append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
+							});
+						}
 						list.append(newchild);
 
 						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');

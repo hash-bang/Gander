@@ -274,6 +274,7 @@ switch ($cmd) {
 			}
 
 			chdir(GANDER_PATH . $path);
+			$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
 			foreach (glob('*') as $base) {
 				$file = "$path/$base";
 				if (in_array($path, $skip)) // Skip paths listed as skipable
@@ -285,6 +286,8 @@ switch ($cmd) {
 					'date' => filemtime(GANDER_PATH . $file),
 					'DEBUG' => "$thumb-$couldthumb-$sent/$maxthumbs",
 				);
+				if (isset($dbc[$base]))
+					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
 				if ( // Thumbnail already exists
 					$thumb != 'none' && // Requested thumbs
 					$couldthumb && // We could potencially thumb the image
