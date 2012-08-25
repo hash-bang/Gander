@@ -60,10 +60,10 @@ body {
 	margin-top: 35px;
 }
 
-#window-display .bumper:hover > div {
+/*#window-display .bumper:hover > div {
 	display: block;
 	color: white;
-}
+}*/
 
 #window-display #bumper-left {
 	position: fixed;
