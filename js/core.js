@@ -14,6 +14,7 @@ $(function() {
 			cache_forward: 3, // How many images forward to try and keep in the cache
 			cache_backward: 2, // How many images backward
 			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
+			emblem_path: 'images/emblems/%p.png',
 			idle_timeout: 3000, // How long Gander should be idle before triggering cleanup events (e.g. caching)
 			idle_tick: 1000, // Page the idle handler after this timeout when idle
 			idle_cache_per_tick: 1, // How many images to cache per tick
@@ -40,8 +41,7 @@ $(function() {
 
 			// The following options are supplied by the server. Overwriting these will have little effect
 			media_transmit: 1,
-			media_transmit_path: '/pictures/%p',
-			emblem_path: 'images/emblems/%p.png'
+			media_transmit_path: '/pictures/%p'
 		},
 
 
