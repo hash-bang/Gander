@@ -834,7 +834,8 @@ $(function() {
 		* @param string|int direction Optional command to give the file handler OR the offset to set the active item to. See the functions switch statement for further details
 		*/
 		select: function(direction) {
-			var offset = $('#list li[rel="' + $.gander.current['path'] + '"]').index();
+			var item = $('#list li[rel="' + $.gander.current['path'] + '"]');
+			var offset = item.index();
 			var list = $('#list').children();
 			var path;
 			switch(direction) {
@@ -843,36 +844,38 @@ $(function() {
 					// This is usually used when exiting view mode and we need to redraw what is currently selected
 					break;
 				case 'next':
-					if (offset < list.length -1) {
-						offset += 1;
+					var next = item.nextAll('li:visible').first();
+					if (next.length) {
+						offset = next.index();
 					} else
 						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 2000});
 					break;
 				case 'previous':
+					var prev = item.prevAll('li:visible').first();
 					if (offset > 0) {
-						offset = $.gander.adjust(offset, -1, 0, list.length -1);
+						offset = prev.index();
 					} else
 						$.gander.growl('notice', 'Start of image list', 'notify-select', {life: 2000});
 					break;
 				case '+10':
-					offset = $.gander.adjust(offset, +10, 0, list.length -1);
+					var next = item.nextAll('li:visible').eq(10);
+					offset = next.index();
+					if (offset > list.length -1)
+						$.gander.select('last');
 					break;
 				case '-10':
-					offset = $.gander.adjust(offset, -10, 0, list.length -1);
+					var prev = item.prevAll('li:visible').eq(10);
+					offset = prev.index();
+					if (offset < 0)
+						$.gander.select('first');
 					break;
 				case 'first':
-					offset = -1;
-					while (offset++ < list.length) { // Avoid folders
-						var first = $(list[offset]);
-						path = first.attr('rel');
-						if (first.data('type') != 'dir')
-							break;
-					}
-					if (offset >= list.length-1) // No selectable items in directory
-						offset = -1;
+					var next = $('#list li:visible[!data-type!=dir]').first();
+					offset = (next.length) ? next.index() : -1;
 					break;
 				case 'last':
-					offset = list.length -1;
+					var next = $('#list li').last();
+					offset = next.length ? next.index() : 0;
 					break;
 				default: // Select a specific offset
 					offset = direction;
