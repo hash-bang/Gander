@@ -1123,7 +1123,6 @@ $(function() {
 					if ($.gander.options['fullscreen'] == 1 && window.fullScreenApi.supportsFullScreen)
 						window.fullScreenApi.cancelFullScreen();
 					$('#window-display').hide();
-					$('#list').show();
 					$.gander.select('reselect');
 					$.gander.throbber('off');
 					if ($.gander.options['menu_hide_on_view'])
@@ -1161,7 +1160,6 @@ $(function() {
 						$('#window-menu').hide();
 					if ($.gander.options['mouse_hide_on_view'])
 						$('body').addClass('nomouse');
-					$('#list').hide();
 					$('#window-display').show();
 
 					// Handle fullscreen options
