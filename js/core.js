@@ -15,6 +15,7 @@ $(function() {
 			cache_backward: 2, // How many images backward
 			cache_reset_src: 'images/nocache.png', // Smallish image to use as a placeholder for non-cached images
 			emblem_path: 'images/emblems/%p.png',
+			filters: [],
 			idle_timeout: 3000, // How long Gander should be idle before triggering cleanup events (e.g. caching)
 			idle_tick: 1000, // Page the idle handler after this timeout when idle
 			idle_cache_per_tick: 1, // How many images to cache per tick
@@ -122,6 +123,7 @@ $(function() {
 
 			// Emblems
 			key('ctrl+/', function() { $.gander.emblem('toggle', 'star'); });
+			key('shift+/', function() { $.gander.filter('toggle', 'star'); });
 
 			// Window controls
 			key('n', function() { $.gander.window('clone'); });
@@ -633,6 +635,7 @@ $(function() {
 						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
 					});
 					$.gander.sort($.gander.options['sort_reset']);
+					$.gander.filter();
 					$.gander.current['path'] = null;
 					$.gander.select('first');
 					$.gander.window('resize');
@@ -770,6 +773,38 @@ $(function() {
 						}
 						return (Math.random() > 0.5) ? -1 : 1;
 					});
+			}
+		},
+
+
+		/**
+		* Apply a filter to the item list
+		* @param int apply Whether to apply it or not
+		* @param string method Which filter to apply
+		*/
+		filter: function(apply, method) {
+			console.log(apply + ' / ' + method);
+
+			if (method) {
+				if (apply == 'toggle') {
+					return $.gander.filter($.gander.options['filters'][method] ? 'remove' : 'add', method);
+				} else if (apply == 'add') {
+					$.gander.options['filters'][method] = 1;
+					$.gander.growl('filter', 'Filtering by stars', 'filter', {life: 2000});
+				} else if (apply == 'remove') {
+					delete $.gander.options['filters'][method];
+					$.gander.growl('filter', 'Disabled filtering by stars', 'filter', {life: 2000});
+				}
+			}
+			
+			$('#list > li').show();
+			if ($.gander.options['filters']['star']) { // Filter by stars
+				$('#list > li').each(function() {
+					if ($(this).find('.emblems .star').length) {
+						$(this).show();
+					} else
+						$(this).hide();
+				});
 			}
 		},
 
