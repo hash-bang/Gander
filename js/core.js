@@ -918,9 +918,12 @@ $(function() {
 						success: function(json) {
 							$.gander._unpack('emblem', json);
 							if (cmd == 'add') {
+								$.gander.growl('star', 'Star added', 'star', {life: 1000});
 								active.find('.emblems').append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
-							} else
+							} else {
+								$.gander.growl('star', 'Star removed', 'star', {life: 1000});
 								active.find('.emblems .' + emblem).remove();
+							}
 						},
 						error: function(e,xhr,exception) {
 							$.gander.growl('error', 'Error during emblem - ' + xhr.responseText + ' - ' + exception);
