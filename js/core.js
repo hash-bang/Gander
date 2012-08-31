@@ -445,8 +445,8 @@ $(function() {
 		*/
 		growl: function(type, text, id, options) {
 			var opts = $.extend($.gander.options['jGrowl'], options);
-			if (id && $('#' + id).length > 0) // Assign an ID but this ID already exists - abort
-				return;
+			if (id && $('#' + id).length > 0) // Assign an ID but this ID already exists - kill it with fire
+				$('#' + id).parents('.jGrowl-notification').remove();
 			opts['open'] = function(e,m,o) {
 				if (id)
 					e.find('.jGrowl-message').attr('id', id);
