@@ -28,6 +28,8 @@ Known issues
 ------------
 * When viewing recursively, thumbnails dont load in the sort order
 * A maximum limit on number of files loaded recursively
+* Debug cache images overlap fullscreen view
+* select('first') No longer skips past folders as it should
 
 
 TODO list
