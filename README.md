@@ -26,12 +26,15 @@ To provide access to your server you will need to install a fairly simple PHP sc
 
 Known issues
 ------------
+* Caching doesnt work with filtering (needs to read :visible status like $.gander.select('next') does)
 * When viewing recursively, thumbnails dont load in the sort order
 * A maximum limit on number of files loaded recursively
 
 
 TODO list
 ---------
+* Add 'Open Folder (+Only Starred)' feature
+* Optimize loading from the server if filtering by stars
 * Binding for key to alternate to last viewed directory
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
