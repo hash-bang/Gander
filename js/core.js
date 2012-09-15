@@ -109,8 +109,8 @@ $(function() {
 			// Move within tree
 			key('ctrl+left, shift+left', function() { $.gander.tree('up'); });
 			key('ctrl+right, shift+right', function() { $.gander.tree('in'); });
-			key('ctrl+up, shift+up', function() { $.gander.tree('previous'); });
-			key('ctrl+down, shift+down', function() { $.gander.tree('next'); });
+			key('ctrl+up, shift+up, alt+a', function() { $.gander.tree('previous'); });
+			key('ctrl+down, shift+down, alt+s', function() { $.gander.tree('next'); });
 
 			// Viewer
 			key('f', function() { $.gander.viewer('toggle'); });
@@ -122,7 +122,7 @@ $(function() {
 			key('ctrl+t', function() { $.gander.sort('date'); });
 
 			// Emblems
-			key('ctrl+/', function() { $.gander.emblem('toggle', 'star'); });
+			key('/', function() { $.gander.emblem('toggle', 'star'); });
 			key('shift+/', function() { $.gander.filter('toggle', 'star'); });
 
 			// Window controls
