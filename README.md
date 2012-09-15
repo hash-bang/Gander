@@ -30,6 +30,7 @@ Known issues
 * A maximum limit on number of files loaded recursively
 * Debug cache images overlap fullscreen view
 * select('first') No longer skips past folders as it should
+* select() doesnt work if two files have the same name in different cases e.g. 'one.jpg', 'One.jpg'
 
 
 TODO list
