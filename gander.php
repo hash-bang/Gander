@@ -226,6 +226,7 @@ switch ($cmd) {
 	* @param array $_REQUEST['skip'] An array of file paths not to recurse into or return
 	* @param bool $_REQUEST['recursive'] Force all directories to be recursive (this is the same as all paths ending in '!')
 	* @param int $_REQUEST['max_thumbs'] The maximum number of thumbs to attempt to make if $_REQUEST['thumbs'] = 'make'
+	* @param array $_REQUEST['filters'] Optional array of filters to apply
 	*/
 	case 'list':
 		// Initial values
@@ -233,6 +234,7 @@ switch ($cmd) {
 		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$panic = microtime(1) + GANDER_WEB_TIME;
 		$skip = isset($_POST['skip']) ? (array) $_POST['skip'] : array();
+		$filters = isset($_REQUEST['filters']) ? $_REQUEST['filters'] : array();
 		$files = array();
 		$sent = 0;
 
@@ -288,6 +290,10 @@ switch ($cmd) {
 				);
 				if (isset($dbc[$base]))
 					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
+				if ($filters && count(array_intersect(array_keys($filters), $files[$file]['emblems'])) != count($filters)) { // Is missing a filter that we need
+					unset($files[$file]);
+					continue;
+				}
 				if ( // Thumbnail already exists
 					$thumb != 'none' && // Requested thumbs
 					$couldthumb && // We could potencially thumb the image

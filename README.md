@@ -33,7 +33,6 @@ Known issues
 
 TODO list
 ---------
-* Optimize loading from the server if filtering by stars
 * Binding for key to alternate to last viewed directory
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
