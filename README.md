@@ -28,8 +28,6 @@ Known issues
 ------------
 * Caching doesnt work with filtering (needs to read :visible status like $.gander.select('next') does)
 * When viewing recursively, thumbnails dont load in the sort order
-* A maximum limit on number of files loaded recursively
-* Debug cache images overlap fullscreen view
 * select() doesnt work if two files have the same name in different cases e.g. 'one.jpg', 'One.jpg'
 
 
@@ -44,18 +42,17 @@ TODO list
 * Move, Copy, Paste, Rename, Change permission, Touch, Delete file functionality
 * Image panning
 * Throbber should be more subtle - perhaps move it to one of the screen corners or use Growl
-* Emblems: Link, Folder icon / favourite
+* Emblems: Link
 * Comments / description for images
 * List view and column view of items
-* Functionality to switch directories - i.e. toggle between two most recent
 * Multiple image list tabs
 * Star image - implies view by starred or filter by starred
 * Track image views - Save the last time an image was accessed
 * Thumbnail for folders - 'Set as folder thumbnail' option
 * In-image thumbnail quick navigation bar to show siblings
-* Slideshow functionality (i.e. pause for set time then go next)
 * Image transitions
 * View other file types - e.g. text files, sound, movies
 * Functionality to remember preferred zoom and position of image and restore it on next load
 * Zoom via mouse wheel functionality (maybe hold down a modifier key?)
 * Screen splitting (VIM style)
+* A maximum limit on number of files loaded recursively

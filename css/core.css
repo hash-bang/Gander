@@ -10,6 +10,7 @@ body {
 /* Debugging functionality {{{ */
 .debug .cached {
 	display: block !important;
+	z-index: 0;
 }
 /* }}} */
 
