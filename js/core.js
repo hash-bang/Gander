@@ -20,6 +20,9 @@ $(function() {
 			idle_tick: 1000, // Page the idle handler after this timeout when idle
 			idle_cache_per_tick: 1, // How many images to cache per tick
 			mouse_wheel_speed: 100,
+			slideshow: 0, // Whether we are in slideshow mode
+			slideshow_delay: 3000, // Delay between slideshow moves
+			slideshow_loop: 1, // Go back to the beginning if we reach the end of a series when in slideshow mode
 			sort: 'name', // Sort method. Values: name, random
 			sort_folders_first: 1, // Override 'sort' to always display folders first
 			sort_reset: 'keep', // Reset the sort method to this when changing dir (set to 'keep' to keep the sort setting)
@@ -115,6 +118,9 @@ $(function() {
 			// Viewer
 			key('f', function() { $.gander.viewer('toggle'); });
 			key('escape', function() { $.gander.viewer('hide'); });
+
+			// Slideshow
+			key('y', function() { $.gander.slideshow('toggle'); });
 
 			// Sort modes
 			key('t', function() { $.gander.sort('random'); });
@@ -847,7 +853,10 @@ $(function() {
 					var next = item.nextAll('li:visible').first();
 					if (next.length) {
 						offset = next.index();
-					} else
+					} else if ($.gander.options['slideshow'] && $.gander.options['slideshow_loop']) {
+						$.gander.select('first');
+						return;
+					} else if (!$.gander.options['slideshow']) // Display warning if not a slideshow
 						$.gander.growl('notice', 'End of image list', 'notify-select', {life: 2000});
 					break;
 				case 'previous':
@@ -1183,6 +1192,35 @@ $(function() {
 
 
 		/**
+		* Slideshow interface
+		* @param string cmd Optional command to give the slideshow interface handler. See the functions switch statment for further details
+		*/
+		slideshow: function(cmd) {
+			switch (cmd) {
+				case 'toggle':
+					$.gander.slideshow($.gander.options['slideshow'] ? 'off' : 'on');
+					break;
+				case 'on':
+					$.gander.options['slideshow'] = 1;
+					$.gander.growl('slideshow', 'Slideshow started', 'slideshow', {life: 2000});
+					// Drop through...
+				case 'move': // Interal function triggered by the slieshow timer
+					if ($.gander.options['slideshow']) {
+						$.gander.slideshow_timer = setTimeout(function() { $.gander.slideshow('move') }, $.gander.options['slideshow_delay']);
+						$.gander.select('next');
+					}
+					break;
+				case 'off':
+					$.gander.options['slideshow'] = 0;
+					clearTimeout($.gander.slideshow_timer);
+					$.gander.slideshow_timer = 0;
+					$.gander.growl('slideshow', 'Slideshow stopped', 'slideshow', {life: 2000});
+					break;
+			}
+		},
+
+
+		/**
 		* Throbber interface
 		* @param string cmd Optional command to give the throbber interface handler. See the functions switch statement for further details
 		*/
@@ -1317,7 +1355,6 @@ $(function() {
 		* @see _idle()
 		*/
 		_idle_cache_clean: function() {
-			console.log('CACHE CLEAN');
 			var active = $('#list li.active').first().index();
 			$('#list li .cached.img-loaded').each(function() {
 				var thisind = $(this).parents('li').index();
