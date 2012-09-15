@@ -870,7 +870,7 @@ $(function() {
 						$.gander.select('first');
 					break;
 				case 'first':
-					var next = $('#list li:visible[!data-type!=dir]').first();
+					var next = $('#list li:visible.image').first();
 					offset = (next.length) ? next.index() : -1;
 					break;
 				case 'last':
