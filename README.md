@@ -33,7 +33,6 @@ Known issues
 
 TODO list
 ---------
-* Add 'Open Folder (+Only Starred)' feature
 * Optimize loading from the server if filtering by stars
 * Binding for key to alternate to last viewed directory
 * Natural sort

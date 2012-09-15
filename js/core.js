@@ -184,6 +184,10 @@ $(function() {
 						$.gander.sort('random');
 						$.gander.cd($.gander._dynapath(this), {recurse: 1});
 					}},
+					'open_recuseive_star': {name: 'Open Recursive (+Stars only)', icon: 'folder-recurse', callback: function() {
+						$.gander.filter('add', 'star');
+						$.gander.cd($.gander._dynapath(this), {recurse: 1});
+					}},
 					'open_add': {name: 'Add to view', icon: 'folder-add', callback: function() {
 						$.gander.cd($.gander._dynapath(this), {append: 1});
 					}},
