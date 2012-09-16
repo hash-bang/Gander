@@ -592,8 +592,7 @@ $(function() {
 					thumbs: 'quick',
 					max_thumbs: $.gander.options['thumbs_max_get_first'],
 					recursive: opts['recurse'],
-					sort: $.gander.options['sort_reset'],
-					filters: $.gander.options['filters']
+					sort: $.gander.options['sort_reset']
 				},
 				success: function(json) {
 					$.gander._unpack('cd', json);
@@ -685,8 +684,7 @@ $(function() {
 					thumbs: 'make',
 					max_thumbs: $.gander.options['thumbs_max_get_first'],
 					skip: skip,
-					sort: $.gander.options['sort'],
-					filters: $.gander.options['filters']
+					sort: $.gander.options['sort']
 				},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
