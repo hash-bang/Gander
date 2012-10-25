@@ -793,8 +793,6 @@ $(function() {
 		* @param string method Which filter to apply
 		*/
 		filter: function(apply, method) {
-			console.log(apply + ' / ' + method);
-
 			if (method) {
 				if (apply == 'toggle') {
 					return $.gander.filter($.gander.options['filters'][method] ? 'remove' : 'add', method);
@@ -1097,8 +1095,9 @@ $(function() {
 		* This method uses $.gander.options['media_transmit'] to determine the load method to use
 		* @param jQueryObject e The element to load the image path into
 		* @param string src The (apparent) source path to use
+		* @param function callback Optional callback function to run when the loading completes
 		*/
-		_loadsrc: function(e, src) {
+		_loadsrc: function(e, src, callback) {
 			e.removeClass('img-none img-loaded').addClass('img-loading');
 			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
 				$.ajax({
@@ -1113,6 +1112,8 @@ $(function() {
 						$.gander._unpack('open', json);
 						e.attr('src', json.data);
 						e.removeClass('img-none img-loading').addClass('img-loaded');
+						if (callback)
+							callback(e);
 					}
 				});
 			} else { // Stream
@@ -1164,7 +1165,9 @@ $(function() {
 
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
-							$.gander._loadsrc($('#display'), path);
+							$.gander._loadsrc(cacheimg, path, function(loaded) { // Load into cache THEN load into main display - this method ensures the image is fully loaded before we swap -it also keeps the image in the cache until the next cache clean operation
+								$('#display').attr('src', loaded.attr('src'));
+							});
 							$.gander.current['path'] = path;
 							$.gander.current['viewing_path'] = path;
 						}
