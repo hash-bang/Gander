@@ -239,14 +239,22 @@ switch ($cmd) {
 		$header['paths'] = array();
 
 		if (!is_dir(GANDER_THUMBPATH)) { // Thumbnail path doesnt exist - try to make it
-			if (!mkdir(GANDER_THUMBPATH))
-				$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') does not exist. Attempts to create the directory failed';
-			$thumb = 'none';
+			if (!mkdir(GANDER_THUMBPATH)) {
+				echo json_encode(array(
+					'header' => array('errors' => array('The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') does not exist. Attempts to create the directory failed')),
+				));
+				exit;
+			}
 		}
 		if (!is_writable(GANDER_THUMBPATH)) { // Sanity check for thumnnail folder permissions
-			if (!chmod(GANDER_THUMBPATH, 777))
-				$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable. Attempts to adjust its permissions failed';
+			if (!chmod(GANDER_THUMBPATH, 777)) {
+				echo json_encode(array(
+					'header' => array('errors' => array('The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable. Attempts to adjust its permissions failed')),
+				));
+				exit;
+			}
 			$thumb = 'none';
+			unset($_REQUEST['path']);
 		}
 
 		if (!isset($_REQUEST['path'])) {

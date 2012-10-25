@@ -619,31 +619,32 @@ $(function() {
 						breadcrumb.append('<li><a href="#' + trail + '">' + crumbs[b] + '</a>' + (b < crumbs.length-1 ? '<span class="divider">/</span>' : '') + '</li>');
 					}
 
-					$.each(json.list, function(file, data) {
-						if (data.couldthumb)
-							couldthumb++;
-						var fakeicon = (data.realthumb) ? 1:0;
-						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
-						newchild
-							.data({
-								size: data.size,
-								date: data.date,
-								type: data.type,
-							})
-							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
-							.find('img.thumb')
-								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
-								.attr('src', data.thumb);
-						if (data.emblems) {
-							var emblemobj = newchild.find('.emblems');
-							$.each(data.emblems, function(i, emblem) {
-								emblemobj.append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
-							});
-						}
-						list.append(newchild);
+					if (json.list)
+						$.each(json.list, function(file, data) {
+							if (data.couldthumb)
+								couldthumb++;
+							var fakeicon = (data.realthumb) ? 1:0;
+							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+							newchild
+								.data({
+									size: data.size,
+									date: data.date,
+									type: data.type,
+								})
+								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
+								.find('img.thumb')
+									.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
+									.attr('src', data.thumb);
+							if (data.emblems) {
+								var emblemobj = newchild.find('.emblems');
+								$.each(data.emblems, function(i, emblem) {
+									emblemobj.append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
+								});
+							}
+							list.append(newchild);
 
-						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
-					});
+							newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
+						});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.filter();
 					$.gander.current['path'] = null;
@@ -688,28 +689,30 @@ $(function() {
 				},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
-					var list = $('#list');
-					var couldthumb = 0;
-					var needsort = 0;
-					$.each(json.list, function(file, data) {
-						if (data.couldthumb)
-							couldthumb++;
-						var existing = $('#list li[rel="' + file + '"] img.thumb');
-						if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
-							existing.load(function() {
-									$(this).hide()
-									$.gander.thumbzoom('apply', this);
-									$(this).fadeIn();
-								})
-								.attr('src', data.thumb);
+					if (json.list) {
+						var list = $('#list');
+						var couldthumb = 0;
+						var needsort = 0;
+						$.each(json.list, function(file, data) {
+							if (data.couldthumb)
+								couldthumb++;
+							var existing = $('#list li[rel="' + file + '"] img.thumb');
+							if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
+								existing.load(function() {
+										$(this).hide()
+										$.gander.thumbzoom('apply', this);
+										$(this).fadeIn();
+									})
+									.attr('src', data.thumb);
+							}
+						});
+						if (couldthumb > 0) { // Still more work to do
+							$.gander.refresh();
+							var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
+							$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
+						} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
+							$.gander.growl_close('thumbnailer_info');
 						}
-					});
-					if (couldthumb > 0) { // Still more work to do
-						$.gander.refresh();
-						var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
-						$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
-					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
-						$.gander.growl_close('thumbnailer_info');
 					}
 				},
 				error: function(e,xhr,exception) {
