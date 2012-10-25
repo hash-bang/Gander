@@ -903,12 +903,14 @@ $(function() {
 			activeimg.addClass('active');
 			var active = $('#list li').eq(offset);
 
-			var pane = $('#window-list').data('jsp');
-			if (pane)
-				pane.scrollTo(active.position().left, active.position().top);
+			if (active.length) {
+				var pane = $('#window-list').data('jsp');
+				if (pane)
+					pane.scrollTo(active.position().left, active.position().top);
 
-			if ($.gander.viewer('isopen'))
-				$.gander.viewer('open', $(list[offset]).attr('rel'));
+				if ($.gander.viewer('isopen'))
+					$.gander.viewer('open', $(list[offset]).attr('rel'));
+			}
 		},
 
 
