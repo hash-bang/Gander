@@ -292,7 +292,6 @@ switch ($cmd) {
 					'title' => basename($file),
 					'size' => filesize(GANDER_PATH . $file),
 					'date' => filemtime(GANDER_PATH . $file),
-					'DEBUG' => "$thumb-$couldthumb-$sent/$maxthumbs",
 				);
 				if (isset($dbc[$base]))
 					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
