@@ -110,8 +110,8 @@ $(function() {
 			key('r', function() { $.gander.zoom('reset'); });
 
 			// Move within tree
-			key('ctrl+left, shift+left', function() { $.gander.tree('up'); });
-			key('ctrl+right, shift+right', function() { $.gander.tree('in'); });
+			key('ctrl+left, shift+left, alt+x', function() { $.gander.tree('up'); });
+			key('ctrl+right, shift+right, alt+z', function() { $.gander.tree('in'); });
 			key('ctrl+up, shift+up, alt+a', function() { $.gander.tree('previous'); });
 			key('ctrl+down, shift+down, alt+s', function() { $.gander.tree('next'); });
 
