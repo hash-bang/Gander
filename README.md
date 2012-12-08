@@ -34,7 +34,9 @@ Known issues
 TODO list
 ---------
 * Optimize loading from the server if filtering by stars
+* When loading directory contents that are too large throw up a 'loading' message if it takes more than a few seconds
 * Binding for key to alternate to last viewed directory
+* Star icon next to directory icons where meta-information is available
 * Natural sort
 * Thumb-zoom implementation in menus / shortcuts
 * Open directory in new tab
