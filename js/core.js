@@ -619,31 +619,32 @@ $(function() {
 						breadcrumb.append('<li><a href="#' + trail + '">' + crumbs[b] + '</a>' + (b < crumbs.length-1 ? '<span class="divider">/</span>' : '') + '</li>');
 					}
 
-					$.each(json.list, function(file, data) {
-						if (data.couldthumb)
-							couldthumb++;
-						var fakeicon = (data.realthumb) ? 1:0;
-						var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
-						newchild
-							.data({
-								size: data.size,
-								date: data.date,
-								type: data.type,
-							})
-							.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
-							.find('img.thumb')
-								.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
-								.attr('src', data.thumb);
-						if (data.emblems) {
-							var emblemobj = newchild.find('.emblems');
-							$.each(data.emblems, function(i, emblem) {
-								emblemobj.append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
-							});
-						}
-						list.append(newchild);
+					if (json.list)
+						$.each(json.list, function(file, data) {
+							if (data.couldthumb)
+								couldthumb++;
+							var fakeicon = (data.realthumb) ? 1:0;
+							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+							newchild
+								.data({
+									size: data.size,
+									date: data.date,
+									type: data.type,
+								})
+								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
+								.find('img.thumb')
+									.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
+									.attr('src', data.thumb);
+							if (data.emblems) {
+								var emblemobj = newchild.find('.emblems');
+								$.each(data.emblems, function(i, emblem) {
+									emblemobj.append('<img class="' + emblem + '" src="' + $.gander.options['emblem_path'].replace('%p', emblem) + '"/>');
+								});
+							}
+							list.append(newchild);
 
-						newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
-					});
+							newchild.prepend('<img class="cached" src="' + $.gander.options['cache_reset_src'] + '"/>');
+						});
 					$.gander.sort($.gander.options['sort_reset']);
 					$.gander.filter();
 					$.gander.current['path'] = null;
@@ -688,28 +689,30 @@ $(function() {
 				},
 				success: function(json) {
 					$.gander._unpack('refresh', json);
-					var list = $('#list');
-					var couldthumb = 0;
-					var needsort = 0;
-					$.each(json.list, function(file, data) {
-						if (data.couldthumb)
-							couldthumb++;
-						var existing = $('#list li[rel="' + file + '"] img.thumb');
-						if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
-							existing.load(function() {
-									$(this).hide()
-									$.gander.thumbzoom('apply', this);
-									$(this).fadeIn();
-								})
-								.attr('src', data.thumb);
+					if (json.list) {
+						var list = $('#list');
+						var couldthumb = 0;
+						var needsort = 0;
+						$.each(json.list, function(file, data) {
+							if (data.couldthumb)
+								couldthumb++;
+							var existing = $('#list li[rel="' + file + '"] img.thumb');
+							if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
+								existing.load(function() {
+										$(this).hide()
+										$.gander.thumbzoom('apply', this);
+										$(this).fadeIn();
+									})
+									.attr('src', data.thumb);
+							}
+						});
+						if (couldthumb > 0) { // Still more work to do
+							$.gander.refresh();
+							var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
+							$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
+						} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
+							$.gander.growl_close('thumbnailer_info');
 						}
-					});
-					if (couldthumb > 0) { // Still more work to do
-						$.gander.refresh();
-						var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
-						$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
-					} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
-						$.gander.growl_close('thumbnailer_info');
 					}
 				},
 				error: function(e,xhr,exception) {
@@ -793,8 +796,6 @@ $(function() {
 		* @param string method Which filter to apply
 		*/
 		filter: function(apply, method) {
-			console.log(apply + ' / ' + method);
-
 			if (method) {
 				if (apply == 'toggle') {
 					return $.gander.filter($.gander.options['filters'][method] ? 'remove' : 'add', method);
@@ -902,12 +903,14 @@ $(function() {
 			activeimg.addClass('active');
 			var active = $('#list li').eq(offset);
 
-			var pane = $('#window-list').data('jsp');
-			if (pane)
-				pane.scrollTo(active.position().left, active.position().top);
+			if (active.length) {
+				var pane = $('#window-list').data('jsp');
+				if (pane)
+					pane.scrollTo(active.position().left, active.position().top);
 
-			if ($.gander.viewer('isopen'))
-				$.gander.viewer('open', $(list[offset]).attr('rel'));
+				if ($.gander.viewer('isopen'))
+					$.gander.viewer('open', $(list[offset]).attr('rel'));
+			}
 		},
 
 
@@ -1097,8 +1100,9 @@ $(function() {
 		* This method uses $.gander.options['media_transmit'] to determine the load method to use
 		* @param jQueryObject e The element to load the image path into
 		* @param string src The (apparent) source path to use
+		* @param function callback Optional callback function to run when the loading completes
 		*/
-		_loadsrc: function(e, src) {
+		_loadsrc: function(e, src, callback) {
 			e.removeClass('img-none img-loaded').addClass('img-loading');
 			if ($.gander.options['media_transmit'] == 0) { // Retrieve as Base64 JSON
 				$.ajax({
@@ -1113,6 +1117,8 @@ $(function() {
 						$.gander._unpack('open', json);
 						e.attr('src', json.data);
 						e.removeClass('img-none img-loading').addClass('img-loaded');
+						if (callback)
+							callback(e);
 					}
 				});
 			} else { // Stream
@@ -1164,7 +1170,9 @@ $(function() {
 
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
-							$.gander._loadsrc($('#display'), path);
+							$.gander._loadsrc(cacheimg, path, function(loaded) { // Load into cache THEN load into main display - this method ensures the image is fully loaded before we swap -it also keeps the image in the cache until the next cache clean operation
+								$('#display').attr('src', loaded.attr('src'));
+							});
 							$.gander.current['path'] = path;
 							$.gander.current['viewing_path'] = path;
 						}
