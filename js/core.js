@@ -189,7 +189,7 @@ $(function() {
 						$.gander.cd($.gander._dynapath(this), {recurse: 1});
 					}},
 					'open_add': {name: 'Add to view', icon: 'folder-add', callback: function() {
-						$.gander.cd($.gander._dynapath(this), {append: 1});
+						$.gander.cd($.gander._dynapath(this), {recurse: 1, append: 1});
 					}},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
