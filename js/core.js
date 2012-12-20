@@ -816,6 +816,7 @@ $(function() {
 					} else
 						$(this).hide();
 				});
+				$.gander.window('resize');
 			}
 		},
 
