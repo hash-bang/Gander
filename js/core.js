@@ -189,7 +189,7 @@ $(function() {
 						$.gander.cd($.gander._dynapath(this), {recurse: 1});
 					}},
 					'open_add': {name: 'Add to view', icon: 'folder-add', callback: function() {
-						$.gander.cd($.gander._dynapath(this), {append: 1});
+						$.gander.cd($.gander._dynapath(this), {recurse: 1, append: 1});
 					}},
 					"sep1": "---------",
 					'home': {name: 'Home', icon: 'home', callback: function() { $.gander.cd('/'); }},
@@ -1126,6 +1126,8 @@ $(function() {
 				e
 					.one('load', function() {
 						e.removeClass('img-none img-loading').addClass('img-loaded');
+						if (callback)
+							callback(e);
 					})
 					.attr('src', $.gander.options['media_transmit_path'].replace('%p', '/' + src));
 			}
@@ -1165,10 +1167,8 @@ $(function() {
 					if (path != $.gander.current['viewing_path']) { // Opening a different file from previously
 						var cacheimg = $('#list li.active .cached');
 						if (cacheimg.hasClass('img-loaded') && cacheimg.attr('src') != $.gander.options['cache_reset_src']) { // Load from cached image
-							console.log('Load from cache');
 							$('#display').attr('src', cacheimg.attr('src'));
 						} else { // Request a new loader
-
 							if ( $.gander.options['throb_from_fullscreen'] && ($('#window-display').css('display') == 'none') ) // Hidden already - display throb, otherwise keep previous image
 								$.gander.throbber('on');
 							$.gander._loadsrc(cacheimg, path, function(loaded) { // Load into cache THEN load into main display - this method ensures the image is fully loaded before we swap -it also keeps the image in the cache until the next cache clean operation
