@@ -445,7 +445,6 @@ $(function() {
 			$.jGrowl(text, opts);
 			if (id && options['life']) // HOTFIX: For some reason Growl doesnt kill certain messages on time - add a setTimeout event to make sure
 				setTimeout(function() {
-					console.log('Growl killer: ' + id);
 					$.gander.growl_close(id);
 				}, options['life']);
 			return 1;
@@ -687,15 +686,15 @@ $(function() {
 					max_thumbs: $.gander.options['thumbs_max_get_first']
 				},
 				success: function(json) {
-					console.log('thumbs', json);
 					$.gander._unpack('thumbs', json);
 					if (json.thumbs) {
 						var list = $('#list');
-						console.log('JSON', json);
 						$.each(json.thumbs, function(file, thumb) {
 							var existing = list.children('li[data-path="' + file + '"]');
 							existing.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
-							existing = existing.children('img.thumb'); // Switch to img child
+							existing = existing.find('img.thumb'); // Switch to img child
+							if (!existing.length)
+								console.log('Cant find child', file);
 							if (existing.length > 0 && existing.attr('src') != thumb) { // Item already exists but does not have a thumb
 								existing.load(function() {
 									$(this).hide()
