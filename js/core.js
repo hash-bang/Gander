@@ -559,7 +559,7 @@ $(function() {
 			var opts = $.extend({
 				append: 0, // Whether to append the newly loaded list to the view (if 0 the view is overwritten)
 				resurse: 0, // Whether to recurse into the directory
-				drawtree: 0, // Whether to refresh the folder tree as well
+				drawtree: 0 // Whether to refresh the folder tree as well
 			}, options);
 			$.ajax({
 				url: $.gander.options['gander_server'], 
@@ -602,15 +602,15 @@ $(function() {
 						$.each(json.list, function(file, data) {
 							if (data.couldthumb)
 								couldthumb++;
-							var fakeicon = (data.realthumb) ? 1:0;
-							var newchild = $('<li rel="' + file + '"><div><div class="imgframe"><img class="thumb" rel="' + fakeicon + '"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+							var newchild = $('<li rel="' + file + '" data-path="' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 							newchild
 								.data({
 									size: data.size,
 									date: data.date,
-									type: data.type,
+									type: data.type
 								})
 								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
+								.toggleClass('loaded', data.realthumb ? 1 : 0)
 								.find('img.thumb')
 									.load(function() {
 										$(this).hide();
@@ -635,9 +635,8 @@ $(function() {
 					$.gander.select('first');
 					$.gander.window('resize');
 					if (couldthumb > 0) { // Still more work to do
-						setTimeout($.gander.refresh, 0);
-						$.gander.totalcouldthumb = couldthumb;
-						$.gander.growl('thumbnails', couldthumb + ' thumbnails to load', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
+						setTimeout($.gander.loadThumbs, 0);
+						$.gander._refreshLoadPercent(1);
 					}
 					if (opts['drawtree'])
 						$.gander._cdtree($.gander.path[0]);
@@ -648,55 +647,51 @@ $(function() {
 			});
 		},
 
-
 		/**
-		* Similar to 'cd' except this funciton tries to redraw an existing file store
-		* Usually used when refreshing thumbnails
+		* Convenience function to reload the existing directory
+		* @see cd()
 		*/
 		refresh: function() {
-			var skip = []; // Calculate skip list from items we have in stock
-			$('#list li img[rel="1"]').each(function(o,i) {
-				skip.push($(i).parents('li').attr('rel'));
-			});
+			$.gander.cd($.gander.current.path);
+		},
 
+		/**
+		* Load all idle thumbs in a directory
+		* This function will keep calling itself until there is nothing left to load
+		* Usually used when refreshing thumbnails
+		*/
+		loadThumbs: function() {
 			$.ajax({
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
 				data: {
-					cmd: 'list',
-					path: $.gander.path.join(';'),
-					thumbs: 'make',
-					max_thumbs: $.gander.options['thumbs_max_get_first'],
-					skip: skip,
-					sort: $.gander.options['sort']
+					cmd: 'thumbs',
+					paths: $.each($('#list li.loading'), function() {
+						return $(this).data('path');
+					}),
+					max_thumbs: $.gander.options['thumbs_max_get_first']
 				},
 				success: function(json) {
-					$.gander._unpack('refresh', json);
-					if (json.list) {
+					$.gander._unpack('thumbs', json);
+					if (json.thumbs) {
 						var list = $('#list');
-						var couldthumb = 0;
-						var needsort = 0;
-						$.each(json.list, function(file, data) {
-							if (data.couldthumb)
-								couldthumb++;
-							var existing = $('#list li[rel="' + file + '"] img.thumb');
-							if (existing.length > 0 && existing.attr('src') != data.thumb) { // Item already exists but not yet loaded
+						$.each(json.thumbs, function(file, thumb) {
+							var existing = list.children('li[data-path="' + file + '"]');
+							existing.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
+							existing = existing.find('img.thumb'); // Switch to img child
+							if (existing.length > 0 && existing.attr('src') != thumb) { // Item already exists but does not have a thumb
 								existing.load(function() {
-										$(this).hide()
-										$.gander.thumbzoom('apply', this);
-										$(this).fadeIn();
-									})
-									.attr('src', data.thumb);
+									$(this).hide()
+									$.gander.thumbzoom('apply', this);
+									$(this).fadeIn();
+								})
+								.attr('src', thumb);
 							}
 						});
-						if (couldthumb > 0) { // Still more work to do
-							$.gander.refresh();
-							var percent = Math.floor((($.gander.totalcouldthumb - couldthumb) / $.gander.totalcouldthumb) * 100);
-							$.gander.growl_update('thumbnailer_info', ($.gander.totalcouldthumb - couldthumb) + '/' + $.gander.totalcouldthumb + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
-						} else if ($('#thumbnailer_info').length > 0) { // Nothing left and we have a dialog to destory
-							$.gander.growl_close('thumbnailer_info');
-						}
+						if (list.children('li.loading').length > 0)
+							setTimeout($.gander.loadThumbs, 0); // Trip next thumbnail load cycle on next idle
+						$.gander._refreshLoadPercent();
 					}
 				},
 				error: function(e,xhr,exception) {
@@ -705,6 +700,23 @@ $(function() {
 			});
 		},
 
+		/**
+		* Trigger recalculating the number of thumbs loading, loaded and the growl notification
+		* @param bool make Whether to force create the notification. This is only usually set once when the directory changes. If false a update action will be triggered instead of a create action which will try to update the (possibly destroyed) notification
+		* @access private
+		*/
+		_refreshLoadPercent: function(make) {
+			var total = $('#list li').length();
+			var loading = $('#list li.loading').length();
+			var percent = Math.floor(100 - ((loading / total) * 100));
+			if (loading <= 0) { // Nothing left and we have a dialog to destory
+				$.gander.growl_close('thumbnailer_info');
+			} else { // Create or update the notification
+				if (make) // Create the notification for the first time
+					$.gander.growl('thumbnails', loading + ' thumbnails to load', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
+				$.gander.growl_update('thumbnailer_info', (total - loading) + '/' + total + ' - ' + percent + '% loaded<div class="progress progress-info progress-striped active"><div class="bar" style="width: ' + percent + '%"></div></div>');
+			}
+		},
 
 		/**
 		* Apply the sort method to the item list
