@@ -425,27 +425,6 @@ $(function() {
 
 
 		/**
-		* Simple, idiot proof command runner.
-		* This stub is intended to execute simple verbs (open, close, zoom/in, zoom/out etc)
-		*/
-		exec: function(cmd, cmd2) {
-			switch(cmd) {
-				case 'zoom': // see $.gander.zoom
-					alert('FIXME: Feature missing');
-					break;
-				case 'thumbzoom': // see $.gander.thumbzoom
-					$.gander.thumbzoom(cmd2);
-					break;
-				case 'viewer': // see $.gander.viewer
-					$.gander.viewer(cmd2);
-					break;
-				default:
-					alert('Unknown command: ' + cmd);
-			}
-		},
-
-
-		/**
 		* Simple function to display a message to the user
 		* @param string type The type of the message. Values: notice, error, thumbnails
 		* @param string text The actual text of the message
