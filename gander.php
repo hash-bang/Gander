@@ -221,20 +221,15 @@ switch ($cmd) {
 
 	/**
 	* Provide a JSON encoded list of images
+	* This function is designed to provide the directory contents as quick as possible
+	* If there is a readily available thumbnail path (and its NOT using inline Base64) then they will also be provided
 	* @params string $_REQUEST['path'] A single path to explore or multiple paths seperated by ';'. If any path ends in '!' it is scanned recursively. If any meta character is preceeded by a backslash its purpose is ignored (e.g. '\!' translates to '!' and does nothing special)
-	* @param string $_REQUEST['thumbs'] Whether to return thumbnails. Values: none - do nothing, quick - return ready-to-hand thumbnails, make - attempt to make thumbnails if they dont already exist
-	* @param array $_REQUEST['skip'] An array of file paths not to recurse into or return
 	* @param bool $_REQUEST['recursive'] Force all directories to be recursive (this is the same as all paths ending in '!')
-	* @param int $_REQUEST['max_thumbs'] The maximum number of thumbs to attempt to make if $_REQUEST['thumbs'] = 'make'
 	*/
 	case 'list':
 		// Initial values
 		$thumb = isset($_REQUEST['thumbs']) ? $_REQUEST['thumbs'] : 'none'; // make/quick/none
-		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
-		$panic = microtime(1) + GANDER_WEB_TIME;
-		$skip = isset($_POST['skip']) ? (array) $_POST['skip'] : array();
 		$files = array();
-		$sent = 0;
 
 		$header['paths'] = array();
 
@@ -287,55 +282,17 @@ switch ($cmd) {
 				$file = "$path/$base";
 				if (in_array($path, $skip)) // Skip paths listed as skipable
 					continue;
-				$couldthumb = preg_match(GANDER_THUMB_ABLE, $file);
+				$couldthumb = 
 				$files[$file] = array( // Basic file info
 					'title' => basename($file),
 					'size' => filesize(GANDER_PATH . $file),
 					'date' => filemtime(GANDER_PATH . $file),
 				);
-				if (isset($dbc[$base]))
-					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
-				if ( // Thumbnail already exists
-					$thumb != 'none' && // Requested thumbs
-					$couldthumb && // We could potencially thumb the image
-					microtime(1) < $panic && // Still got time to spend
-					$made = getthumb($base, $path) // It was successful
-				) {
-					$files[$file]['type'] = 'image';
-					$files[$file]['realthumb'] = 1;
-					$files[$file]['thumb'] = $made;
-				} elseif ( // Could make a thumbnail
-					$thumb == 'make' && // Requested thumbs
-					$couldthumb && // We could potencially thumb the image
-					microtime(1) < $panic && // Still got time to spend
-					($maxthumbs == 0 || $sent++ < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
-					mkthumb($base, $path) && // It was successful
-					$find = getthumb($base, $path) // We can retrive it again
-				) {
-					$files[$file]['type'] = 'image';
-					$files[$file]['realthumb'] = 1;
-					$files[$file]['fresh'] = 1;
-					$files[$file]['thumb'] = $find;
-				} elseif (is_dir(GANDER_PATH . $file)) { // Folder
-					$files[$file]['type'] = 'dir';
-					if ($thumb != 'none')
-						$files[$file]['thumb'] = GANDER_ROOT . 'images/icons/_folder.png';
-					if ($recurse)
-						array_splice($paths, $p+1, 0, $file);
-				} elseif (($ext = pathinfo($file, PATHINFO_EXTENSION)) && file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')) { // File type thumb found
-					$files[$file]['type'] = 'image';
-					if ($thumb != 'none')
-						$files[$file]['thumb'] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
-					if ($couldthumb)
-						$files[$file]['couldthumb'] = 1;
-				} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
-					if ($thumb != 'none')
-						$files[$file]['thumb'] = GANDER_ROOT . 'images/icons/_unknown.png';
-					if ($couldthumb)
-						$files[$file]['couldthumb'] = 1;
-				} else { // Unknown file type - omit
-					unset($files[$file]);
-				}
+				if (
+					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
+					&& $thumb = getthumb($base, $path) // A thumbnail already exists
+				)
+					$files[$file]['thumb'] = $thumb;
 			}
 		}
 		echo json_encode(array(

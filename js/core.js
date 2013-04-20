@@ -600,8 +600,6 @@ $(function() {
 
 					if (json.list)
 						$.each(json.list, function(file, data) {
-							if (data.couldthumb)
-								couldthumb++;
 							var newchild = $('<li rel="' + file + '" data-path="' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 							newchild
 								.data({
@@ -609,9 +607,9 @@ $(function() {
 									date: data.date,
 									type: data.type
 								})
-								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
-								.toggleClass('loading', data.realthumb ? 0 : 1)
-								.find('img.thumb')
+								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'));
+							if (data.thumb) {
+								newchild.find('img.thumb')
 									.load(function() {
 										$(this).hide();
 										$.gander.thumbzoom('apply', this);
@@ -619,6 +617,9 @@ $(function() {
 										$(this).parent('li').css('background', '');
 									})
 									.attr('src', data.thumb);
+							} else // No thumbnail provided - mark as loading and pass to loadThumb for processing
+								newchild.addClass('loading');
+
 							if (data.emblems) {
 								var emblemobj = newchild.find('.emblems');
 								$.each(data.emblems, function(i, emblem) {
@@ -634,7 +635,7 @@ $(function() {
 					$.gander.current['path'] = null;
 					$.gander.select('first');
 					$.gander.window('resize');
-					if (couldthumb > 0) { // Still more work to do
+					if ($('#list li.loading').length > 0) { // Still more work to do
 						setTimeout($.gander.loadThumbs, 0);
 						$.gander._refreshLoadPercent(1);
 					}
@@ -665,6 +666,7 @@ $(function() {
 			$('#list li.loading').each(function() {
 				paths.push($(this).data('path'));
 			});
+			console.log('loadThumb', paths);
 			if (!paths.length) {
 				console.log('Call to $.gander.refreshThumbs() with no thumbs to load');
 				return;
