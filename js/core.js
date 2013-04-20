@@ -610,7 +610,7 @@ $(function() {
 									type: data.type
 								})
 								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
-								.toggleClass('loaded', data.realthumb ? 1 : 0)
+								.toggleClass('loading', data.realthumb ? 0 : 1)
 								.find('img.thumb')
 									.load(function() {
 										$(this).hide();
@@ -661,25 +661,33 @@ $(function() {
 		* Usually used when refreshing thumbnails
 		*/
 		loadThumbs: function() {
+			var paths = [];
+			$('#list li.loading').each(function() {
+				paths.push($(this).data('path'));
+			});
+			if (!paths.length) {
+				console.log('Call to $.gander.refreshThumbs() with no thumbs to load');
+				return;
+			}
 			$.ajax({
 				url: $.gander.options['gander_server'], 
 				dataType: 'json',
 				type: 'POST',
 				data: {
 					cmd: 'thumbs',
-					paths: $.each($('#list li.loading'), function() {
-						return $(this).data('path');
-					}),
+					paths: JSON.stringify(paths),
 					max_thumbs: $.gander.options['thumbs_max_get_first']
 				},
 				success: function(json) {
+					console.log('thumbs', json);
 					$.gander._unpack('thumbs', json);
 					if (json.thumbs) {
 						var list = $('#list');
+						console.log('JSON', json);
 						$.each(json.thumbs, function(file, thumb) {
 							var existing = list.children('li[data-path="' + file + '"]');
 							existing.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
-							existing = existing.find('img.thumb'); // Switch to img child
+							existing = existing.children('img.thumb'); // Switch to img child
 							if (existing.length > 0 && existing.attr('src') != thumb) { // Item already exists but does not have a thumb
 								existing.load(function() {
 									$(this).hide()
@@ -706,8 +714,8 @@ $(function() {
 		* @access private
 		*/
 		_refreshLoadPercent: function(make) {
-			var total = $('#list li').length();
-			var loading = $('#list li.loading').length();
+			var total = $('#list li').length;
+			var loading = $('#list li.loading').length;
 			var percent = Math.floor(100 - ((loading / total) * 100));
 			if (loading <= 0) { // Nothing left and we have a dialog to destory
 				$.gander.growl_close('thumbnailer_info');
