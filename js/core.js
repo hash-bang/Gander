@@ -468,8 +468,14 @@ $(function() {
 		* @param string id The ID of the message to close
 		* @see growl()
 		*/
-		growl_close: function(id) {
-			$('#' + id).parents('.jGrowl-notification').fadeOut('fast', function() { $(this).remove(); });
+		growl_close: function(id, important) {
+			if ($('#' + id).length) {
+				$('#' + id).closest('.jGrowl-notification').fadeOut('fast', function() { $(this).remove(); });
+			} else if (important) { // Called to kill something that needs to die but doesn't exist yet - setTimeout and try again
+				setTimeout(function() {
+					$.gander.growl_close(id);
+				}, 500);
+			}
 		},
 
 
@@ -719,8 +725,9 @@ $(function() {
 			var total = $('#list li').length;
 			var loading = $('#list li.loading').length;
 			var percent = Math.floor(100 - ((loading / total) * 100));
+			console.log('refreshLoadPecent', loading, total, percent + '%');
 			if (loading <= 0) { // Nothing left and we have a dialog to destory
-				$.gander.growl_close('thumbnailer_info');
+				$.gander.growl_close('thumbnailer_info', 1);
 			} else { // Create or update the notification
 				if (make) // Create the notification for the first time
 					$.gander.growl('thumbnails', loading + ' thumbnails to load', 'thumbnailer_info', {header: 'Creating thumbnails', sticky: 1});
