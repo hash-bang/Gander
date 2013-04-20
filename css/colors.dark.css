@@ -35,7 +35,22 @@ body {
 
 #list li:hover {
 	background: #364049;
-	border: 1px solid #38393d;
+	border-color: #0088cc;
+	-webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	-moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+}
+
+#list .active {
+	background: #0088cc;
+	border: 1px solid #0088cc;
+}
+
+#list .active:hover {
+	-webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	-moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	border: 1px solid #0088cc;
 }
 
 #list li strong, #window-dir #dirlist .dynatree-title {
@@ -47,16 +62,6 @@ body {
 	background: black !important;
 	border-radius: 5px;
 	-moz-border-radius: 5px;
-}
-
-#list .active {
-	background: #768089;
-	border: 1px solid #38393d;
-}
-
-#list .active:hover {
-	background: #768089;
-	border: 1px solid white;
 }
 
 #window-display {
