@@ -612,7 +612,12 @@ $(function() {
 								})
 								.addClass(data.type == 'dir' ? 'folder' : (data.type == 'image' ? 'image' : 'other'))
 								.find('img.thumb')
-									.load(function() { $(this).hide(); $.gander.thumbzoom('apply', this); $(this).fadeIn(); $(this).parent('li').css('background', ''); })
+									.load(function() {
+										$(this).hide();
+										$.gander.thumbzoom('apply', this);
+										$(this).fadeIn();
+										$(this).parent('li').css('background', '');
+									})
 									.attr('src', data.thumb);
 							if (data.emblems) {
 								var emblemobj = newchild.find('.emblems');
