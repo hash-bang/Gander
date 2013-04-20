@@ -343,6 +343,60 @@ switch ($cmd) {
 			'list' => $files,
 		));
 		break;
+	/**
+	* Retrieve a list of thumbnails based on the given paths
+	* @params array $_REQUEST['paths'] An array of paths to get the thumbnails for
+	* @param int $_REQUEST['max_thumbs'] The maximum number of thumbs to attempt to make if $_REQUEST['thumbs'] = 'make'
+	*/
+	case 'thumbs':
+		$thumbs = array();
+		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
+		$sent = 0; // Number of thumbnails generated (must not exceed $maxthumbs if $maxthumbs>0)
+
+		if (!is_dir(GANDER_THUMBPATH)) { // Thumbnail path doesnt exist - try to make it
+			$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') does not exist';
+		} elseif (!is_writable(GANDER_THUMBPATH)) { // Sanity check for thumnnail folder permissions
+			$header['errors'][] = 'The Gander thumbnail cache directory (' . GANDER_THUMBPATH . ') is not writable';
+		} elseif (!isset($_REQUEST['paths'])) {
+			$header['errors'][] = 'No paths specified when retrieving thumbnails';
+		} elseif (!is_array($_REQUEST['paths'])) {
+			$header['errors'][] = 'Paths is not an array';
+		} else { // All is well - get the thumbnail lsit
+			foreach ($_REQUEST['paths'] as $path) {
+				$file = basename($path);
+				if (preg_match('!\.\.!', $path)) { // Last sanity check that we are witin the correct path
+					$header['errors'][] = "Double dot paths are not allowed when requesting thumb: $path";
+				} elseif (!file_exists(GANDER_PATH . $path)) {
+					$header['errors'][] = "File does not exist when requesting thumb: $path";
+				} elseif (!preg_match(GANDER_THUMB_ABLE, $file)) {
+					$header['errors'][] = "Cannot thumb file as it is not a supported type: $path";
+				} else { // OK actually make the thumbnail
+					if ($tpath = getthumb($base, $path)) { // Thumbnail already exists
+						$thumbs[$path] = $tpath;
+					} elseif (is_dir(GANDER_PATH . $path)) { // Its a folder - Return the default image for now - FIXME: in future we could make thumbnails recursively
+						$thumbs[$path] = GANDER_ROOT . 'images/icons/_folder.png';
+					} elseif ( // Make a new thumbnail
+						($maxthumbs == 0 || $sent < $maxthumbs) && // We care about the maximum number of thumbs to return AND we are below that limit
+						mkthumb($file, $path) && // It was successful
+						$tpath = getthumb($file, $path) // We can retrive it again
+					) {
+						$thumbs[$path] = $tpath;
+						$sent++;
+					} elseif (($ext = pathinfo($file, PATHINFO_EXTENSION)) && file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')) { // File type thumb found but we do have an icon for its generic type
+						$thumbs[$path] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
+					} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
+						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+					} else { // Unknown file type - no idea what to do here
+						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+					}
+				}
+			}
+			echo json_encode(array(
+				'header' => $header,
+				'thumbs' => $thumbs,
+			));
+		}
+		break;
 	case 'tree':
 		$out = array();
 		if (!isset($_REQUEST['path'])) {
