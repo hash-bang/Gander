@@ -24,7 +24,7 @@
 * PATHS 
 * All these must end with '/'
 */
-@define('GANDER_ICONS', realpath(__DIR__ . '/../images/icons/') . '/');
+@define('GANDER_ICONS', 'images/icons/');
 @define('GANDER_ICONS_WEB', '/images/icons/'); # The web equivalent of the above
 @define('GANDER_PATH', realpath(__DIR__ . '/../pictures/'));
 @define('GANDER_THUMBPATH', realpath(__DIR__ . '/../cache/thumbs/'));
