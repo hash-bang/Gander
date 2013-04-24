@@ -8,38 +8,23 @@ function b64($filename) {
 	return 'data:image/png;base64,' . base64_encode($imgbinary);
 }
 
-function getthumb($filename, $path) {
-	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
+function getthumb($path) {
+	$thumbpath = GANDER_THUMBPATH . $path;
 	if (is_file($thumbpath)) { // Look for existing
 		switch (GANDER_THUMB_TRANSMIT) {
 			case 0: return b64($thumbpath);
-			case 1: return strtr(GANDER_THUMB_TRANSMIT_PATH, array('%p' => "$path/$filename"));
+			case 1: return strtr(GANDER_THUMB_TRANSMIT_PATH, array('%p' => $path));
 		}
 	} else { // No thumbnail + no make
 		return FALSE;
 	}
 }
 
-function mkthumb($filename, $path) {
-	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
-	mktree(GANDER_THUMBPATH, "$path/$filename");
-	mkimg($filename, $thumbpath);
-	return 1; // FIXME: Do something useful for failed images
-}
-
-function mktree($base, $path) {
-	$cwd = getcwd();
-	chdir($base);
-	foreach (array_slice(explode('/', $path),0,-1) as $bit) {
-		if (!$bit)
-			continue;
-		if (!is_dir($bit)) {
-			if (!@mkdir($bit))
-				die("Can't make directory '$bit' in dir " . getcwd());
-		}
-		chdir($bit);
-	}
-	chdir($cwd);
+function mkthumb($path) {
+	$dir = GANDER_THUMBPATH . dirname($path);
+	if (!is_dir($dir))
+		mkdir($dir, 0777, true);
+	return (bool) mkimg($path, GANDER_THUMBPATH . $path);
 }
 
 function mkimg($in, $out) {
@@ -288,7 +273,7 @@ switch ($cmd) {
 				);
 				if (
 					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
-					&& $thumb = getthumb($base, $path) // A thumbnail already exists
+					&& $thumb = getthumb($file) // A thumbnail already exists
 				)
 					$files[$file]['thumb'] = $thumb;
 			}
@@ -328,15 +313,15 @@ switch ($cmd) {
 				} elseif (!file_exists(GANDER_PATH . $path)) {
 					$header['errors'][] = "File does not exist when requesting thumb: $path";
 				} else { // OK actually make the thumbnail
-					if ($canthumb && $tpath = getthumb($file, $path)) { // Thumbnail already exists
+					if ($canthumb && $tpath = getthumb($path)) { // Thumbnail already exists
 						$thumbs[$path] = $tpath;
 					} elseif (is_dir(GANDER_PATH . $path)) { // Its a folder - Return the default image for now - FIXME: in future we could make thumbnails recursively
 						$thumbs[$path] = GANDER_ROOT . 'images/icons/_folder.png';
 					} elseif ( // Make a new thumbnail
 						$canthumb
 						&& ($maxthumbs == 0 || $sent < $maxthumbs) // We care about the maximum number of thumbs to return AND we are below that limit
-						&& mkthumb($file, $path) // It was successful
-						&& $tpath = getthumb($file, $path) // We can retrive it again
+						&& mkthumb($path) // It was successful
+						&& $tpath = getthumb($path) // We can retrive it again
 					) {
 						$thumbs[$path] = $tpath;
 						$sent++;

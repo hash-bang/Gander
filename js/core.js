@@ -1124,7 +1124,7 @@ $(function() {
 					type: 'POST',
 					data: {
 						cmd: 'get',
-						path: src,
+						path: src
 					},
 					success: function(json) {
 						$.gander._unpack('open', json);
