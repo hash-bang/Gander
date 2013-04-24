@@ -35,10 +35,6 @@ body {
 
 #list li:hover {
 	background: #364049;
-	border-color: #0088cc;
-	-webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-	-moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-	box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
 }
 
 #list .active {
@@ -95,3 +91,17 @@ body {
 .jspCorner {
 	display: none;
 }
+
+/* Glow-on-Hover effects {{{ */
+.jGrowl-notification {
+	border: 1px solid transparent;
+	cursor: pointer;
+}
+
+#list li:hover, .jGrowl-notification:hover {
+	border: 1px solid #0088cc !important;
+	-webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	-moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+}
+/* }}} */
