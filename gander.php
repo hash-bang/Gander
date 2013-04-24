@@ -328,15 +328,19 @@ switch ($cmd) {
 					) {
 						$thumbs[$path] = $tpath;
 						$sent++;
-					} elseif ( // File type thumb found but we do have an icon for its generic type
-						($ext = pathinfo($file, PATHINFO_EXTENSION))
-						&& file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')
-					) {
-						$thumbs[$path] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
-					} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
-						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
-					} else { // Unknown file type - no idea what to do here
-						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+					} else { // We can't make a thumbnail for some reason
+						if ($maxthumbs > 0 && $sent >= $maxthumbs) { // We ran out of thumbnail space to output
+							$thumbs[$path] = false;
+						} elseif ( // File type thumb found but we do have an icon for its generic type
+							($ext = pathinfo($path, PATHINFO_EXTENSION))
+							&& file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')
+						) {
+							$thumbs[$path] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
+						} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
+							$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+						} else { // Unknown file type - no idea what to do here
+							$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+						}
 					}
 				}
 			}

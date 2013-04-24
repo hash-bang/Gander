@@ -695,17 +695,23 @@ $(function() {
 							if (!existing.length)
 								console.log('Cant find child', file);
 							if (existing.length > 0 && existing.attr('src') != thumb) { // Item already exists but does not have a thumb
-								existing.load(function() {
-									$(this).hide()
-									$.gander.thumbzoom('apply', this);
-									$(this).fadeIn();
-								})
-								.attr('src', thumb);
+								if (thumb) { // Allocate thumbnail
+									existing.load(function() {
+										$(this).hide()
+										$.gander.thumbzoom('apply', this);
+										$(this).fadeIn();
+									})
+									.attr('src', thumb);
+								} else { // Dont allocate - queue for next round
+									existing.closest('li').addClass('loading');
+								}
+							}
+							$.gander._refreshLoadPercent();
+							if ($('#list li.loading').length > 0) {
+								console.log('Retrigger load');
+								setTimeout($.gander.loadThumbs, 0); // Trip next thumbnail load cycle on next idle
 							}
 						});
-						if (list.children('li.loading').length > 0)
-							setTimeout($.gander.loadThumbs, 0); // Trip next thumbnail load cycle on next idle
-						$.gander._refreshLoadPercent();
 					}
 				},
 				error: function(e,xhr,exception) {
