@@ -9,7 +9,7 @@ function b64($filename) {
 }
 
 function getthumb($path) {
-	$thumbpath = GANDER_THUMBPATH . $path;
+	$thumbpath = GANDER_THUMBPATH . ltrim($path, '/');
 	if (is_file($thumbpath)) { // Look for existing
 		switch (GANDER_THUMB_TRANSMIT) {
 			case 0: return b64($thumbpath);
@@ -21,10 +21,10 @@ function getthumb($path) {
 }
 
 function mkthumb($path) {
-	$dir = GANDER_THUMBPATH . dirname($path);
+	$dir = GANDER_THUMBPATH . ltrim(dirname($path), '/');
 	if (!is_dir($dir))
 		mkdir($dir, 0777, true);
-	return (bool) mkimg($path, GANDER_THUMBPATH . $path);
+	return (bool) mkimg(GANDER_PATH . ltrim($path, '/'), $dir . '/' . basename($path));
 }
 
 function mkimg($in, $out) {
@@ -261,21 +261,24 @@ switch ($cmd) {
 				continue;
 			}
 
-			chdir(GANDER_PATH . $path);
-			$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
-			foreach (glob('*') as $base) {
-				$file = "$path/$base";
-				$files[$file] = array( // Basic file info
-					'title' => basename($file),
-					'size' => filesize(GANDER_PATH . $file),
-					'date' => filemtime(GANDER_PATH . $file),
-					'type' => is_dir(GANDER_PATH . $file) ? 'dir' : 'image',
-				);
-				if (
-					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
-					&& $thumb = getthumb($file) // A thumbnail already exists
-				)
-					$files[$file]['thumb'] = $thumb;
+			if (!chdir(GANDER_PATH . $path)) {
+				$header['errors'][] = 'Problem changing to directory: $path';
+			} else {
+				$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
+				foreach (glob('*') as $base) {
+					$file = "$path/$base";
+					$files[$file] = array( // Basic file info
+						'title' => basename($file),
+						'size' => filesize(GANDER_PATH . $file),
+						'date' => filemtime(GANDER_PATH . $file),
+						'type' => is_dir(GANDER_PATH . $file) ? 'dir' : 'image',
+					);
+					if (
+						preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
+						&& $thumb = getthumb($file) // A thumbnail already exists
+					)
+						$files[$file]['thumb'] = $thumb;
+				}
 			}
 		}
 		echo json_encode(array(

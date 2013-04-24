@@ -671,7 +671,6 @@ $(function() {
 			$('#list li.loading').each(function() {
 				paths.push($(this).data('path'));
 			});
-			console.log('loadThumb', paths);
 			if (!paths.length) {
 				console.log('Call to $.gander.refreshThumbs() with no thumbs to load');
 				return;
@@ -724,7 +723,6 @@ $(function() {
 			var total = $('#list li').length;
 			var loading = $('#list li.loading').length;
 			var percent = Math.floor(100 - ((loading / total) * 100));
-			console.log('refreshLoadPecent', loading, total, percent + '%');
 			if (loading <= 0) { // Nothing left and we have a dialog to destory
 				$.gander.growl_close('thumbnailer_info', 1);
 			} else { // Create or update the notification
