@@ -605,7 +605,7 @@ $(function() {
 
 					if (json.list)
 						$.each(json.list, function(file, data) {
-							var newchild = $('<li rel="' + file + '" data-path="/' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+							var newchild = $('<li data-path="/' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 							newchild
 								.data({
 									size: data.size,
@@ -858,7 +858,7 @@ $(function() {
 		* @param string|int direction Optional command to give the file handler OR the offset to set the active item to. See the functions switch statement for further details
 		*/
 		select: function(direction) {
-			var item = $('#list li[rel="' + $.gander.current['path'] + '"]');
+			var item = $('#list li[data-path="' + $.gander.current['path'] + '"]');
 			var offset = item.index();
 			var list = $('#list').children();
 			var path;
@@ -933,7 +933,7 @@ $(function() {
 		* @param string emblem The emblem to act on (e.g. cmd=add, emblem is the emblem to add)
 		*/
 		emblem: function(cmd, emblem) {
-			var active = $('#list li[rel="' + $.gander.current['path'] + '"]');
+			var active = $('#list li[data-path="' + $.gander.current['path'] + '"]');
 			switch (cmd) {
 				case 'add':
 				case 'remove':
