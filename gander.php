@@ -280,13 +280,11 @@ switch ($cmd) {
 			$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
 			foreach (glob('*') as $base) {
 				$file = "$path/$base";
-				if (in_array($path, $skip)) // Skip paths listed as skipable
-					continue;
-				$couldthumb = 
 				$files[$file] = array( // Basic file info
 					'title' => basename($file),
 					'size' => filesize(GANDER_PATH . $file),
 					'date' => filemtime(GANDER_PATH . $file),
+					'type' => is_dir(GANDER_PATH . $file) ? 'dir' : 'image',
 				);
 				if (
 					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
@@ -323,14 +321,14 @@ switch ($cmd) {
 			$header['errors'][] = 'Paths is not an array';
 		} else { // All is well - get the thumbnail lsit
 			foreach ($_REQUEST['paths'] as $path) {
-				$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 				$file = basename($path);
+				$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 				if (preg_match('!\.\.!', $path)) { // Last sanity check that we are witin the correct path
 					$header['errors'][] = "Double dot paths are not allowed when requesting thumb: $path";
 				} elseif (!file_exists(GANDER_PATH . $path)) {
 					$header['errors'][] = "File does not exist when requesting thumb: $path";
 				} else { // OK actually make the thumbnail
-					if ($canthumb && $tpath = getthumb($base, $path)) { // Thumbnail already exists
+					if ($canthumb && $tpath = getthumb($file, $path)) { // Thumbnail already exists
 						$thumbs[$path] = $tpath;
 					} elseif (is_dir(GANDER_PATH . $path)) { // Its a folder - Return the default image for now - FIXME: in future we could make thumbnails recursively
 						$thumbs[$path] = GANDER_ROOT . 'images/icons/_folder.png';
