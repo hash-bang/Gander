@@ -15,12 +15,21 @@ body {
 	border-right: 5px solid #33373B;
 }
 
+.dynatree-title {
+	padding: 0 2px;
+	border: 1px solid transparent;
+}
+
 .dynatree-active .dynatree-title {
 	border-radius: 5px;
-	background: white;
-	color: black !important;
-	padding: 0 5px;
+	background: #0088cc;
 	font-weight: bold;
+	text-shadow: none;
+}
+
+.dynatree-active:hover .dynatree-title {
+	background: black;
+	color: white !important;
 }
 
 .dynatree-node {
@@ -29,8 +38,7 @@ body {
 }
 
 .dynatree-node:hover .dynatree-title {
-	font-weight: bold !important;
-	text-decoration: underline;
+	color: #0088cc !important;
 }
 
 #list li:hover {
@@ -92,16 +100,27 @@ body {
 	display: none;
 }
 
+/* Bootstrap overrides {{{ */
+.breadcrumb a {
+	border: 1px solid transparent;
+	border-radius: 5px;
+}
+.breadcrumb a:hover {
+	text-decoration: none;
+	background: #0088cc;
+}
+/* }}} */
 /* Glow-on-Hover effects {{{ */
 .jGrowl-notification {
 	border: 1px solid transparent;
 	cursor: pointer;
 }
 
-#list li:hover, .jGrowl-notification:hover {
+#list li:hover, .jGrowl-notification:hover, .dynatree-active .dynatree-title, .breadcrumb a:hover {
 	border: 1px solid #0088cc !important;
-	-webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-	-moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-	box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+	box-shadow: 0 0 5px rgba(0, 105, 214, 1);
+	-webkit-box-shadow: 0 0 5px rgba(0, 105, 214, 1);
+	-moz-box-shadow: 0 0 5px rgba(0, 105, 214, 1);
+	box-shadow: 0 0 5px rgba(0, 105, 214, 1);
 }
 /* }}} */
