@@ -154,9 +154,9 @@ $(function() {
 			$.contextMenu({
 				selector: '#window-list #list > li.folder',
 				items: {
-					'open': {name: 'Open', icon: 'folder', onclick: function() { $.gander.viewer('open', $(this).attr('rel')); }},
-					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.viewer('open', $(this).attr('rel'), 1); }},
-					'fullscreen': {name: 'Fullscreen', icon: 'fullscreen', callback: function() { $.gander.viewer('open', $(this).attr('rel')); }},
+					'open': {name: 'Open', icon: 'folder', onclick: function() { $.gander.viewer('open', $(this).data('path')); }},
+					'open_recursive': {name: 'Open Recursive', icon: 'folder-recurse', callback: function() { $.gander.viewer('open', $(this).data('path'), 1); }},
+					'fullscreen': {name: 'Fullscreen', icon: 'fullscreen', callback: function() { $.gander.viewer('open', $(this).data('path')); }},
 					"sep1": "---------",
 					'refresh': {name: 'Refresh', icon: 'refresh', callback: function() { $.gander.refresh(); }},
 					"sep2": "---------",
@@ -324,9 +324,9 @@ $(function() {
 				var item = $(this);
 				$.gander.select(item.index());
 				if (item.hasClass('image')) { // Is an image
-					$.gander.viewer('open', item.attr('rel'));
+					$.gander.viewer('open', item.data('path'));
 				} else if (item.hasClass('folder')) { 
-					$.gander.cd(item.attr('rel'), {drawtree: 1});
+					$.gander.cd(item.data('path'), {drawtree: 1});
 				} else { // Is unknown
 					alert('I dont know how to handle this file');
 				}
@@ -605,7 +605,7 @@ $(function() {
 
 					if (json.list)
 						$.each(json.list, function(file, data) {
-							var newchild = $('<li rel="' + file + '" data-path="' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
+							var newchild = $('<li rel="' + file + '" data-path="/' + file + '"><div><div class="imgframe"><img class="thumb"/></div></div><strong>' + data.title + '</strong><div class="emblems"></div></li>');
 							newchild
 								.data({
 									size: data.size,
@@ -748,8 +748,8 @@ $(function() {
 				case 'name':
 					$('#list > li').sortElements(function(a,b) {
 						if ($.gander.options['sort'] == 'name') {
-							aval = $(a).attr('rel').toLowerCase(); // Case insensitive
-							bval = $(b).attr('rel').toLowerCase();
+							aval = $(a).data('path').toLowerCase(); // Case insensitive
+							bval = $(b).data('path').toLowerCase();
 						} else { // Sort by raw data
 							aval = $(a).data($.gander.options['sort']);
 							bval = $(b).data($.gander.options['sort']);
@@ -790,9 +790,9 @@ $(function() {
 							}
 						}
 						if ($.gander.options['sort_random_selected_first']) {
-							if (aobj.attr('rel') == $.gander.current['path']) {
+							if (aobj.data('path') == $.gander.current['path']) {
 								return -1;
-							} else if (bobj.attr('rel') == $.gander.current['path']) {
+							} else if (bobj.data('path') == $.gander.current['path']) {
 								return 1;
 							}
 						}
@@ -912,7 +912,7 @@ $(function() {
 
 			// Style the selected item
 			var activeimg = $('#list li').eq(offset);
-			$.gander.current['path'] = activeimg.attr('rel');
+			$.gander.current['path'] = activeimg.data('path');
 			activeimg.addClass('active');
 			var active = $('#list li').eq(offset);
 
@@ -922,7 +922,7 @@ $(function() {
 					pane.scrollTo(active.position().left, active.position().top);
 
 				if ($.gander.viewer('isopen'))
-					$.gander.viewer('open', $(list[offset]).attr('rel'));
+					$.gander.viewer('open', $(list[offset]).data('path'));
 			}
 		},
 
@@ -1352,7 +1352,7 @@ $(function() {
 			for (var x = 0; x < $.gander.options['cache_forward'] + 1; x++) { // Walk forwards
 				var cacheimg = candidate.find('.cached');
 				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
-					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					$.gander._loadsrc(cacheimg, candidate.data('path'));
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;
 				}
@@ -1368,7 +1368,7 @@ $(function() {
 					break;
 				var cacheimg = candidate.find('.cached');
 				if (!cacheimg.hasClass('img-loaded') && !cacheimg.hasClass('img-loading')) {
-					$.gander._loadsrc(cacheimg, candidate.attr('rel'));
+					$.gander._loadsrc(cacheimg, candidate.data('path'));
 					if (++loaded >= $.gander.options['idle_cache_per_tick'])
 						return;
 				}
