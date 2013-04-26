@@ -330,7 +330,7 @@ switch ($cmd) {
 						$sent++;
 					} else { // We can't make a thumbnail for some reason
 						if ($maxthumbs > 0 && $sent >= $maxthumbs) { // We ran out of thumbnail space to output
-							$thumbs[$path] = false;
+							// Do nothing
 						} elseif ( // File type thumb found but we do have an icon for its generic type
 							($ext = pathinfo($path, PATHINFO_EXTENSION))
 							&& file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')
