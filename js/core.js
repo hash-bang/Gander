@@ -688,6 +688,7 @@ $(function() {
 					$.gander._unpack('thumbs', json);
 					if (json.thumbs) {
 						var list = $('#list');
+						console.log('LT> Begin Each');
 						$.each(json.thumbs, function(file, thumb) {
 							var existing = list.children('li[data-path="' + file + '"]');
 							existing.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
@@ -706,12 +707,13 @@ $(function() {
 									existing.closest('li').addClass('loading');
 								}
 							}
-							$.gander._refreshLoadPercent();
-							if ($('#list li.loading').length > 0) {
-								console.log('Retrigger load');
-								setTimeout($.gander.loadThumbs, 0); // Trip next thumbnail load cycle on next idle
-							}
 						});
+						console.log('LT> End Each');
+						$.gander._refreshLoadPercent();
+						if ($('#list li.loading').length > 0) {
+							console.log('Retrigger load');
+							setTimeout($.gander.loadThumbs, 5000); // Trip next thumbnail load cycle on next idle
+						}
 					}
 				},
 				error: function(e,xhr,exception) {
