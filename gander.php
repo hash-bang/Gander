@@ -9,7 +9,7 @@ function b64($filename) {
 }
 
 function getthumb($path) {
-	$thumbpath = GANDER_THUMBPATH . ltrim($path, '/');
+	$thumbpath = GANDER_THUMBPATH . $path;
 	if (is_file($thumbpath)) { // Look for existing
 		switch (GANDER_THUMB_TRANSMIT) {
 			case 0: return b64($thumbpath);
@@ -20,11 +20,26 @@ function getthumb($path) {
 	}
 }
 
-function mkthumb($path) {
-	$dir = GANDER_THUMBPATH . ltrim(dirname($path), '/');
-	if (!is_dir($dir))
-		mkdir($dir, 0777, true);
-	return (bool) mkimg(GANDER_PATH . ltrim($path, '/'), $dir . '/' . basename($path));
+function mkthumb($filename, $path) {
+	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
+	mktree(GANDER_THUMBPATH, $path);
+	mkimg($filename, $thumbpath);
+	return 1; // FIXME: Do something useful for failed images
+}
+
+function mktree($base, $path) {
+	$cwd = getcwd();
+	chdir($base);
+	foreach (array_slice(explode('/', $path),0,-1) as $bit) {
+		if (!$bit)
+			continue;
+		if (!is_dir($bit)) {
+			if (!@mkdir($bit))
+				die("Can't make directory '$bit' in dir " . getcwd());
+		}
+		chdir($bit);
+	}
+	chdir($cwd);
 }
 
 function mkimg($in, $out) {
@@ -214,7 +229,10 @@ switch ($cmd) {
 	case 'list':
 		// Initial values
 		$thumb = isset($_REQUEST['thumbs']) ? $_REQUEST['thumbs'] : 'none'; // make/quick/none
+		$maxthumbs = min( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
+		$filters = isset($_REQUEST['filters']) ? $_REQUEST['filters'] : array();
 		$files = array();
+		$sent = 0;
 
 		$header['paths'] = array();
 
@@ -261,23 +279,38 @@ switch ($cmd) {
 				continue;
 			}
 
-			if (!chdir(GANDER_PATH . $path)) {
-				$header['errors'][] = 'Problem changing to directory: $path';
-			} else {
-				$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
-				foreach (glob('*') as $base) {
-					$file = "$path/$base";
-					$files[$file] = array( // Basic file info
-						'title' => basename($file),
-						'size' => filesize(GANDER_PATH . $file),
-						'date' => filemtime(GANDER_PATH . $file),
-						'type' => is_dir(GANDER_PATH . $file) ? 'dir' : 'image',
-					);
-					if (
-						preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
-						&& $thumb = getthumb($file) // A thumbnail already exists
-					)
-						$files[$file]['thumb'] = $thumb;
+			chdir(GANDER_PATH . $path);
+			$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
+			foreach (glob('*') as $base) {
+				$file = "$path/$base";
+				if (in_array($path, $skip)) // Skip paths listed as skipable
+					continue;
+				$files[$file] = array( // Basic file info
+					'title' => basename($file),
+					'size' => filesize(GANDER_PATH . $file),
+					'date' => filemtime(GANDER_PATH . $file),
+				);
+				if (isset($dbc[$base]))
+					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
+
+				if ($filters && count(array_intersect(array_keys($filters), $files[$file]['emblems'])) != count($filters)) { // Is missing a filter that we need
+					unset($files[$file]);
+					continue;
+				}
+				if ($canthumb = preg_match(GANDER_THUMB_ABLE, $file))
+					$files[$file]['type'] = 'image';
+				if (
+					$canthumb // We COULD thumbnail this
+					&& $sent++ < $maxthumbs
+					&& $thumb = getthumb($file) // A thumbnail already exists
+				) {
+					$files[$file]['thumb'] = $thumb;
+				} elseif (is_dir(GANDER_PATH . $file)) {
+					$files[$file]['type'] = 'dir';
+					if ($thumb != 'none')
+						$files[$file]['thumb'] = GANDER_ROOT . 'images/icons/_folder.png';
+					if ($recurse)
+						array_splice($paths, $p+1, 0, $file);
 				}
 			}
 		}
@@ -323,24 +356,20 @@ switch ($cmd) {
 					} elseif ( // Make a new thumbnail
 						$canthumb
 						&& ($maxthumbs == 0 || $sent < $maxthumbs) // We care about the maximum number of thumbs to return AND we are below that limit
-						&& mkthumb($path) // It was successful
+						&& mkthumb($file, $path) // It was successful
 						&& $tpath = getthumb($path) // We can retrive it again
 					) {
 						$thumbs[$path] = $tpath;
 						$sent++;
-					} else { // We can't make a thumbnail for some reason
-						if ($maxthumbs > 0 && $sent >= $maxthumbs) { // We ran out of thumbnail space to output
-							// Do nothing
-						} elseif ( // File type thumb found but we do have an icon for its generic type
-							($ext = pathinfo($path, PATHINFO_EXTENSION))
-							&& file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')
-						) {
-							$thumbs[$path] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
-						} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
-							$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
-						} else { // Unknown file type - no idea what to do here
-							$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
-						}
+					} elseif ( // File type thumb found but we do have an icon for its generic type
+						($ext = pathinfo($file, PATHINFO_EXTENSION))
+						&& file_exists($tpath = GANDER_ICONS . strtolower($ext) . '.png')
+					) {
+						$thumbs[$path] = GANDER_ROOT . GANDER_ICONS_WEB . basename($tpath);
+					} elseif (!GANDER_THUMB_RESTRICT) { // Unknown file type - but include it anyway
+						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
+					} else { // Unknown file type - no idea what to do here
+						$thumbs[$path] = GANDER_ROOT . 'images/icons/_unknown.png';
 					}
 				}
 			}
