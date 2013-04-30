@@ -229,7 +229,10 @@ switch ($cmd) {
 	case 'list':
 		// Initial values
 		$thumb = isset($_REQUEST['thumbs']) ? $_REQUEST['thumbs'] : 'none'; // make/quick/none
+		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
+		$filters = isset($_REQUEST['filters']) ? $_REQUEST['filters'] : array();
 		$files = array();
+		$sent = 0;
 
 		$header['paths'] = array();
 
@@ -282,17 +285,31 @@ switch ($cmd) {
 				$file = "$path/$base";
 				if (in_array($path, $skip)) // Skip paths listed as skipable
 					continue;
-				$couldthumb = 
 				$files[$file] = array( // Basic file info
 					'title' => basename($file),
 					'size' => filesize(GANDER_PATH . $file),
 					'date' => filemtime(GANDER_PATH . $file),
 				);
+				if (isset($dbc[$base]))
+					$files[$file] = array_merge($files[$file], $dbc[$base]); // Merge database contents into file information
+
+				if ($filters && count(array_intersect(array_keys($filters), $files[$file]['emblems'])) != count($filters)) { // Is missing a filter that we need
+					unset($files[$file]);
+					continue;
+				}
 				if (
 					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
+					&& $sent++ < $maxthumbs
 					&& $thumb = getthumb($base, $path) // A thumbnail already exists
-				)
+				) {
 					$files[$file]['thumb'] = $thumb;
+				} elseif (is_dir(GANDER_PATH . $file)) {
+					$files[$file]['type'] = 'dir';
+					if ($thumb != 'none')
+						$files[$file]['thumb'] = GANDER_ROOT . 'images/icons/_folder.png';
+					if ($recurse)
+						array_splice($paths, $p+1, 0, $file);
+				}
 			}
 		}
 		echo json_encode(array(
