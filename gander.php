@@ -229,7 +229,7 @@ switch ($cmd) {
 	case 'list':
 		// Initial values
 		$thumb = isset($_REQUEST['thumbs']) ? $_REQUEST['thumbs'] : 'none'; // make/quick/none
-		$maxthumbs = max( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
+		$maxthumbs = min( (isset($_REQUEST['max_thumbs']) ? $_REQUEST['max_thumbs'] : 0), GANDER_THUMBS_MAX_GET); // Work out the maximum number of thumbs to return
 		$filters = isset($_REQUEST['filters']) ? $_REQUEST['filters'] : array();
 		$files = array();
 		$sent = 0;
