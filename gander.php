@@ -8,12 +8,12 @@ function b64($filename) {
 	return 'data:image/png;base64,' . base64_encode($imgbinary);
 }
 
-function getthumb($filename, $path) {
-	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
+function getthumb($path) {
+	$thumbpath = GANDER_THUMBPATH . $path;
 	if (is_file($thumbpath)) { // Look for existing
 		switch (GANDER_THUMB_TRANSMIT) {
 			case 0: return b64($thumbpath);
-			case 1: return strtr(GANDER_THUMB_TRANSMIT_PATH, array('%p' => "$path/$filename"));
+			case 1: return strtr(GANDER_THUMB_TRANSMIT_PATH, array('%p' => $path));
 		}
 	} else { // No thumbnail + no make
 		return FALSE;
@@ -22,7 +22,7 @@ function getthumb($filename, $path) {
 
 function mkthumb($filename, $path) {
 	$thumbpath = GANDER_THUMBPATH . "$path/$filename";
-	mktree(GANDER_THUMBPATH, "$path/$filename");
+	mktree(GANDER_THUMBPATH, $path);
 	mkimg($filename, $thumbpath);
 	return 1; // FIXME: Do something useful for failed images
 }
@@ -300,7 +300,7 @@ switch ($cmd) {
 				if (
 					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
 					&& $sent++ < $maxthumbs
-					&& $thumb = getthumb($base, $path) // A thumbnail already exists
+					&& $thumb = getthumb($file) // A thumbnail already exists
 				) {
 					$files[$file]['thumb'] = $thumb;
 				} elseif (is_dir(GANDER_PATH . $file)) {
@@ -340,14 +340,14 @@ switch ($cmd) {
 			$header['errors'][] = 'Paths is not an array';
 		} else { // All is well - get the thumbnail lsit
 			foreach ($_REQUEST['paths'] as $path) {
-				$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 				$file = basename($path);
+				$canthumb = preg_match(GANDER_THUMB_ABLE, $file);
 				if (preg_match('!\.\.!', $path)) { // Last sanity check that we are witin the correct path
 					$header['errors'][] = "Double dot paths are not allowed when requesting thumb: $path";
 				} elseif (!file_exists(GANDER_PATH . $path)) {
 					$header['errors'][] = "File does not exist when requesting thumb: $path";
 				} else { // OK actually make the thumbnail
-					if ($canthumb && $tpath = getthumb($base, $path)) { // Thumbnail already exists
+					if ($canthumb && $tpath = getthumb($path)) { // Thumbnail already exists
 						$thumbs[$path] = $tpath;
 					} elseif (is_dir(GANDER_PATH . $path)) { // Its a folder - Return the default image for now - FIXME: in future we could make thumbnails recursively
 						$thumbs[$path] = GANDER_ROOT . 'images/icons/_folder.png';
@@ -355,7 +355,7 @@ switch ($cmd) {
 						$canthumb
 						&& ($maxthumbs == 0 || $sent < $maxthumbs) // We care about the maximum number of thumbs to return AND we are below that limit
 						&& mkthumb($file, $path) // It was successful
-						&& $tpath = getthumb($file, $path) // We can retrive it again
+						&& $tpath = getthumb($path) // We can retrive it again
 					) {
 						$thumbs[$path] = $tpath;
 						$sent++;
