@@ -283,7 +283,7 @@ switch ($cmd) {
 			$dbc = (file_exists(".gander.json")) ? json_decode(file_get_contents(".gander.json"), TRUE) : array();
 			foreach (glob('*') as $base) {
 				$file = "$path/$base";
-				if (in_array($path, $skip)) // Skip paths listed as skipable
+				if ($base == '.' || $base == '..')
 					continue;
 				$files[$file] = array( // Basic file info
 					'title' => basename($file),
