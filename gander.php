@@ -297,8 +297,10 @@ switch ($cmd) {
 					unset($files[$file]);
 					continue;
 				}
+				if ($canthumb = preg_match(GANDER_THUMB_ABLE, $file))
+					$files[$file]['type'] = 'image';
 				if (
-					preg_match(GANDER_THUMB_ABLE, $file) // We COULD thumbnail this
+					$canthumb // We COULD thumbnail this
 					&& $sent++ < $maxthumbs
 					&& $thumb = getthumb($file) // A thumbnail already exists
 				) {
