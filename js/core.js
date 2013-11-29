@@ -688,16 +688,13 @@ $(function() {
 					$.gander._unpack('thumbs', json);
 					if (json.thumbs) {
 						var list = $('#list');
-						console.log('LT> Begin Each');
 						$.each(json.thumbs, function(file, thumb) {
-							console.log('Thumb', file);
-							var existing = list.children('li[data-path="' + file + '"]');
-							existing = existing.find('img.thumb'); // Switch to img child
+							var existingli = list.children('li[data-path="' + file + '"]');
+							existing = existingli.find('img.thumb'); // Switch to img child
 							if (existing.length) {
-								var existingthumb = existing.find('img.thumb');
-								if (thumb && existingthumb.attr('src') != thumb) { // Allocate thumbnail if we have not already
-									existing.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
-									existingthumb.load(function() {
+								if (thumb && existing.attr('src') != thumb) { // Allocate thumbnail if we have not already
+									existingli.removeClass('loading'); // Remove loading class so we dont try to trip this thumb load again
+									existing.load(function() {
 										$(this).hide()
 										$.gander.thumbzoom('apply', this);
 										$(this).fadeIn();
@@ -707,7 +704,6 @@ $(function() {
 							} else
 								console.log('Cant find child', file);
 						});
-						console.log('LT> End Each');
 						$.gander._refreshLoadPercent();
 						if ($('#list li.loading').length > 0) {
 							console.log('Retrigger load');
