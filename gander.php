@@ -3,9 +3,13 @@ function b64($filename) {
 	$fh = fopen($filename, "r");
 	if (!$fh)
 		return;
-	$imgbinary = fread($fh, filesize($filename));
-	fclose($fh);
-	return 'data:image/png;base64,' . base64_encode($imgbinary);
+	$size = filesize($filename);
+	if ($size > 0) {
+		$imgbinary = fread($fh, $size);
+		fclose($fh);
+		return 'data:image/png;base64,' . base64_encode($imgbinary);
+	} else
+		return 'data:image/png;base64,';
 }
 
 function getthumb($path) {
